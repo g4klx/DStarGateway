@@ -3,10 +3,12 @@ ifneq ("$(wildcard ../.git/index)","")
 	@echo "#pragma once" > /tmp/$@
 	@echo "#include <string>" >> /tmp/$@
 	@echo "const std::string gitversion(\"$(shell git rev-parse --short HEAD)\");" >> /tmp/$@
+	@echo "const std::string gitBranch(\"$(shell git branch --show-current)\");" >> /tmp/$@
 else
 	@echo "#pragma once" > /tmp/$@
 	@echo "#include <string>" >> /tmp/$@
 	@echo "const std::string gitversion(\"0000000\");" >> /tmp/$@
+	@echo "const std::string gitBranch(\"UNKNOWN BRANCH\");" >> /tmp/$@
 endif
 	@cmp -s /tmp/$@ $@; \
 	RETVAL=$$?; \
