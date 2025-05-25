@@ -832,7 +832,7 @@ void CRepeaterHandler::processRepeater(CAMBEData& data)
 	if (m_text.empty() && !data.isEnd()) {
 		m_textCollector.writeData(data);
 
-		CLog::logDebug("Issue_55, received data end");
+		CLog::logDebug("Issue_55, received text data");
 
 		bool hasText = m_textCollector.hasData();
 		if (hasText) {
