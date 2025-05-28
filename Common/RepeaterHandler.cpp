@@ -611,7 +611,6 @@ void CRepeaterHandler::processRepeater(CHeaderData& header)
 	sendToIncoming(header);
 
 	// Reset the slow data text collector
-	CLog::logDebug("Issue_55 reset Text Collector");
 	m_textCollector.reset();
 	m_text.clear();
 
@@ -832,16 +831,10 @@ void CRepeaterHandler::processRepeater(CAMBEData& data)
 	if (m_text.empty() && !data.isEnd()) {
 		m_textCollector.writeData(data);
 
-		CLog::logDebug("Issue_55, received text data");
-
 		bool hasText = m_textCollector.hasData();
 		if (hasText) {
 			m_text = m_textCollector.getData();
-			CLog::logDebug("Issue_55, received text \"%s\"", m_text.c_str());
 			sendHeard(m_text);
-		}
-		else {
-			CLog::logDebug("Issue_55, data had no text");
 		}
 	}
 

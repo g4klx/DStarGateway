@@ -125,7 +125,6 @@ bool CIRCDDBMultiClient::sendHeardWithTXMsg(const std::string & myCall, const st
 
 	for (unsigned int i = 0; i < m_clients.size(); i++) {
 		result = m_clients[i]->sendHeardWithTXMsg(myCall, myCallExt, yourCall, rpt1, rpt2, flag1, flag2, flag3, network_destination, tx_message) && result;
-		CLog::logDebug("Issue_55 sent %s/%s \"%s\" to ircddb client %i", myCall.c_str(), myCallExt.c_str(), tx_message.c_str(), i);
 	}
 
 	return result;
