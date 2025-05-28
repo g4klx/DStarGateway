@@ -139,5 +139,5 @@ std::string CTextCollector::getData()
 	m_has2 = false;
 	m_has3 = false;
 
-	return std::string("ABCDEFGHIJ0123456789");
+	return std::string(m_data, TEXT_DATA_LENGTH);
 }
