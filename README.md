@@ -158,11 +158,12 @@ The testing framwework used is Google Test.
 
 # 6. Version History
 ## 6.1. Version 1.0
+- [**Bugfix**] Fix corrupted slow data leading to DV Text Message not being sent to ircddb ([#55](https://github.com/F4FXL/DStarGateway/issues/55))
 - [**Improvement**] Add version info to output of --version ([#56](https://github.com/F4FXL/DStarGateway/issues/56))
 - [**Improvement**] Automatically download hosts files on startup. It is also possible to specify custom hosts files to override hosts from the internet. Needs some configuration adjustement, see example.cfg. ([#50](https://github.com/F4FXL/DStarGateway/issues/50))
 - [**Improvement**] Limit log reporting ([#44](https://github.com/F4FXL/DStarGateway/issues/44))
 - [**Improvement**] Improve CI to include all variants of build configurations ([#40](https://github.com/F4FXL/DStarGateway/issues/40))
-- [**Bugfix**] Fix #43 Cache not updated when answering ircddb gateway is only conected to one network ([#43](https://github.com/F4FXL/DStarGateway/issues/43))
+- [**Bugfix**] Fix #43 Cache not updated when answering ircddb gateway is only connected to one network ([#43](https://github.com/F4FXL/DStarGateway/issues/43))
 - [**Bugfix**] Fix #37 Unable to transmit multiple files (DGWVoiceTransmit) ([#37](https://github.com/F4FXL/DStarGateway/issues/37))
 - [**Bugfix**] Fix #36 Error1 Build fails in some environment ([#36](https://github.com/F4FXL/DStarGateway/issues/36))
 - [**Bugfix**] Fix #38 g++ 13 build ([#38](https://github.com/F4FXL/DStarGateway/issues/38))
