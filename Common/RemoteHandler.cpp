@@ -95,9 +95,9 @@ void CRemoteHandler::process()
 				RECONNECT reconnect;
 				m_handler.readLink(callsign, reconnect, reflector);
 				if (reflector.empty())
-					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %d", callsign.c_str(), int(reconnect));
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %s", callsign.c_str(), reconnectToString(reconnect));
 				else
-					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %d", callsign.c_str(), reflector.c_str(), int(reconnect));
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %s", callsign.c_str(), reflector.c_str(), reconnectToString(reconnect));
 				link(callsign, reconnect, reflector, true);
 			}
 			break;
@@ -114,9 +114,9 @@ void CRemoteHandler::process()
 				RECONNECT reconnect;
 				m_handler.readLinkScr(callsign, reconnect, reflector);
 				if (reflector.empty())
-					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %d from localhost", callsign.c_str(), reconnect);
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %s from localhost", callsign.c_str(), reconnectToString(reconnect));
 				else
-					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %d from localhost", callsign.c_str(), reflector.c_str(), reconnect);
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %s from localhost", callsign.c_str(), reflector.c_str(), reconnectToString(reconnect));
 				link(callsign, reconnect, reflector, false);
 			}
 			break;

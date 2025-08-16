@@ -50,6 +50,24 @@ enum RECONNECT {
 	RECONNECT_180MINS
 };
 
+inline const char* reconnectToString(RECONNECT r) {
+    switch (r) {
+        case RECONNECT_NEVER:     return "never";
+        case RECONNECT_FIXED:     return "fixed";
+        case RECONNECT_5MINS:     return "5 minutes";
+        case RECONNECT_10MINS:    return "10 minutes";
+        case RECONNECT_15MINS:    return "15 minutes";
+        case RECONNECT_20MINS:    return "20 minutes";
+        case RECONNECT_25MINS:    return "25 minutes";
+        case RECONNECT_30MINS:    return "30 minutes";
+        case RECONNECT_60MINS:    return "60 minutes";
+        case RECONNECT_90MINS:    return "90 minutes";
+        case RECONNECT_120MINS:   return "120 minutes";
+        case RECONNECT_180MINS:   return "180 minutes";
+        default:                  return "unknown";
+    }
+}
+
 enum DIRECTION {
 	DIR_INCOMING,
 	DIR_OUTGOING

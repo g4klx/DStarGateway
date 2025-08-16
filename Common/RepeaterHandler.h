@@ -317,6 +317,8 @@ private:
 
 	void triggerInfo();
 
+	void setReconnectTimer(RECONNECT reconnect);
+
 #ifdef USE_CCS
 	bool isCCSCommand(const std::string& command) const;
 #endif
