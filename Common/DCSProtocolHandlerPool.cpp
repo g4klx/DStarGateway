@@ -80,11 +80,12 @@ void CDCSProtocolHandlerPool::release(CDCSProtocolHandler *handler)
 	assert(handler != NULL);
 	for (auto it=m_pool.begin(); it!=m_pool.end(); it++) {
 		if (it->second == handler) {
+			unsigned int port = handler->getPort();
 			m_pool.erase(it);
 			handler->close();
 			delete handler ;
-			m_index = m_pool.end(); // since we removed an element, m_index is ouot of order, just move it back to the end
-			CLog::logInfo("Released DCS ProtocolHandler on port %u.\n", handler->getPort());
+			m_index = m_pool.end(); // since we removed an element, m_index is out of order, just move it back to the end
+			CLog::logInfo("Released DCS ProtocolHandler on port %u.\n", port);
 
 			return;
 		}
