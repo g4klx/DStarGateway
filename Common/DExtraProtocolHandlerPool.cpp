@@ -84,7 +84,7 @@ void CDExtraProtocolHandlerPool::release(CDExtraProtocolHandler *handler)
 			handler->close();
 			delete handler;
 			m_index = m_pool.end(); // m_index might be out of order, reset it
-			CLog::logInfo("Releasing DExtra Protocol Handler on port %u.\n", it->first);
+			CLog::logInfo("Releasing DExtra Protocol Handler on port %u.\n", handler->getPort());
 
 			return;
 		}

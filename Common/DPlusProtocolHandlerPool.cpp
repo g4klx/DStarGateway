@@ -85,7 +85,7 @@ void CDPlusProtocolHandlerPool::release(CDPlusProtocolHandler *handler)
 			handler->close();
 			delete handler;
 			m_index = m_pool.end(); // m_index might be ut of order so reset it
-			CLog::logInfo("Releasing DPlus ProtocolHandler on port %u.\n", it->first);
+			CLog::logInfo("Releasing DPlus ProtocolHandler on port %u.\n", handler->getPort());
 			return;
 		}
 	}
