@@ -126,7 +126,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 	assert(title != NULL);
 	assert(data != NULL);
 
-	CLog::logInfo("%s\n", title);
+	CLog::logDebug("%s\n", title);
 
 	unsigned int offset = 0U;
 
