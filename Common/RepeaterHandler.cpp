@@ -1842,7 +1842,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	}
 #endif
 
-	m_linkStartup   = reflector;
+	//m_linkStartup   = reflector;
 	m_linkReconnect = reconnect;
 
 	m_linkReconnectTimer.stop();
@@ -1973,7 +1973,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	CDPlusHandler::unlink(this);
 	CDCSHandler::unlink(this);
 
-	linkInt(m_linkStartup);
+	linkInt(reflector);
 }
 
 void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
