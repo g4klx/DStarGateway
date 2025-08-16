@@ -1843,11 +1843,11 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 #endif
 
 	//m_linkStartup   = reflector;
-	m_linkReconnect = reconnect;
+	//m_linkReconnect = reconnect;
 
 	m_linkReconnectTimer.stop();
 
-	switch (m_linkReconnect) {
+	switch (reconnect) {
 		case RECONNECT_5MINS:
 			m_linkReconnectTimer.start(5U * 60U);
 			break;
