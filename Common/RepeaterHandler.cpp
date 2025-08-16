@@ -1809,9 +1809,6 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	}
 #endif
 
-	//m_linkStartup   = reflector;
-	//m_linkReconnect = reconnect;
-
 	m_linkReconnectTimer.stop();
 	
 	setReconnectTimer(reconnect);
