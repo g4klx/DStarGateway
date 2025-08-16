@@ -95,9 +95,9 @@ void CRemoteHandler::process()
 				RECONNECT reconnect;
 				m_handler.readLink(callsign, reconnect, reflector);
 				if (reflector.empty())
-					CLog::logInfo("Remote control user has linked \"%s\" to \"None\" with reconnect %d", callsign.c_str(), int(reconnect));
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %d", callsign.c_str(), int(reconnect));
 				else
-					CLog::logInfo("Remote control user has linked \"%s\" to \"%s\" with reconnect %d", callsign.c_str(), reflector.c_str(), int(reconnect));
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %d", callsign.c_str(), reflector.c_str(), int(reconnect));
 				link(callsign, reconnect, reflector, true);
 			}
 			break;
@@ -105,7 +105,7 @@ void CRemoteHandler::process()
 				std::string callsign, reflector;
 				PROTOCOL protocol;
 				m_handler.readUnlink(callsign, protocol, reflector);
-				CLog::logInfo("Remote control user has unlinked \"%s\" from \"%s\" for protocol %d", callsign.c_str(), reflector.c_str(), int(protocol));
+				CLog::logInfo("Remote control user requesting unlink \"%s\" from \"%s\" for protocol %d", callsign.c_str(), reflector.c_str(), int(protocol));
 				unlink(callsign, protocol, reflector);
 			}
 			break;
@@ -114,9 +114,9 @@ void CRemoteHandler::process()
 				RECONNECT reconnect;
 				m_handler.readLinkScr(callsign, reconnect, reflector);
 				if (reflector.empty())
-					CLog::logInfo("Remote control user has linked \"%s\" to \"None\" with reconnect %d from localhost", callsign.c_str(), reconnect);
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"None\" with reconnect %d from localhost", callsign.c_str(), reconnect);
 				else
-					CLog::logInfo("Remote control user has linked \"%s\" to \"%s\" with reconnect %d from localhost", callsign.c_str(), reflector.c_str(), reconnect);
+					CLog::logInfo("Remote control user requesting link \"%s\" to \"%s\" with reconnect %d from localhost", callsign.c_str(), reflector.c_str(), reconnect);
 				link(callsign, reconnect, reflector, false);
 			}
 			break;
@@ -155,6 +155,7 @@ void CRemoteHandler::sendRepeater(const std::string& callsign)
 {
 	CRepeaterHandler* repeater = CRepeaterHandler::findDVRepeater(callsign);
 	if (repeater == NULL) {
+		CLog::logInfo("Remote requesting invalid repeater \"%s\"", callsign.c_str());
 		m_handler.sendNAK("Invalid repeater callsign");
 		return;
 	}
@@ -195,6 +196,7 @@ void CRemoteHandler::link(const std::string& callsign, RECONNECT reconnect, cons
 {
 	CRepeaterHandler* repeater = CRepeaterHandler::findDVRepeater(callsign);
 	if (repeater == NULL) {
+		CLog::logInfo("Remote requesting link for invalid repeater \"%s\"", callsign.c_str());
 		m_handler.sendNAK("Invalid repeater callsign");
 		return;
 	}
@@ -209,6 +211,7 @@ void CRemoteHandler::unlink(const std::string& callsign, PROTOCOL protocol, cons
 {
 	CRepeaterHandler* repeater = CRepeaterHandler::findDVRepeater(callsign);
 	if (repeater == NULL) {
+		CLog::logInfo("Remote requesting unlink for invalid repeater \"%s\"", callsign.c_str());
 		m_handler.sendNAK("Invalid repeater callsign");
 		return;
 	}
