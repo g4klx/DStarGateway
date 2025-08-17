@@ -48,8 +48,11 @@ int main(int argc, const char* argv[])
 		::fprintf(stderr, "\ndgwremotecontrol v%s : invalid command line usage:\n\n", LONG_VERSION.c_str());
         ::fprintf(stderr, "\t\tdgwremotecontrol [-name <name>] <repeater> link <reconnect> <reflector>\n");
 		::fprintf(stderr, "\t\tdgwremotecontrol [-name <name>] <repeater> unlink\n");
+#ifdef USE_STARNET
 		::fprintf(stderr, "\t\tdgwremotecontrol [-name <name>] <starnet> drop <user>\n");
-		::fprintf(stderr, "\t\tdgwremotecontrol [-name <name>] <starnet> drop all\n\n");
+		::fprintf(stderr, "\t\tdgwremotecontrol [-name <name>] <starnet> drop all\n");
+#endif
+		::fprintf(stderr, "\n");
         return 1;
     }
 

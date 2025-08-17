@@ -158,6 +158,7 @@ The testing framwework used is Google Test.
 
 # 6. Version History
 ## 6.1. Version 1.0
+- [**Bugfix**] Fix repeater not reverting to startup reflector after issueing a command through remote control. ([#56](https://github.com/F4FXL/DStarGateway/issues/56))
 - [**Bugfix**] Fix corrupted slow data leading to DV Text Message not being sent to ircddb. Thanks to Manfred DL1JM for all the testing. ([#55](https://github.com/F4FXL/DStarGateway/issues/55))
 - [**Improvement**] Add version info to output of --version ([#56](https://github.com/F4FXL/DStarGateway/issues/56))
 - [**Improvement**] Automatically download hosts files on startup. It is also possible to specify custom hosts files to override hosts from the internet. Needs some configuration adjustement, see example.cfg. ([#50](https://github.com/F4FXL/DStarGateway/issues/50))

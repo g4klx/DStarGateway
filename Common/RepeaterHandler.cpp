@@ -169,40 +169,7 @@ m_heardTimer(1000U, 0U, 100U)		// 100ms
 
 	m_pollTimer.start();
 
-	switch (m_linkReconnect) {
-		case RECONNECT_5MINS:
-			m_linkReconnectTimer.start(5U * 60U);
-			break;
-		case RECONNECT_10MINS:
-			m_linkReconnectTimer.start(10U * 60U);
-			break;
-		case RECONNECT_15MINS:
-			m_linkReconnectTimer.start(15U * 60U);
-			break;
-		case RECONNECT_20MINS:
-			m_linkReconnectTimer.start(20U * 60U);
-			break;
-		case RECONNECT_25MINS:
-			m_linkReconnectTimer.start(25U * 60U);
-			break;
-		case RECONNECT_30MINS:
-			m_linkReconnectTimer.start(30U * 60U);
-			break;
-		case RECONNECT_60MINS:
-			m_linkReconnectTimer.start(60U * 60U);
-			break;
-		case RECONNECT_90MINS:
-			m_linkReconnectTimer.start(90U * 60U);
-			break;
-		case RECONNECT_120MINS:
-			m_linkReconnectTimer.start(120U * 60U);
-			break;
-		case RECONNECT_180MINS:
-			m_linkReconnectTimer.start(180U * 60U);
-			break;
-		default:
-			break;
-	}
+	setReconnectTimer(m_linkReconnect);
 
 #ifdef USE_ANNOUNCE
 	wxFileName messageFile;
@@ -1504,7 +1471,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 			linkInt(m_linkStartup);
 		}
 
-		m_linkReconnectTimer.start();
+		setReconnectTimer(m_linkReconnect);
 	}
 
 	// If the ircDDB query timer has expired
@@ -1842,45 +1809,9 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	}
 #endif
 
-	m_linkStartup   = reflector;
-	m_linkReconnect = reconnect;
-
 	m_linkReconnectTimer.stop();
-
-	switch (m_linkReconnect) {
-		case RECONNECT_5MINS:
-			m_linkReconnectTimer.start(5U * 60U);
-			break;
-		case RECONNECT_10MINS:
-			m_linkReconnectTimer.start(10U * 60U);
-			break;
-		case RECONNECT_15MINS:
-			m_linkReconnectTimer.start(15U * 60U);
-			break;
-		case RECONNECT_20MINS:
-			m_linkReconnectTimer.start(20U * 60U);
-			break;
-		case RECONNECT_25MINS:
-			m_linkReconnectTimer.start(25U * 60U);
-			break;
-		case RECONNECT_30MINS:
-			m_linkReconnectTimer.start(30U * 60U);
-			break;
-		case RECONNECT_60MINS:
-			m_linkReconnectTimer.start(60U * 60U);
-			break;
-		case RECONNECT_90MINS:
-			m_linkReconnectTimer.start(90U * 60U);
-			break;
-		case RECONNECT_120MINS:
-			m_linkReconnectTimer.start(120U * 60U);
-			break;
-		case RECONNECT_180MINS:
-			m_linkReconnectTimer.start(180U * 60U);
-			break;
-		default:
-			break;
-	}
+	
+	setReconnectTimer(reconnect);
 
 	// Nothing to do
 	if ((m_linkStatus != LS_NONE && m_linkRepeater == reflector) ||
@@ -1973,7 +1904,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	CDPlusHandler::unlink(this);
 	CDCSHandler::unlink(this);
 
-	linkInt(m_linkStartup);
+	linkInt(reflector);
 }
 
 void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
@@ -3083,6 +3014,24 @@ void CRepeaterHandler::readAPRSFrame(CAPRSFrame& frame)
 	if(m_aprsUnit != nullptr) {
 		m_aprsUnit->writeFrame(frame);
 	}
+}
+
+void CRepeaterHandler::setReconnectTimer(RECONNECT reconnect)
+{
+	CLog::logDebug("Reconnect timer set to %s", reconnectToString(reconnect));
+	switch (reconnect) {
+        case RECONNECT_5MINS:   m_linkReconnectTimer.start( 5U * 60U);  break;
+        case RECONNECT_10MINS:  m_linkReconnectTimer.start(10U * 60U);  break;
+        case RECONNECT_15MINS:  m_linkReconnectTimer.start(15U * 60U);  break;
+        case RECONNECT_20MINS:  m_linkReconnectTimer.start(20U * 60U);  break;
+        case RECONNECT_25MINS:  m_linkReconnectTimer.start(25U * 60U);  break;
+        case RECONNECT_30MINS:  m_linkReconnectTimer.start(30U * 60U);  break;
+        case RECONNECT_60MINS:  m_linkReconnectTimer.start(60U * 60U);  break;
+        case RECONNECT_90MINS:  m_linkReconnectTimer.start(90U * 60U);  break;
+        case RECONNECT_120MINS: m_linkReconnectTimer.start(120U * 60U); break;
+        case RECONNECT_180MINS: m_linkReconnectTimer.start(180U * 60U); break;
+        default: break;
+    }
 }
 
 #ifdef USE_CCS
