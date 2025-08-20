@@ -95,6 +95,7 @@ typedef struct {
 	std::string fileRoot;
 	bool fileRotate;
 	uint repeatThreshold;
+	bool logIRCDDBTraffic;
 } TLog;
 
 typedef struct {

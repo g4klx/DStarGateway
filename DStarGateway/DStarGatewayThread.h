@@ -65,7 +65,7 @@ public:
 #ifdef USE_CCS
 	virtual void setCCS(bool enabled, const std::string& host);
 #endif
-	virtual void setLog(bool enabled);
+	virtual void setLog(bool enabled, bool logIRCDDBTraffic);
 	virtual void setAPRSWriters(CAPRSHandler* outgoingAprsWriter, CAPRSHandler* incomingAPRSHandler);
 	virtual void setInfoEnabled(bool enabled);
 	virtual void setEchoEnabled(bool enabled);
@@ -118,6 +118,7 @@ private:
 	bool                      m_echoEnabled;
 	bool                      m_dtmfEnabled;
 	bool                      m_logEnabled;
+	bool					  m_logIRCDDB;
 	bool                      m_ddModeEnabled;
 	IRCDDB_STATUS             m_lastStatus;
 	CTimer                    m_statusTimer1;
