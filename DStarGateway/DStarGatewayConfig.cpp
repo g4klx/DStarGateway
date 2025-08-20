@@ -185,7 +185,7 @@ bool CDStarGatewayConfig::loadLog(const CConfig & cfg)
 		else if(levelStr == "none")		m_log.displayLevel = LOG_NONE;
 	}
 
-	ret = cfg.getValue("log", "logtraffic", m_log.logIRCDDBTraffic, false) && ret;
+	ret = cfg.getValue("log", "logIRCDDBTraffic", m_log.logIRCDDBTraffic, false) && ret;
 
 	std::string thresholdStr;
 	ret = cfg.getValue("log", "repeatthreshold", thresholdStr, "2", {"disabled", "1", "2", "3", "4","5", "6", "7", "8", "9", "10"}) && ret;
