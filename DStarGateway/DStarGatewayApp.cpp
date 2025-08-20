@@ -369,7 +369,7 @@ bool CDStarGatewayApp::createThread()
 	m_thread->setInfoEnabled(true);
 	m_thread->setEchoEnabled(true);
 	m_thread->setDTMFEnabled(true);
-	m_thread->setLog(true);
+	m_thread->setLog(true, log.logIRCDDBTraffic);
 
 	return true;
 }

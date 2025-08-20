@@ -96,6 +96,7 @@ m_infoEnabled(true),
 m_echoEnabled(true),
 m_dtmfEnabled(true),
 m_logEnabled(false),
+m_logIRCDDB(false),
 m_ddModeEnabled(false),
 m_lastStatus(IS_DISABLED),
 m_statusTimer1(1000U, 1U),		// 1 second
@@ -633,9 +634,10 @@ void CDStarGatewayThread::setCCS(bool enabled, const std::string& host)
 }
 #endif
 
-void CDStarGatewayThread::setLog(bool enabled)
+void CDStarGatewayThread::setLog(bool enabled, bool logIRCDDBTraffic)
 {
 	m_logEnabled = enabled;
+	m_logIRCDDB = logIRCDDBTraffic;
 }
 
 void CDStarGatewayThread::setAPRSWriters(CAPRSHandler* outgoingWriter, CAPRSHandler* incomingWriter)
@@ -746,11 +748,13 @@ void CDStarGatewayThread::processIrcDDB()
 					if (!res)
 						break;
 
-					if (!address.empty()) {
-						CLog::logDebug("USER: %s %s %s %s", user.c_str(), repeater.c_str(), gateway.c_str(), address.c_str());
+					if(m_logIRCDDB) {
+						if (!address.empty()) {
+						CLog::logInfo("USER: %s %s %s %s", user.c_str(), repeater.c_str(), gateway.c_str(), address.c_str());
 						m_cache.updateUser(user, repeater, gateway, address, timestamp, DP_DEXTRA, false, false);
-					} else {
-						CLog::logDebug("USER: %s NOT FOUND", user.c_str());
+						} else {
+							CLog::logInfo("USER: %s NOT FOUND", user.c_str());
+						}
 					}
 				}
 				break;
@@ -762,11 +766,13 @@ void CDStarGatewayThread::processIrcDDB()
 						break;
 
 					CRepeaterHandler::resolveRepeater(repeater, gateway, address, DP_DEXTRA);
-					if (!address.empty()) {
-						CLog::logDebug("REPEATER: %s %s %s", repeater.c_str(), gateway.c_str(), address.c_str());
-						m_cache.updateRepeater(repeater, gateway, address, DP_DEXTRA, false, false);
-					} else {
-						CLog::logDebug("REPEATER: %s NOT FOUND", repeater.c_str());
+					if(m_logIRCDDB) {
+						if (!address.empty()) {
+							CLog::logInfo("REPEATER: %s %s %s", repeater.c_str(), gateway.c_str(), address.c_str());
+							m_cache.updateRepeater(repeater, gateway, address, DP_DEXTRA, false, false);
+						} else {
+							CLog::logInfo("REPEATER: %s NOT FOUND", repeater.c_str());
+						}
 					}
 				}
 				break;
@@ -779,11 +785,14 @@ void CDStarGatewayThread::processIrcDDB()
 
 					CDExtraHandler::gatewayUpdate(gateway, address);
 					CDPlusHandler::gatewayUpdate(gateway, address);
-					if (!address.empty()) {
-						CLog::logDebug("GATEWAY: %s %s", gateway.c_str(), address.c_str());
-						m_cache.updateGateway(gateway, address, DP_DEXTRA, false, false);
-					} else {
-						CLog::logDebug("GATEWAY: %s NOT FOUND", gateway.c_str());
+
+					if(m_logIRCDDB) {
+						if (!address.empty()) {
+							CLog::logInfo("GATEWAY: %s %s", gateway.c_str(), address.c_str());
+							m_cache.updateGateway(gateway, address, DP_DEXTRA, false, false);
+						} else {
+							CLog::logInfo("GATEWAY: %s NOT FOUND", gateway.c_str());
+						}
 					}
 				}
 				break;
