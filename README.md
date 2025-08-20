@@ -158,6 +158,7 @@ The testing framwework used is Google Test.
 
 # 6. Version History
 ## 6.1. Version 1.0
+- [**Improvement**] Add Add an option to disable logging of ircddb traffic ([#59](https://github.com/F4FXL/DStarGateway/issues/59))
 - [**Bugfix**] Fix repeater not reverting to startup reflector after issueing a command through remote control. ([#57](https://github.com/F4FXL/DStarGateway/issues/57))
 - [**Bugfix**] Fix corrupted slow data leading to DV Text Message not being sent to ircddb. Thanks to Manfred DL1JM for all the testing. ([#55](https://github.com/F4FXL/DStarGateway/issues/55))
 - [**Improvement**] Add version info to output of --version ([#56](https://github.com/F4FXL/DStarGateway/issues/56))
