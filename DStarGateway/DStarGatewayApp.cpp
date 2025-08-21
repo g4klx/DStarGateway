@@ -316,7 +316,7 @@ bool CDStarGatewayApp::createThread()
 		CIRCDDBMultiClient* multiClient = new CIRCDDBMultiClient(clients);
 		bool res = multiClient->open();
 		if (!res) {
-			CLog::logInfo("Cannot initialise the ircDDB protocol handler\n");
+			CLog::logError("Cannot initialise the ircDDB protocol handler\n");
 			return false;
 		}
 		m_thread->setIRC(multiClient);
