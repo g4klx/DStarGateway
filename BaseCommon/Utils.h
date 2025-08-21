@@ -19,6 +19,14 @@
 #include <vector>
 #include <climits>
 #include <memory>
+#include <thread>
+#include <sstream>
+
+#define THREAD_ID_STR(tid) ([](std::thread::id id){ \
+    std::stringstream ss; \
+    ss << id; \
+    return ss.str(); \
+}(tid).c_str())
 
 enum TRISTATE {
 	STATE_FALSE,

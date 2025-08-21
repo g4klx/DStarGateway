@@ -27,6 +27,7 @@
 #include <exception>
 #include <cassert>
 #include <unistd.h>
+#include <format>
 #ifdef DEBUG_DSTARGW
 #include <boost/stacktrace.hpp>
 #endif
@@ -170,6 +171,7 @@ void CDStarGatewayApp::run()
 
 bool CDStarGatewayApp::createThread()
 {
+	CLog::logTrace("Entering CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Log
 	TLog log;
 	m_config->getLog(log);
@@ -257,6 +259,7 @@ bool CDStarGatewayApp::createThread()
 	bool atLeastOneRepeater = false;
 	CRepeaterProtocolHandlerFactory repeaterProtocolFactory;
 	for(unsigned int i = 0U; i < m_config->getRepeaterCount(); i++) {
+		CLog::logTrace("Adding repeaters - CDStarGatewayApp::createThread - Rpt Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
 		TRepeater rptrConfig;
 		m_config->getRepeater(i, rptrConfig);
 		auto  repeaterProtocolHandler = repeaterProtocolFactory.getRepeaterProtocolHandler(rptrConfig.hwType, gatewayConfig, rptrConfig.address, rptrConfig.port);
@@ -294,6 +297,8 @@ bool CDStarGatewayApp::createThread()
 		if(!ddEnabled) ddEnabled = rptrConfig.band.length() > 1U;
 	}
 
+	CLog::logTrace("Repeaters Added - CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+
 	if(!atLeastOneRepeater) {
 		CLog::logError("Error: no repeaters are enabled or opening network communication to repeater failed");
 		return false;
@@ -306,12 +311,14 @@ bool CDStarGatewayApp::createThread()
 	auto ircddbVersionInfo = "linux_" + PRODUCT_NAME + "-" + VERSION;
 	std::vector<CIRCDDB *> clients;
 	for(unsigned int i=0; i < m_config->getIrcDDBCount(); i++) {
+		CLog::logTrace("Adding Ircddb - CDStarGatewayApp::createThread - Ircddb  Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
 		TircDDB ircDDBConfig;
 		m_config->getIrcDDB(i, ircDDBConfig);
 		CLog::logInfo("ircDDB Network %d set to %s user: %s, Quadnet %d", i + 1,ircDDBConfig.hostname.c_str(), ircDDBConfig.username.c_str(), ircDDBConfig.isQuadNet);
 		CIRCDDB * ircDDB = new CIRCDDBClient(ircDDBConfig.hostname, 9007U, ircDDBConfig.username, ircDDBConfig.password, ircddbVersionInfo, gatewayConfig.address, ircDDBConfig.isQuadNet);
 		clients.push_back(ircDDB);
 	}
+	CLog::logTrace("Added Ircddb - CDStarGatewayApp::createThread - Ircddb  Count %i - Thread ID %s", clients.size(), THREAD_ID_STR(std::this_thread::get_id()));
 	if(clients.size() > 0U) {
 		CIRCDDBMultiClient* multiClient = new CIRCDDBMultiClient(clients);
 		bool res = multiClient->open();
@@ -322,24 +329,28 @@ bool CDStarGatewayApp::createThread()
 		m_thread->setIRC(multiClient);
 	}
 
+	CLog::logTrace("Setting Up Dextra CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup Dextra
 	TDextra dextraConfig;
 	m_config->getDExtra(dextraConfig);
 	CLog::logInfo("DExtra enabled: %d, max. dongles: %u, url: %s", int(dextraConfig.enabled), dextraConfig.maxDongles, dextraConfig.hostfileUrl.c_str());
 	m_thread->setDExtra(dextraConfig.enabled, dextraConfig.maxDongles);
 
+	CLog::logTrace("Setting Up DCS CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DCS
 	TDCS dcsConfig;
 	m_config->getDCS(dcsConfig);
 	CLog::logInfo("DCS enabled: %d, url: %s", int(dcsConfig.enabled), dcsConfig.hostfileUrl.c_str());
 	m_thread->setDCS(dcsConfig.enabled);
 
+	CLog::logTrace("Setting Up DPlus CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DPlus
 	TDplus dplusConfig;
 	m_config->getDPlus(dplusConfig);
 	CLog::logInfo("D-Plus enabled: %d, max. dongles: %u, login: %s, url: %s", int(dplusConfig.enabled), dplusConfig.maxDongles, dplusConfig.login.c_str(), dplusConfig.hostfileUrl.c_str());
 	m_thread->setDPlus(dplusConfig.enabled, dplusConfig.maxDongles, dplusConfig.login);
 
+	CLog::logTrace("Setting Up XLX CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup XLX
 	TXLX xlxConfig;
 	m_config->getXLX(xlxConfig);
