@@ -27,7 +27,6 @@
 #include <exception>
 #include <cassert>
 #include <unistd.h>
-#include <format>
 #ifdef DEBUG_DSTARGW
 #include <boost/stacktrace.hpp>
 #endif
