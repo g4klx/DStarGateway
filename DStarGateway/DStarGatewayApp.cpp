@@ -163,7 +163,6 @@ bool CDStarGatewayApp::init()
 
 void CDStarGatewayApp::run()
 {
-	CLog::logInfo("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 	m_thread->Run();
 	m_thread->Wait();
 	CLog::logInfo("exiting\n");
