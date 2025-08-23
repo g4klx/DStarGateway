@@ -25,7 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRCApplication.h"
 
 #include <string>
-#include <future>
+#include <thread>
+#include <atomic>
 #include <ctime>
 #include <vector>
 
@@ -99,6 +100,7 @@ private:
 
 	IRCDDBAppPrivate *m_d;
 	time_t m_maxTime;
-	std::future<void> m_future;
+	std::thread m_thread;
+
 };
 
