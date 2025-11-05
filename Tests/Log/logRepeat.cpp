@@ -52,6 +52,18 @@ namespace LogRepeatTests
         EXPECT_THAT(m_logTarget->m_messages[1].c_str(), EndsWith("[ERROR  ] Two Message\n"));
     }
 
+    TEST_F(LogRepeat, ThreeIdenticalMessageThreshold0) {
+        CLog::getRepeatThreshold() = 0U;
+        CLog::logError("One Message");
+        CLog::logError("One Message");
+        CLog::logError("One Message");
+
+        EXPECT_EQ(3, m_logTarget->m_messages.size()) << "There should be 3 messages in the log.";
+        EXPECT_THAT(m_logTarget->m_messages[0].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[1].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[2].c_str(), EndsWith("[ERROR  ] One Message\n"));
+    }
+
     TEST_F(LogRepeat, ThreeIdenticalMessageThreshold1) {
         CLog::getRepeatThreshold() = 1U;
         CLog::logError("One Message");
@@ -60,6 +72,34 @@ namespace LogRepeatTests
 
         EXPECT_EQ(1, m_logTarget->m_messages.size()) << "There should be one message in the log.";
         EXPECT_THAT(m_logTarget->m_messages[0].c_str(), EndsWith("[ERROR  ] One Message\n"));
+    }
+
+    TEST_F(LogRepeat, NineIdenticalMessageTwoDifferentThreshold0) {
+        CLog::getRepeatThreshold() = 0U;
+        CLog::logError("One Message");
+        CLog::logError("One Message");
+        CLog::logError("One Message");        
+        CLog::logError("One Message");
+        CLog::logError("One Message");       
+        CLog::logError("One Message");
+        CLog::logError("One Message");        
+        CLog::logError("One Message");
+        CLog::logError("One Message");
+        CLog::logError("Another Message");
+        CLog::logError("And here is another Message");
+
+        EXPECT_EQ(11, m_logTarget->m_messages.size()) << "There should be two message in the log.";
+        EXPECT_THAT(m_logTarget->m_messages[0].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[1].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[2].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[3].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[4].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[5].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[6].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[7].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[8].c_str(), EndsWith("[ERROR  ] One Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[9].c_str(), EndsWith("[ERROR  ] Another Message\n"));
+        EXPECT_THAT(m_logTarget->m_messages[10].c_str(), EndsWith("[ERROR  ] And here is another Message\n"));
     }
 
     TEST_F(LogRepeat, NineIdenticalMessageTwoDifferentThreshold1) {

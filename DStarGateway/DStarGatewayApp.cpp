@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
 	TLog logConf;
 	config->getLog(logConf);
 	CLog::finalise();
+	CLog::getRepeatThreshold() = logConf.repeatThreshold;
 	if(logConf.displayLevel	!= LOG_NONE && !daemon.daemon) CLog::addTarget(new CLogConsoleTarget(logConf.displayLevel));
 	if(logConf.fileLevel		!= LOG_NONE) CLog::addTarget(new CLogFileTarget(logConf.fileLevel, logConf.logDir, logConf.fileRoot, logConf.fileRotate));
 
