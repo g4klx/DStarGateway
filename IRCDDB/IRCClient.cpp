@@ -58,19 +58,24 @@ IRCClient::IRCClient(IRCApplication *app, const std::string& update_channel, con
 
 IRCClient::~IRCClient()
 {
-	delete m_proto;
+    stopWork();       
+    delete m_proto;
 }
 
 void IRCClient::startWork()
 {
-	m_terminateThread = false;
-	m_future = std::async(std::launch::async, &IRCClient::Entry, this);
+    if (m_thread.joinable())
+        return;
+
+    m_terminateThread.store(false, std::memory_order_relaxed);
+    m_thread = std::thread(&IRCClient::Entry, this);
 }
 
 void IRCClient::stopWork()
 {
-	m_terminateThread = true;
-	m_future.get();
+    m_terminateThread.store(true, std::memory_order_relaxed);
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
 void IRCClient::Entry()
@@ -98,7 +103,7 @@ void IRCClient::Entry()
 
 		switch (state) {
 			case 0:
-				if (m_terminateThread) {
+				if (m_terminateThread.load(std::memory_order_relaxed)) {
 					CLog::logInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
 					return;
 				}
@@ -118,7 +123,7 @@ void IRCClient::Entry()
 				break;
 
 			case 1:
-				if (m_terminateThread) {
+				if (m_terminateThread.load(std::memory_order_relaxed)) {
 					CLog::logInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
 					return;
 				}
@@ -261,7 +266,7 @@ void IRCClient::Entry()
 
 
 			case 5:
-				if (m_terminateThread)
+				if (m_terminateThread.load(std::memory_order_relaxed))
 					state = 6;
 				else {
 					if (m_recvQ->isEOF()) {
