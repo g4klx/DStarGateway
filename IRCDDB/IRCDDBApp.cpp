@@ -112,7 +112,7 @@ public:
 	std::regex m_fromPattern;
 
 	bool m_initReady;
-	bool m_terminateThread;
+	std::atomic<bool> m_terminateThread{false};
 
 	std::map<std::string, IRCDDBAppUserObject> m_userMap;
 	std::mutex m_userMapMutex;
@@ -151,8 +151,10 @@ IRCDDBApp::IRCDDBApp(const std::string& u_chan)
 
 IRCDDBApp::~IRCDDBApp()
 {
-	delete m_d->m_sendQ;
-	delete m_d;
+    stopWork();
+
+    delete m_d->m_sendQ;
+    delete m_d;
 }
 
 void IRCDDBApp::rptrQTH(const std::string& callsign, double latitude, double longitude, const std::string& desc1, const std::string& desc2, const std::string& infoURL)
@@ -279,14 +281,18 @@ IRCMessage *IRCDDBApp::getReplyMessage()
 
 void IRCDDBApp::startWork()
 {
-	m_d->m_terminateThread = false;
-	m_future = std::async(std::launch::async, &IRCDDBApp::Entry, this);
+    if (m_thread.joinable())
+        return;
+
+    m_d->m_terminateThread.store(false, std::memory_order_relaxed);
+    m_thread = std::thread(&IRCDDBApp::Entry, this);
 }
 
 void IRCDDBApp::stopWork()
 {
-    m_d->m_terminateThread = true;
-	m_future.get();
+    m_d->m_terminateThread.store(true, std::memory_order_relaxed);
+    if (m_thread.joinable())
+        m_thread.join();
 }
 
 unsigned int IRCDDBApp::calculateUsn(const std::string& nick)
@@ -996,7 +1002,7 @@ static bool needsDatabaseUpdate(int tableID)
 void IRCDDBApp::Entry()
 {
 	int sendlistTableID = 0;
-	while (!m_d->m_terminateThread) {
+	while (!m_d->m_terminateThread.load(std::memory_order_relaxed)) {
 		if (m_d->m_timer > 0)
 			m_d->m_timer--;
 		switch(m_d->m_state) {

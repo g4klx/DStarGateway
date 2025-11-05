@@ -22,7 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <string>
-#include <future>
+#include <thread>
+#include <atomic>   
 
 #include "IRCReceiver.h"
 #include "IRCMessageQueue.h"
@@ -47,13 +48,13 @@ private:
 	unsigned int m_port;
 	std::string m_callsign;
 	std::string m_password;
-	bool m_terminateThread;
+	std::atomic<bool> m_terminateThread{false};
 
 	IRCReceiver *m_recv;
 	IRCMessageQueue *m_recvQ;
 	IRCMessageQueue *m_sendQ;
 	IRCProtocol *m_proto;
 	IRCApplication *m_app;
-	std::future<void> m_future;
-};
+	std::thread m_thread;
 
+};

@@ -51,7 +51,7 @@ CIRCDDBClient::~CIRCDDBClient()
 	// A false return implies a network error, or unable to log in
 bool CIRCDDBClient::open()
 {
-	CLog::logInfo("start client and app\n");
+	CLog::logInfo("IRCDDB start client and app\n");
 	m_d->client->startWork();
 	m_d->m_app->startWork();
 	return true;
