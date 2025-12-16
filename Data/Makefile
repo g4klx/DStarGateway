@@ -27,6 +27,8 @@ install:
 	@install -g bin -o dstar -m 0664 es_ES.indx $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 fr_FR.ambe $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 fr_FR.indx $(DATA_DIR)
+	@install -g bin -o dstar -m 0664 fr_FR2.ambe $(DATA_DIR)
+	@install -g bin -o dstar -m 0664 fr_FR2.indx $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 it_IT.ambe $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 it_IT.indx $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 no_NO.ambe $(DATA_DIR)

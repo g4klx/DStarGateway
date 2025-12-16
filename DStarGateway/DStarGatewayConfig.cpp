@@ -348,7 +348,7 @@ bool CDStarGatewayConfig::loadGateway(const CConfig & cfg)
 
 	std::string lang;
 	ret = cfg.getValue("gateway", "language", lang, "english_uk",
-						{"english_uk", "deutsch", "dansk", "francais", "italiano", "polski",
+						{"english_uk", "deutsch", "dansk", "francais", "francais_2", "italiano", "polski",
 						"english_us", "espanol", "svenska", "nederlands_nl", "nederlands_be", "norsk", "portugues"}) && ret;;
 	if(lang == "english_uk")		m_gateway.language = TL_ENGLISH_UK;
 	else if(lang == "deutsch")		m_gateway.language = TL_DEUTSCH;
