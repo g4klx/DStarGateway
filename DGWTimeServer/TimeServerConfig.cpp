@@ -112,7 +112,7 @@ bool CTimeServerConfig::loadTimeServer(const CConfig & cfg)
 	else if(format == "text")			m_timeServer.format = FORMAT_TEXT_TIME;
 
 	std::string lang;
-	ret = cfg.getValue("timeserver", "language", lang, "english_uk_1", {"english_uk_1", "english_uk_2", "english_us_1", "english_us_2", "deutsch_1", "deutsch_2", "francais", "francais_2" "nederlands", "svenska", "espanol", "norsk", "portugues"}) && ret;;
+	ret = cfg.getValue("timeserver", "language", lang, "english_uk_1", {"english_uk_1", "english_uk_2", "english_us_1", "english_us_2", "deutsch_1", "deutsch_2", "francais", "francais_2", "nederlands", "svenska", "espanol", "norsk", "portugues"}) && ret;;
 	if     (lang == "english_uk_1") m_timeServer.language = LANG_ENGLISH_UK_1;
 	else if(lang == "english_uk_2") m_timeServer.language = LANG_ENGLISH_UK_2;
 	else if(lang == "english_us_1") m_timeServer.language = LANG_ENGLISH_US_1;
