@@ -72,7 +72,7 @@ void CAudioUnit::setLanguage(const std::string & dir, TEXT_LANG language)
 			ambeFileName = "fr_FR.ambe";
 			indxFileName = "fr_FR.indx";
 			break;
-		case TL_FRANCAIS2:
+		case TL_FRANCAIS_2:
 			ambeFileName = "fr_FR2.ambe";
 			indxFileName = "fr_FR2.indx";
 			break;
