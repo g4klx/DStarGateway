@@ -13,6 +13,8 @@ install:
 	@install -g bin -o dstar -m 0664 TIME_en_US.indx  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_fr_FR.ambe  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_fr_FR.indx  $(DATA_DIR)
+	@install -g bin -o dstar -m 0664 TIME_fr_FR2.ambe  $(DATA_DIR)
+	@install -g bin -o dstar -m 0664 TIME_fr_FR2.indx  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_se_SE.ambe  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_se_SE.indx  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 de_DE.ambe $(DATA_DIR)
