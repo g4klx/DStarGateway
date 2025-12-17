@@ -71,29 +71,46 @@ namespace AMBEFileReaderTests
         std::vector<CAMBEData *> data;
         res = reader.lookup("0", data);
         EXPECT_FALSE(res) << "read shall return false on non existent file";
-
-        for(auto d : data) {
-            delete d;
-        }
+        for(auto d : data)  delete d;
     }
 
-    TEST_F(AMBEFileReader_lookup, validId)
+    class AMBEFileReader_lookup_Param : public ::testing::TestWithParam<std::string> {};
+    TEST_P(AMBEFileReader_lookup_Param, validId)
     {
-        std::string indexFile = std::string(std::filesystem::current_path()) + "/AMBEFileReader/fr_FR.indx";
-        std::string ambeFile = std::string(std::filesystem::current_path()) + "/AMBEFileReader/fr_FR.ambe";
+        std::string indexFile = (std::filesystem::current_path() / "AMBEFileReader/TIME_fr_FR2.indx").string();
+        std::string ambeFile  = (std::filesystem::current_path() / "AMBEFileReader/TIME_fr_FR2.ambe").string();
+
         CAMBEFileReader reader(indexFile, ambeFile);
         bool res = reader.read();
-        EXPECT_TRUE(res) << "read shall return true on existent files";
+        ASSERT_TRUE(res) << "read shall return true on existent files";
 
-        std::vector<CAMBEData *> data;
-        res = reader.lookup("0", data);
-        EXPECT_TRUE(res) << "read shall return true on existent files and valid Id";
-        EXPECT_NE(data.size(), 0U) << "Vector shall contain data";
+        std::vector<CAMBEData*> data;
+        const std::string& id = GetParam();
 
-        for(auto d : data) {
-            delete d;
-        }
+        res = reader.lookup(id, data);
+        EXPECT_TRUE(res) << "lookup shall return true on valid Id: " << id;
+        EXPECT_NE(data.size(), 0U) << "Vector shall contain data for Id: " << id;
+
+        for (auto* d : data) delete d;
     }
+
+    static std::string ParamName(
+        const ::testing::TestParamInfo<std::string>& info)
+    {
+        return info.param;
+    }
+
+    INSTANTIATE_TEST_SUITE_P(
+        AmbeFileReader_lookup_validIds,
+        AMBEFileReader_lookup_Param,
+        ::testing::Values(
+            "bonjour", "cinq", "deux", "dix", "et_demie", "et_quart",
+            "heure", "heures", "huit", "il_est", "midi", "minuit",
+            "moins_le_quart", "neuf", "onze", "quatre", "sept",
+            "six", "trois", "une"
+        ),
+        ParamName
+    );
 
     TEST_F(AMBEFileReader_lookup, invalidId)
     {
