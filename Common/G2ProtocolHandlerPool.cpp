@@ -128,8 +128,8 @@ void CG2ProtocolHandlerPool::traverseNat(const std::string& address)
 bool CG2ProtocolHandlerPool::writeHeader(const CHeaderData& header)
 {
     auto handler = findHandler(header.getDestination(), IMT_ADDRESS_AND_PORT);
-    if(handler == nullptr)
-        handler = findHandler(header.getDestination(), IMT_ADDRESS_ONLY);
+    // if(handler == nullptr)
+    //     handler = findHandler(header.getDestination(), IMT_ADDRESS_ONLY);
 
     if(handler == nullptr) {
         handler = new CG2ProtocolHandler(&m_socket, header.getDestination(), G2_BUFFER_LENGTH);
