@@ -104,10 +104,10 @@ bool CG2ProtocolHandlerPool::readPackets()
 
     CG2ProtocolHandler * handler = findHandler(addr, IMT_ADDRESS_AND_PORT);
     if(handler == nullptr) {
-        CLog::logTrace("new incoming G2 %s:%u", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port));
         handler = new CG2ProtocolHandler(&m_socket, addr, G2_BUFFER_LENGTH);
         m_pool.push_back(handler);
         m_index = m_pool.end();
+        CLog::logTrace("new incoming G2 %s:%u N G2 Count %d", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port), m_pool.size());
     }
 
     bool res = handler->setBuffer(buffer, length);
@@ -128,13 +128,15 @@ void CG2ProtocolHandlerPool::traverseNat(const std::string& address)
 bool CG2ProtocolHandlerPool::writeHeader(const CHeaderData& header)
 {
     auto handler = findHandler(header.getDestination(), IMT_ADDRESS_AND_PORT);
-    // if(handler == nullptr)
-    //     handler = findHandler(header.getDestination(), IMT_ADDRESS_ONLY);
+    if(handler == nullptr)
+        handler = findHandler(header.getDestination(), IMT_ADDRESS_ONLY);
 
     if(handler == nullptr) {
         handler = new CG2ProtocolHandler(&m_socket, header.getDestination(), G2_BUFFER_LENGTH);
         m_pool.push_back(handler);
         m_index = m_pool.end();
+        auto addr = header.getDestination();
+        CLog::logTrace("new outgoing G2 %s:%u H G2 Count %d", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port), m_pool.size());
     }
     return handler->writeHeader(header);
 }
@@ -149,6 +151,8 @@ bool CG2ProtocolHandlerPool::writeAMBE(const CAMBEData& data)
         handler = new CG2ProtocolHandler(&m_socket, data.getDestination(), G2_BUFFER_LENGTH);
         m_pool.push_back(handler);
         m_index = m_pool.end();
+        auto addr = data.getDestination();
+        CLog::logTrace("new outgoing G2 %s:%u A G2 Count %d", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port), m_pool.size());
     }
 
     return handler->writeAMBE(data);
