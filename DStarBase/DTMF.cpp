@@ -192,6 +192,9 @@ std::string CDTMF::processReflector(const std::string& prefix, const std::string
 {
 	unsigned int len = command.size();
 
+	if(len == 0U)
+		return std::string("");
+
 	char c = command.at(len - 1U);
 	if (c == 'A' || c == 'B' || c == 'C' || c == 'D') {
 		if (len < 2U || len > 4U)
@@ -213,14 +216,14 @@ std::string CDTMF::processReflector(const std::string& prefix, const std::string
 		if (n1 == 0UL)
 			return std::string("");
 
-		unsigned long n2 = std::stoul(command.substr(2));
+		unsigned long n2 = std::stoul(command.substr(len-2U));
 		if (n2 == 0UL || n2 > 26UL)
 			return std::string("");
 
 		c = 'A' + n2 - 1UL;
 
 		char ostr[32];
-		snprintf(ostr, 32, "%s%03lu%cL", prefix.c_str(), n1, c);
+		std::snprintf(ostr, 32, "%s%03lu%cL", prefix.c_str(), n1, c);
 	
 		return std::string(ostr);
 	}
