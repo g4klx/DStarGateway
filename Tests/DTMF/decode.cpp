@@ -23,6 +23,8 @@
 const unsigned char DTMF_MASK[] = {0x82U, 0x08U, 0x20U, 0x82U, 0x00U, 0x00U, 0x82U, 0x00U, 0x00U};
 const unsigned char DTMF_SIG[]  = {0x82U, 0x08U, 0x20U, 0x82U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U};
 
+const unsigned char NULL_AMBE_DATA_BYTES[] = {0x9E, 0x8D, 0x32, 0x88, 0x26, 0x1A, 0x3F, 0x61, 0xE8};
+
 const unsigned char DTMF_SYM_MASK[] = {0x10U, 0x40U, 0x08U, 0x20U};
 const unsigned char DTMF_SYM0[]     = {0x00U, 0x40U, 0x08U, 0x20U};
 const unsigned char DTMF_SYM1[]     = {0x00U, 0x00U, 0x00U, 0x00U};
@@ -47,9 +49,28 @@ namespace DTMFTests
     
     };
 
-    TEST_F(DTMF_decode, decode_valid_dtmf)
+    TEST_F(DTMF_decode, decode_reflector_module_as_number)
     {
-        unsigned char ambe[] = {DTMF_SIG[0],
+        unsigned char D[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYMD[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYMD[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYMD[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYMD[3])};
+        unsigned char Zero[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM0[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM0[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM0[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM0[3])};
+
+        unsigned char One[] = {DTMF_SIG[0],
                                 DTMF_SIG[1],
                                 DTMF_SIG[2],
                                 DTMF_SIG[3],
@@ -59,13 +80,135 @@ namespace DTMFTests
                                 (unsigned char)(DTMF_SIG[7] | DTMF_SYM1[2]),
                                 (unsigned char)(DTMF_SIG[8] | DTMF_SYM1[3])};
 
+        
+        unsigned char Eight[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM8[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM8[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM8[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM8[3])};
+        
+        unsigned char Four[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM4[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM4[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM4[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM4[3])};
+                            
+
         CDTMF dtmf;
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, false);
-        dtmf.decode(ambe, true);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Four, false);
+        dtmf.decode(Four, false);
+        dtmf.decode(Four, false);
+        dtmf.decode(Four, false);
+        dtmf.decode(Four, true);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+
+        EXPECT_TRUE(dtmf.hasCommand());
+        EXPECT_STREQ(dtmf.translate().c_str(), "DCS018DL");
+    }
+
+    TEST_F(DTMF_decode, decode_reflector_module_as_letter)
+    {
+        unsigned char D[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYMD[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYMD[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYMD[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYMD[3])};
+        unsigned char Zero[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM0[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM0[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM0[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM0[3])};
+
+        unsigned char One[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM1[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM1[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM1[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM1[3])};
+
+        
+        unsigned char Eight[] = {DTMF_SIG[0],
+                                DTMF_SIG[1],
+                                DTMF_SIG[2],
+                                DTMF_SIG[3],
+                                (unsigned char)(DTMF_SIG[4] | DTMF_SYM8[0]),
+                                (unsigned char)(DTMF_SIG[5] | DTMF_SYM8[1]),
+                                DTMF_SIG[6],
+                                (unsigned char)(DTMF_SIG[7] | DTMF_SYM8[2]),
+                                (unsigned char)(DTMF_SIG[8] | DTMF_SYM8[3])};                          
+
+        CDTMF dtmf;
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        dtmf.decode(Zero, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        dtmf.decode(One, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        dtmf.decode(Eight, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        dtmf.decode(D, false);
+        for(uint i = 0; i < 10U; i++) dtmf.decode(NULL_AMBE_DATA_BYTES, true);
+
+        EXPECT_TRUE(dtmf.hasCommand());
+        EXPECT_STREQ(dtmf.translate().c_str(), "DCS018DL");
     }
 }
