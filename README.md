@@ -158,6 +158,7 @@ The testing framwework used is Google Test.
 
 # 6. Version History
 ## 6.1. Version 1.0
+- [**Bugfix**] Fix decoding of DTMF commands with leading 0 ([#61](https://github.com/F4FXL/DStarGateway/issues/61))
 - [**Improvement**] Improve threading handling ([#58](https://github.com/F4FXL/DStarGateway/issues/58))
 - [**Improvement**] Add Add an option to disable logging of ircddb traffic ([#59](https://github.com/F4FXL/DStarGateway/issues/59))
 - [**Bugfix**] Fix repeater not reverting to startup reflector after issueing a command through remote control. ([#57](https://github.com/F4FXL/DStarGateway/issues/57))
