@@ -104,6 +104,7 @@ bool CDTMF::decode(const unsigned char* ambe, bool end)
 		// If it is not a DTMF Code
 		if ((end || m_releaseCount >= 100U) && m_data.length() > 0U) {
 			m_command = m_data;
+			CLog::logDebug("Received DTMF Command %s", m_command.c_str());
 			m_data.clear();
 			m_releaseCount = 0U;
 		}
