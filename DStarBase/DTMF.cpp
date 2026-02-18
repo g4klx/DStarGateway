@@ -23,27 +23,6 @@
 #include "DTMF.h"
 #include "Log.h"
 
-const unsigned char DTMF_MASK[] = {0x82U, 0x08U, 0x20U, 0x82U, 0x00U, 0x00U, 0x82U, 0x00U, 0x00U};
-const unsigned char DTMF_SIG[]  = {0x82U, 0x08U, 0x20U, 0x82U, 0x00U, 0x00U, 0x00U, 0x00U, 0x00U};
-
-const unsigned char DTMF_SYM_MASK[] = {0x10U, 0x40U, 0x08U, 0x20U};
-const unsigned char DTMF_SYM0[]     = {0x00U, 0x40U, 0x08U, 0x20U};
-const unsigned char DTMF_SYM1[]     = {0x00U, 0x00U, 0x00U, 0x00U};
-const unsigned char DTMF_SYM2[]     = {0x00U, 0x40U, 0x00U, 0x00U};
-const unsigned char DTMF_SYM3[]     = {0x10U, 0x00U, 0x00U, 0x00U};
-const unsigned char DTMF_SYM4[]     = {0x00U, 0x00U, 0x00U, 0x20U};
-const unsigned char DTMF_SYM5[]     = {0x00U, 0x40U, 0x00U, 0x20U};
-const unsigned char DTMF_SYM6[]     = {0x10U, 0x00U, 0x00U, 0x20U};
-const unsigned char DTMF_SYM7[]     = {0x00U, 0x00U, 0x08U, 0x00U};
-const unsigned char DTMF_SYM8[]     = {0x00U, 0x40U, 0x08U, 0x00U};
-const unsigned char DTMF_SYM9[]     = {0x10U, 0x00U, 0x08U, 0x00U};
-const unsigned char DTMF_SYMA[]     = {0x10U, 0x40U, 0x00U, 0x00U};
-const unsigned char DTMF_SYMB[]     = {0x10U, 0x40U, 0x00U, 0x20U};
-const unsigned char DTMF_SYMC[]     = {0x10U, 0x40U, 0x08U, 0x00U};
-const unsigned char DTMF_SYMD[]     = {0x10U, 0x40U, 0x08U, 0x20U};
-const unsigned char DTMF_SYMS[]     = {0x00U, 0x00U, 0x08U, 0x20U};
-const unsigned char DTMF_SYMH[]     = {0x10U, 0x00U, 0x08U, 0x20U};
-
 CDTMF::CDTMF() :
 m_data(),
 m_command(),
@@ -125,6 +104,7 @@ bool CDTMF::decode(const unsigned char* ambe, bool end)
 		// If it is not a DTMF Code
 		if ((end || m_releaseCount >= 100U) && m_data.length() > 0U) {
 			m_command = m_data;
+			CLog::logDebug("Received DTMF Command %s", m_command.c_str());
 			m_data.clear();
 			m_releaseCount = 0U;
 		}
@@ -192,6 +172,9 @@ std::string CDTMF::processReflector(const std::string& prefix, const std::string
 {
 	unsigned int len = command.size();
 
+	if(len == 0U)
+		return std::string("");
+
 	char c = command.at(len - 1U);
 	if (c == 'A' || c == 'B' || c == 'C' || c == 'D') {
 		if (len < 2U || len > 4U)
@@ -213,14 +196,14 @@ std::string CDTMF::processReflector(const std::string& prefix, const std::string
 		if (n1 == 0UL)
 			return std::string("");
 
-		unsigned long n2 = std::stoul(command.substr(2));
+		unsigned long n2 = std::stoul(command.substr(len-2U));
 		if (n2 == 0UL || n2 > 26UL)
 			return std::string("");
 
 		c = 'A' + n2 - 1UL;
 
 		char ostr[32];
-		snprintf(ostr, 32, "%s%03lu%cL", prefix.c_str(), n1, c);
+		std::snprintf(ostr, 32, "%s%03lu%cL", prefix.c_str(), n1, c);
 	
 		return std::string(ostr);
 	}
