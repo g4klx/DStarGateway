@@ -31,7 +31,7 @@ export CPPFLAGS=-W -O3 -Wall -Werror -std=c++17
 endif
 
 export CC=g++
-export LDFLAGS+= -lcurl -pthread
+export LDFLAGS+= -pthread
 
 ifeq ($(USE_GPSD), 1)
 export CPPFLAGS+= -DUSE_GPSD

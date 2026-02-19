@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2015,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2015,2018,2026 by Jonathan Naylor G4KLX
  *	 Copyright (c) 2021 by Geoffrey F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -55,7 +55,6 @@
 #include "Log.h"
 #include "StringUtils.h"
 #include "HostsFilesManager.h"
-#include "HostsFileDownloader.h"
 
 const std::string LOOPBACK_ADDRESS("127.0.0.1");
 
@@ -140,7 +139,7 @@ CDStarGatewayThread::~CDStarGatewayThread()
 void* CDStarGatewayThread::Entry()
 {
 	CHostsFilesManager::setCache(&m_cache);
-	CHostsFilesManager::setDownloadCallback(CHostsFileDownloader::download);
+	// CHostsFilesManager::setDownloadCallback(CHostsFileDownloader::download);
 	CHostsFilesManager::UpdateHosts(); 
 
 	// Truncate the old Links.log file
