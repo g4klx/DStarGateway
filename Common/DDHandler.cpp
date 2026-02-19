@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011,2012,2013,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2011,2012,2013,2018,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -51,7 +51,6 @@ const unsigned char TOALL_MULTICAST_ADDRESS[] = {0x01U, 0x00U, 0x5EU, 0x00U, 0x0
 const unsigned char DX_MULTICAST_ADDRESS[] = {0x01U, 0x00U, 0x5EU, 0x00U, 0x00U, 0x23U};
 
 CIRCDDB*       CDDHandler::m_irc          = NULL;
-CHeaderLogger* CDDHandler::m_headerLogger = NULL;
 int            CDDHandler::m_fd           = -1;
 unsigned int   CDDHandler::m_maxRoutes    = 0U;
 CEthernet**    CDDHandler::m_list         = NULL;
@@ -160,11 +159,6 @@ void CDDHandler::setLogging(bool enabled, const std::string& dir)
 	m_logEnabled = enabled;
 }
 
-void CDDHandler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
-}
-
 void CDDHandler::setIRC(CIRCDDB* irc)
 {
 	assert(irc != NULL);
@@ -188,10 +182,6 @@ void CDDHandler::process(CDDData& data)
 	std::string rptCall2   = data.getRptCall2();
 
 	if (!m_timer.isRunning() || m_timer.hasExpired()) {
-		// Write to Header.log if it's enabled
-		if (m_headerLogger != NULL)
-			m_headerLogger->write("Repeater", data);
-
 		if (m_irc != NULL) {
 			m_irc->sendHeardWithTXMsg(myCall1, myCall2, yourCall, rptCall1, rptCall2, flag1, flag2, flag3, "", "Digital Data        ");
 			m_irc->sendHeardWithTXStats(myCall1, myCall2, yourCall, rptCall1, rptCall2, flag1, flag2, flag3, 1, 0, -1);
@@ -229,8 +219,6 @@ void CDDHandler::process(CDDData& data)
 			if (m_list[i] == NULL) {
 				m_list[i] = ethernet;
 				found = true;
-				if (m_logEnabled)
-					writeStatus(*ethernet);
 				break;
 			}
 		}
@@ -363,35 +351,3 @@ void CDDHandler::finalise()
 	delete[] m_list;
 }
 
-void CDDHandler::writeStatus(const CEthernet& ethernet)
-{
-	std::string fullName = DDMODE_BASE_NAME;
-
-	if (!m_name.empty()) {
-		fullName += "_";
-		fullName += m_name;
-	}
-
-	fullName = m_logDir + "/" + fullName + ".log";
-
-	std::ofstream file;
-	file.open(fullName, std::ios::app);
-	if (!file.is_open()) {
-		CLog::logError("Unable to open %s for writing", fullName.c_str());
-		return;
-	}
-
-	std::string callsign = ethernet.getCallsign();
-	unsigned char* address = ethernet.getAddress();
-
-	time_t timeNow = ::time(NULL);
-	struct tm* tm = ::gmtime(&timeNow);
-
-	std::string text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: %02X:%02X:%02X:%02X:%02X:%02X %s\n",
-		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec,
-		address[0], address[1], address[2], address[3], address[4], address[5],	callsign.c_str());
-
-	file << text;
-
-	file.close();
-}

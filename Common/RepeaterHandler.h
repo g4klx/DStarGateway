@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2015,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2015,2018,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -33,7 +33,6 @@
 #endif
 #include "TextCollector.h"
 #include "CacheManager.h"
-#include "HeaderLogger.h"
 #include "CallsignList.h"
 #include "DRATSServer.h"
 #include "CCSCallback.h"
@@ -73,7 +72,6 @@ public:
 	static void setDExtraEnabled(bool enabled);
 	static void setDPlusEnabled(bool enabled);
 	static void setDCSEnabled(bool enabled);
-	static void setHeaderLogger(CHeaderLogger* logger);
 	static void setAPRSHandlers(CAPRSHandler* outgoingAprsHandler, CAPRSHandler* incomingAprsHandler);
 	static void setInfoEnabled(bool enabled);
 	static void setEchoEnabled(bool enabled);
@@ -166,8 +164,6 @@ private:
 	static bool      m_infoEnabled;
 	static bool      m_echoEnabled;
 	static bool      m_dtmfEnabled;
-
-	static CHeaderLogger*   m_headerLogger;
 
 	static CAPRSHandler*     m_outgoingAprsHandler;
 	static CAPRSHandler*     m_incomingAprsHandler;

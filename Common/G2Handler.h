@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2012 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2012,2026 by Jonathan Naylor G4KLX
  *   copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,6 @@
 #include "G2ProtocolHandlerPool.h"
 #include "RepeaterHandler.h"
 #include "DStarDefines.h"
-#include "HeaderLogger.h"
 #include "HeaderData.h"
 #include "AMBEData.h"
 #include "Timer.h"
@@ -35,7 +34,6 @@ public:
 	static void initialise(unsigned int maxRoutes);
 
 	static void setG2ProtocolHandlerPool(CG2ProtocolHandlerPool* handler);
-	static void setHeaderLogger(CHeaderLogger* logger);
 
 	static void process(CHeaderData& header);
 	static void process(CAMBEData& header);
@@ -55,8 +53,6 @@ private:
 	static CG2Handler**        m_routes;
 
 	static CG2ProtocolHandlerPool* m_handler;
-
-	static CHeaderLogger*      m_headerLogger;
 
 	CRepeaterHandler* m_repeater;
 	in_addr           m_address;

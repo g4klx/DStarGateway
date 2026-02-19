@@ -34,7 +34,6 @@
 #endif
 #include "DExtraHandler.h"
 #include "DPlusHandler.h"
-#include "HeaderLogger.h"
 #include "ConnectData.h"
 #ifdef USE_CCS
 #include "CCSHandler.h"
@@ -98,7 +97,6 @@ m_logEnabled(false),
 m_logIRCDDB(false),
 m_ddModeEnabled(false),
 m_lastStatus(IS_DISABLED),
-m_statusTimer1(1000U, 1U),		// 1 second
 m_statusTimer2(1000U, 1U),		// 1 second
 m_remoteEnabled(false),
 m_remotePassword(),
@@ -141,24 +139,6 @@ void* CDStarGatewayThread::Entry()
 	CHostsFilesManager::setCache(&m_cache);
 	// CHostsFilesManager::setDownloadCallback(CHostsFileDownloader::download);
 	CHostsFilesManager::UpdateHosts(); 
-
-	// Truncate the old Links.log file
-	std::string fullName = m_logDir + "/" + LINKS_BASE_NAME + ".log";
-	if (!m_name.empty()) {
-		fullName += fullName + m_name;
-	}
-	CUtils::truncateFile(fullName);
-	CLog::logInfo("Truncating %s", fullName.c_str());
-
-#ifdef USE_STARNET
-	// Truncate the old StarNet.log file
-	std::string fullName = m_logDir + "/" + STARNET_BASE_NAME + ".log";
-	if (!m_name.empty()) {
-		fullName += fullName + m_name;
-	}
-	CUtils::truncateFile(fullName);
-	CLog::logInfo("Truncating %s", fullName.c_str());
-#endif
 
 	std::string dextraAddress = m_dextraEnabled ? m_gatewayAddress : LOOPBACK_ADDRESS;
 	m_dextraPool = new CDExtraProtocolHandlerPool(DEXTRA_PORT, dextraAddress);
@@ -211,34 +191,18 @@ void* CDStarGatewayThread::Entry()
 
 	CLog::logInfo("Starting the ircDDB Gateway thread");
 
-	CHeaderLogger* headerLogger = NULL;
-	if (m_logEnabled) {
-		m_statusTimer1.start();
-
-		headerLogger = new CHeaderLogger(m_logDir, m_name);
-		ret = headerLogger->open();
-		if (!ret) {
-			delete headerLogger;
-			headerLogger = NULL;
-		}
-	}
-
 	CG2Handler::setG2ProtocolHandlerPool(m_g2HandlerPool);
-	CG2Handler::setHeaderLogger(headerLogger);
 
 	CDExtraHandler::setCallsign(m_gatewayCallsign);
-	CDExtraHandler::setHeaderLogger(headerLogger);
 	CDExtraHandler::setMaxDongles(m_dextraMaxDongles);
 
 	CDPlusHandler::setCallsign(m_gatewayCallsign);
 	CDPlusHandler::setDPlusLogin(m_dplusLogin);
-	CDPlusHandler::setHeaderLogger(headerLogger);
 	CDPlusHandler::setMaxDongles(m_dplusMaxDongles);
 	if (m_dplusEnabled)
 		CDPlusHandler::startAuthenticator(m_gatewayAddress, &m_cache);
 
 	CDCSHandler::setGatewayType(m_gatewayType);
-	CDCSHandler::setHeaderLogger(headerLogger);
 
 	CRepeaterHandler::setLocalAddress(m_gatewayAddress);
 	CRepeaterHandler::setG2HandlerPool(m_g2HandlerPool);
@@ -252,7 +216,6 @@ void* CDStarGatewayThread::Entry()
 	CRepeaterHandler::setDExtraEnabled(m_dextraEnabled);
 	CRepeaterHandler::setDPlusEnabled(m_dplusEnabled);
 	CRepeaterHandler::setDCSEnabled(m_dcsEnabled);
-	CRepeaterHandler::setHeaderLogger(headerLogger);
 	CRepeaterHandler::setAPRSHandlers(m_outgoingAprsHandler, m_incomingAprsHandler);
 	CRepeaterHandler::setInfoEnabled(m_infoEnabled);
 	CRepeaterHandler::setEchoEnabled(m_echoEnabled);
@@ -289,7 +252,6 @@ void* CDStarGatewayThread::Entry()
 	if (m_ddModeEnabled) {
 		CDDHandler::initialise(MAX_DD_ROUTES, m_name);
 		CDDHandler::setLogging(m_logEnabled, m_logDir);
-		CDDHandler::setHeaderLogger(headerLogger);
 
 		if (m_irc != NULL)
 			CDDHandler::setIRC(m_irc);
@@ -298,7 +260,6 @@ void* CDStarGatewayThread::Entry()
 #ifdef USE_CCS
 	std::string ccsAddress = m_ccsEnabled ? m_gatewayAddress : LOOPBACK_ADDRESS;
 	CCCSHandler::setLocalAddress(ccsAddress);
-	CCCSHandler::setHeaderLogger(headerLogger);
 	CCCSHandler::setHost(m_ccsHost);
 #endif
 
@@ -383,25 +344,6 @@ void* CDStarGatewayThread::Entry()
 			if (m_outgoingAprsHandler != NULL)
 				m_outgoingAprsHandler->clock(ms);
 
-			if (m_logEnabled) {
-				m_statusTimer1.clock(ms);
-				if (m_statusTimer1.hasExpired()) {
-					bool ret1 = CDExtraHandler::stateChange();
-					bool ret2 = CDPlusHandler::stateChange();
-					bool ret3 = CDCSHandler::stateChange();
-#ifdef USE_CCS
-					bool ret4 = CCCSHandler::stateChange();
-					if (ret1 || ret2 || ret3 || ret4)
-						writeStatus();
-#else
-					if (ret1 || ret2 || ret3)
-						writeStatus();
-#endif
-		
-					m_statusTimer1.start();
-				}
-			}
-
 			::std::this_thread::sleep_for(std::chrono::milliseconds(TIME_PER_TIC_MS));
 		}
 #ifndef DEBUG_DSTARGW
@@ -475,11 +417,6 @@ void* CDStarGatewayThread::Entry()
 	if(m_outgoingAprsHandler != nullptr) {
 		m_outgoingAprsHandler->close();
 		delete m_outgoingAprsHandler;
-	}
-
-	if (headerLogger != NULL) {
-		headerLogger->close();
-		delete headerLogger;
 	}
 
 	CHeaderData::finalise();
@@ -1148,33 +1085,6 @@ void CDStarGatewayThread::processDD()
 
 		delete data;
 	}
-}
-
-void CDStarGatewayThread::writeStatus()
-{
-	std::string fullName = LINKS_BASE_NAME;
-
-	if (!m_name.empty()) {
-		fullName += "_" + m_name;
-	}
-
-	fullName = m_logDir + "/" + LINKS_BASE_NAME + ".log";
-
-	std::ofstream file;
-	file.open(fullName, std::fstream::trunc);
-	if (!file.is_open()) {
-		CLog::logError("Unable to open %s for writing", fullName.c_str());
-		return;
-	}
-
-	CDExtraHandler::writeStatus(file);
-	CDPlusHandler::writeStatus(file);
-	CDCSHandler::writeStatus(file);
-#ifdef USE_CCS
-	CCCSHandler::writeStatus(file);
-#endif
-
-	file.close();
 }
 
 CDStarGatewayStatusData* CDStarGatewayThread::getStatus() const

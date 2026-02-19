@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2015,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -32,8 +32,6 @@ CDExtraProtocolHandlerPool* CDExtraHandler::m_pool = NULL;
 CDExtraProtocolHandler*     CDExtraHandler::m_incoming = NULL;
 
 bool                        CDExtraHandler::m_stateChange = false;
-
-CHeaderLogger*              CDExtraHandler::m_headerLogger = NULL;
 
 CCallsignList*              CDExtraHandler::m_whiteList = NULL;
 CCallsignList*              CDExtraHandler::m_blackList = NULL;
@@ -150,11 +148,6 @@ void CDExtraHandler::setDExtraProtocolHandlerPool(CDExtraProtocolHandlerPool* po
 	assert(pool != NULL);
 
 	m_pool = pool;
-}
-
-void CDExtraHandler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
 }
 
 void CDExtraHandler::setMaxDongles(unsigned int maxDongles)
@@ -620,10 +613,6 @@ void CDExtraHandler::processInt(CHeaderData& header)
 				if (m_dExtraId != 0x00U)
 					return;
 
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DExtra", header);
-
 				m_dExtraId  = id;
 				m_dExtraSeq = 0x00U;
 				m_inactivityTimer.start();
@@ -647,10 +636,6 @@ void CDExtraHandler::processInt(CHeaderData& header)
 				// If we're already processing, ignore the new header
 				if (m_dExtraId != 0x00U)
 					return;
-
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DExtra", header);
 
 				m_dExtraId  = id;
 				m_dExtraSeq = 0x00U;
@@ -676,10 +661,6 @@ void CDExtraHandler::processInt(CHeaderData& header)
 				// If we're already processing, ignore the new header
 				if (m_dExtraId != 0x00U)
 					return;
-
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DExtra", header);
 
 				m_dExtraId  = id;
 				m_dExtraSeq = 0x00U;
@@ -945,46 +926,6 @@ bool CDExtraHandler::stateChange()
 	m_stateChange = false;
 
 	return stateChange;
-}
-
-void CDExtraHandler::writeStatus(std::ofstream& file)
-{
-	for (unsigned int i = 0U; i < m_maxReflectors; i++) {
-		CDExtraHandler* reflector = m_reflectors[i];
-		if (reflector != NULL) {
-			std::string text;
-
-			struct tm* tm = ::gmtime(&reflector->m_time);
-
-			switch (reflector->m_direction) {
-				case DIR_OUTGOING:
-					if (reflector->m_linkState == DEXTRA_LINKED) {
-						text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DExtra link - Type: Repeater Rptr: %s Refl: %s Dir: Outgoing\n",
-							tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-							reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
-
-						file << text;
-					}
-					break;
-
-				case DIR_INCOMING:
-					if (reflector->m_linkState == DEXTRA_LINKED) {
-						if (reflector->m_repeater.empty())
-							text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DExtra link - Type: Dongle User: %s Dir: Incoming\n",
-								tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-								reflector->m_reflector.c_str());
-						else
-							text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DExtra link - Type: Repeater Rptr: %s Refl: %s Dir: Incoming\n",
-								tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-								reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
-
-						file << text;
-					}
-					break;
-			}
-
-		}
-	}
 }
 
 unsigned int CDExtraHandler::calcBackoff()

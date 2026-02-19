@@ -91,15 +91,6 @@ clean:
 
 -include $(DEPS)
 
-# install, uninstall and removehostfiles need root priviledges
-.PHONY: newhostfiles
-newhostfiles :
-	@echo "Fetching new host files"
-	@mkdir -p $(DATA_DIR)
-	@wget http://www.pistar.uk/downloads/DExtra_Hosts.txt -nv -O $(DATA_DIR)/DExtra_Hosts.txt
-	@wget http://www.pistar.uk/downloads/DCS_Hosts.txt -nv -O $(DATA_DIR)/DCS_Hosts.txt
-	@wget http://www.pistar.uk/downloads/DPlus_Hosts.txt -nv -O $(DATA_DIR)/DPlus_Hosts.txt
-
 .PHONY: install
 install : DStarGateway/dstargateway DGWRemoteControl/dgwremotecontrol
 # install accessories

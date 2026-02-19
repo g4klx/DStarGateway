@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,6 @@ CDCSProtocolHandler*     CDCSHandler::m_incoming = NULL;
 bool                     CDCSHandler::m_stateChange = false;
 
 GATEWAY_TYPE             CDCSHandler::m_gatewayType  = GT_REPEATER;
-
-CHeaderLogger*           CDCSHandler::m_headerLogger = NULL;
 
 CCallsignList*           CDCSHandler::m_whiteList = NULL;
 CCallsignList*           CDCSHandler::m_blackList = NULL;
@@ -121,11 +119,6 @@ void CDCSHandler::setDCSProtocolIncoming(CDCSProtocolHandler* handler)
 	assert(handler != NULL);
 
 	m_incoming = handler;
-}
-
-void CDCSHandler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
 }
 
 void CDCSHandler::setGatewayType(GATEWAY_TYPE type)
@@ -542,10 +535,6 @@ void CDCSHandler::processInt(CAMBEData& data)
 				return;
 
 			if (m_dcsId == 0x00U) {		// && seqNo == 0U) {
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DCS", header);
-
 				m_dcsId  = id;
 				m_dcsSeq = 0x00U;
 				m_inactivityTimer.start();
@@ -588,10 +577,6 @@ void CDCSHandler::processInt(CAMBEData& data)
 				return;
 
 			if (m_dcsId == 0x00U) {		// && seqNo == 0U) {
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DCS", header);
-
 				m_dcsId  = id;
 				m_dcsSeq = 0x00U;
 				m_inactivityTimer.start();
@@ -839,38 +824,6 @@ bool CDCSHandler::stateChange()
 	m_stateChange = false;
 
 	return stateChange;
-}
-
-void CDCSHandler::writeStatus(std::ofstream& file)
-{
-	for (unsigned int i = 0U; i < m_maxReflectors; i++) {
-		CDCSHandler* reflector = m_reflectors[i];
-		if (reflector != NULL) {
-			struct tm* tm = ::gmtime(&reflector->m_time);
-
-			switch (reflector->m_direction) {
-				case DIR_OUTGOING:
-					if (reflector->m_linkState == DCS_LINKED) {
-						std::string text;
-						text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DCS link - Type: Repeater Rptr: %s Refl: %s Dir: Outgoing\n",
-							tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-							reflector->m_repeater.c_str(), GET_DISP_REFLECTOR(reflector).c_str());
-						file << text;
-					}
-					break;
-
-				case DIR_INCOMING:
-					if (reflector->m_linkState == DCS_LINKED) {
-						std::string text;
-						text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DCS link - Type: Repeater Rptr: %s Refl: %s Dir: Incoming\n",
-							tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-							reflector->m_repeater.c_str(), GET_DISP_REFLECTOR(reflector).c_str());
-						file << text;
-					}
-					break;
-			}
-		}
-	}
 }
 
 unsigned int CDCSHandler::calcBackoff()

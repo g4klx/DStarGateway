@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,6 @@
 #include "ReflectorCallback.h"
 #include "CacheManager.h"
 #include "DStarDefines.h"
-#include "HeaderLogger.h"
 #include "CallsignList.h"
 #include "ConnectData.h"
 #include "HeaderData.h"
@@ -53,7 +52,6 @@ public:
 	static void setDPlusProtocolHandlerPool(CDPlusProtocolHandlerPool* pool);
 	static void setDPlusProtocolIncoming(CDPlusProtocolHandler* handler);
 	static void setDPlusLogin(const std::string& dplusLogin);
-	static void setHeaderLogger(CHeaderLogger* logger);
 	static void setMaxDongles(unsigned int maxDongles);
 
 	static void startAuthenticator(const std::string& address, CCacheManager* cache);
@@ -75,7 +73,6 @@ public:
 	static void clock(unsigned int ms);
 
 	static bool stateChange();
-	static void writeStatus(std::ofstream& file);
 
 	static void setWhiteList(CCallsignList* list);
 	static void setBlackList(CCallsignList* list);
@@ -112,7 +109,6 @@ private:
 
 	static bool                       m_stateChange;
 
-	static CHeaderLogger*             m_headerLogger;
 	static CDPlusAuthenticator*       m_authenticator;
 
 	static CCallsignList*             m_whiteList;

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2015,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2015,2018,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -56,8 +56,6 @@ bool                      CRepeaterHandler::m_dcsEnabled = true;
 bool                      CRepeaterHandler::m_infoEnabled = true;
 bool                      CRepeaterHandler::m_echoEnabled = true;
 bool                      CRepeaterHandler::m_dtmfEnabled = true;
-
-CHeaderLogger*            CRepeaterHandler::m_headerLogger = NULL;
 
 CAPRSHandler*              CRepeaterHandler::m_outgoingAprsHandler  = NULL; //handles APRS/DPRS frames coming from radio to network
 CAPRSHandler*              CRepeaterHandler::m_incomingAprsHandler  = NULL; //handles APRS/DPRS frames coming from network to radio
@@ -313,11 +311,6 @@ void CRepeaterHandler::setEchoEnabled(bool enabled)
 void CRepeaterHandler::setDTMFEnabled(bool enabled)
 {
 	m_dtmfEnabled = enabled;
-}
-
-void CRepeaterHandler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
 }
 
 void CRepeaterHandler::setAPRSHandlers(CAPRSHandler* outgoingAprsHandler, CAPRSHandler* incomingAprsHandler)
@@ -584,10 +577,6 @@ void CRepeaterHandler::processRepeater(CHeaderData& header)
 	// Reset the APRS Writer if it's enabled
 	if (m_outgoingAprsHandler != NULL)
 		m_outgoingAprsHandler->writeHeader(m_rptCallsign, header);
-
-	// Write to Header.log if it's enabled
-	if (m_headerLogger != NULL)
-		m_headerLogger->write("Repeater", header);
 
 	// Reset the DTMF decoder
 	m_dtmf.reset();

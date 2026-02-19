@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,6 @@ CDPlusProtocolHandler*     CDPlusHandler::m_incoming = NULL;
 bool                       CDPlusHandler::m_stateChange = false;
 
 CDPlusAuthenticator*       CDPlusHandler::m_authenticator = NULL;
-CHeaderLogger*             CDPlusHandler::m_headerLogger = NULL;
 
 CCallsignList*             CDPlusHandler::m_whiteList = NULL;
 CCallsignList*             CDPlusHandler::m_blackList = NULL;
@@ -163,11 +162,6 @@ void CDPlusHandler::setDPlusProtocolIncoming(CDPlusProtocolHandler* handler)
 void CDPlusHandler::setDPlusLogin(const std::string& dplusLogin)
 {
 	m_dplusLogin = dplusLogin;
-}
-
-void CDPlusHandler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
 }
 
 void CDPlusHandler::setMaxDongles(unsigned int maxDongles)
@@ -597,10 +591,6 @@ void CDPlusHandler::processInt(CHeaderData& header)
 				if (m_dPlusId != 0x00U)
 					return;
 
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write("DPlus", header);
-
 				m_dPlusId  = id;
 				m_dPlusSeq = 0x00U;
 				m_inactivityTimer.start();
@@ -626,10 +616,6 @@ void CDPlusHandler::processInt(CHeaderData& header)
 
 				if (m_dPlusId != 0x00U)
 					return;
-
-				// Write to Header.log if it's enabled
-				if (m_headerLogger != NULL)
-					m_headerLogger->write(("DPlus"), header);
 
 				m_dPlusId  = id;
 				m_dPlusSeq = 0x00U;
@@ -909,36 +895,6 @@ bool CDPlusHandler::stateChange()
 	m_stateChange = false;
 
 	return stateChange;
-}
-
-void CDPlusHandler::writeStatus(std::ofstream& file)
-{
-	for (unsigned int i = 0U; i < m_maxReflectors; i++) {
-		CDPlusHandler* reflector = m_reflectors[i];
-		if (reflector != NULL) {
-			std::string text;
-
-			struct tm* tm = ::gmtime(&reflector->m_time);
-
-			if (reflector->m_linkState == DPLUS_LINKED) {
-				switch (reflector->m_direction) {
-					case DIR_OUTGOING:
-						text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DPlus link - Type: Dongle Rptr: %s Refl: %s Dir: Outgoing\n",
-							tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-							reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
-						break;
-
-					case DIR_INCOMING:
-						text = CStringUtils::string_format("%04d-%02d-%02d %02d:%02d:%02d: DPlus link - Type: Dongle User: %s Dir: Incoming\n",
-							tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, 
-							reflector->m_reflector.c_str());
-						break;
-				}
-
-				file << text;
-			}
-		}
-	}
 }
 
 unsigned int CDPlusHandler::calcBackoff()

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2012 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2012,2026 by Jonathan Naylor G4KLX
  *   copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -33,8 +33,6 @@ CG2Handler**        CG2Handler::m_routes = NULL;
 
 CG2ProtocolHandlerPool* CG2Handler::m_handler = NULL;
 
-CHeaderLogger*      CG2Handler::m_headerLogger = NULL;
-
 CG2Handler::CG2Handler(CRepeaterHandler* repeater, const in_addr& address, unsigned int id) :
 m_repeater(repeater),
 m_address(address),
@@ -67,11 +65,6 @@ void CG2Handler::setG2ProtocolHandlerPool(CG2ProtocolHandlerPool* handler)
 	m_handler = handler;
 }
 
-void CG2Handler::setHeaderLogger(CHeaderLogger* logger)
-{
-	m_headerLogger = logger;
-}
-
 void CG2Handler::process(CHeaderData& header)
 {
 	// Is this a busy reply?
@@ -86,10 +79,6 @@ void CG2Handler::process(CHeaderData& header)
 	// Check to see if this is for StarNet
 	CStarNetHandler* handler = CStarNetHandler::findStarNet(header);
 	if (handler != NULL) {
-		// Write to Header.log if it's enabled
-		if (m_headerLogger != NULL)
-			m_headerLogger->write("StarNet", header);
-
 		handler->process(header);
 		return;
 	}
@@ -114,10 +103,6 @@ void CG2Handler::process(CHeaderData& header)
 	for (unsigned int i = 0U; i < m_maxRoutes; i++) {
 		if (m_routes[i] == NULL) {
 			m_routes[i] = route;
-
-			// Write to Header.log if it's enabled
-			if (m_headerLogger != NULL)
-				m_headerLogger->write("G2", header);
 
 			repeater->process(header, DIR_INCOMING, AS_G2);
 			return;

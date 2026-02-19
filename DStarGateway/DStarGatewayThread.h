@@ -121,7 +121,6 @@ private:
 	bool					  m_logIRCDDB;
 	bool                      m_ddModeEnabled;
 	IRCDDB_STATUS             m_lastStatus;
-	CTimer                    m_statusTimer1;
 	CTimer                    m_statusTimer2;
 	bool                      m_remoteEnabled;
 	std::string                  m_remotePassword;
@@ -146,8 +145,6 @@ private:
 	void processDCS();
 	void processG2();
 	void processDD();
-
-	void writeStatus();
 
 	void readStatusFiles();
 	void readStatusFile(const std::string& filename, unsigned int n, std::string& var);

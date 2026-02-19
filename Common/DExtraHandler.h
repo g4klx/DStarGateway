@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2013,2015,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -27,7 +27,6 @@
 #include "DExtraProtocolHandlerPool.h"
 #include "ReflectorCallback.h"
 #include "DStarDefines.h"
-#include "HeaderLogger.h"
 #include "CallsignList.h"
 #include "ConnectData.h"
 #include "HeaderData.h"
@@ -49,7 +48,6 @@ public:
 	static void setCallsign(const std::string& callsign);
 	static void setDExtraProtocolHandlerPool(CDExtraProtocolHandlerPool* pool);
 	static void setDExtraProtocolIncoming(CDExtraProtocolHandler* handler);
-	static void setHeaderLogger(CHeaderLogger* logger);
 	static void setMaxDongles(unsigned int maxDongles);
 
 	static void link(IReflectorCallback* handler, const std::string& repeater, const std::string& reflector, const in_addr& address, unsigned int& localPort);
@@ -68,7 +66,6 @@ public:
 	static void clock(unsigned int ms);
 
 	static bool stateChange();
-	static void writeStatus(std::ofstream& file);
 
 	static void setWhiteList(CCallsignList* list);
 	static void setBlackList(CCallsignList* list);
@@ -104,8 +101,6 @@ private:
 	static CDExtraProtocolHandler*     m_incoming;
 
 	static bool                        m_stateChange;
-
-	static CHeaderLogger*              m_headerLogger;
 
 	static CCallsignList*              m_whiteList;
 	static CCallsignList*              m_blackList;

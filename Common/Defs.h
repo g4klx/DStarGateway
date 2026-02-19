@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -28,11 +28,7 @@ const std::string DPLUS_HOSTS_FILE_NAME("DPlus_Hosts.txt");
 const std::string XLX_HOSTS_FILE_NAME("XLX_Hosts.txt");
 const std::string GATEWAY_HOSTS_FILE_NAME("Gateway_Hosts.txt");
 
-const std::string LINKS_BASE_NAME("Links");
-const std::string TEXT_BASE_NAME("Text");
-const std::string USERS_BASE_NAME("Users");
 const std::string STARNET_BASE_NAME("STARnet");
-const std::string HEADERS_BASE_NAME("Headers");
 const std::string DDMODE_BASE_NAME("DDMode");
 
 enum RECONNECT {
