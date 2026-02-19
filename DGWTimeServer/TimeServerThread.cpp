@@ -186,6 +186,7 @@ void CTimeServerThread::sendTime(unsigned int hour, unsigned int min)
 			words = sendTimeDeDE2(hour, min);
 			break;
 		case LANG_FRANCAIS:
+		case LANG_FRANCAIS_2:
 			words = sendTimeFrFR(hour, min);
 			break;
 		case LANG_NEDERLANDS:
@@ -953,6 +954,10 @@ bool CTimeServerThread::loadAMBE()
 			ambeFileName = "TIME_fr_FR.ambe";
 			indxFileName = "TIME_fr_FR.indx";
 			break;
+		case LANG_FRANCAIS_2:
+			ambeFileName = "TIME_fr_FR2.ambe";
+			indxFileName = "TIME_fr_FR2.indx";
+			break;
 		case LANG_NEDERLANDS:
 			ambeFileName = "TIME_nl_NL.ambe";
 			indxFileName = "TIME_nl_NL.indx";
@@ -1093,6 +1098,7 @@ bool CTimeServerThread::send(const std::vector<std::string> &words, unsigned int
 			slowData = CStringUtils::string_format(("Es ist %02u:%02u Uhr"), hour, min);
 			break;
 		case LANG_FRANCAIS:
+		case LANG_FRANCAIS_2:
 			header.setMyCall2(("TIME"));
 			slowData = CStringUtils::string_format(("Il est %02u:%02u"), hour, min);
 			break;
