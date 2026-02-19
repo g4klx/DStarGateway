@@ -2468,6 +2468,7 @@ void CRepeaterHandler::writeLinkingTo(const std::string &callsign)
 			text = CStringUtils::string_format("Linker til %s", callsign.c_str());
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = CStringUtils::string_format("Connexion a %s", callsign.c_str());
 			break;
 		case TL_ITALIANO:
@@ -2523,6 +2524,7 @@ void CRepeaterHandler::writeLinkedTo(const std::string &callsign)
 			text = CStringUtils::string_format("Linket til %s", callsign.c_str());
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = CStringUtils::string_format("Connecte a %s", callsign.c_str());
 			break;
 		case TL_ITALIANO:
@@ -2578,6 +2580,7 @@ void CRepeaterHandler::writeNotLinked()
 			text = "Ikke forbundet";
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = "Non connecte";
 			break;
 		case TL_ITALIANO:
@@ -2636,6 +2639,7 @@ void CRepeaterHandler::writeIsBusy(const std::string& callsign)
 			tempText = CStringUtils::string_format("Optaget fra %s", callsign.c_str());
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = "Non connecte";
 			tempText = CStringUtils::string_format("Occupe par %s", callsign.c_str());
 			break;
@@ -2704,6 +2708,7 @@ void CRepeaterHandler::ccsLinkMade(const std::string& callsign, DIRECTION direct
 			text = CStringUtils::string_format("Linket til %s", callsign.c_str());
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = CStringUtils::string_format("Connecte a %s", callsign.c_str());
 			break;
 		case TL_ITALIANO:
@@ -2769,6 +2774,7 @@ void CRepeaterHandler::ccsLinkEnded(const std::string&, DIRECTION direction)
 			tempText = "CCS er afsluttet";
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = "Non connecte";
 			tempText = "CCS a pris fin";
 			break;
@@ -2848,6 +2854,7 @@ void CRepeaterHandler::ccsLinkFailed(const std::string& dtmf, DIRECTION directio
 			tempText = CStringUtils::string_format("%s unknown", dtmf.c_str());
 			break;
 		case TL_FRANCAIS:
+		case TL_FRANCAIS_2:
 			text = "Non connecte";
 			tempText = CStringUtils::string_format("%s inconnu", dtmf.c_str());
 			break;
