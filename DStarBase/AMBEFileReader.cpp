@@ -142,7 +142,7 @@ bool CAMBEFileReader::readIndex()
 				unsigned long start  = std::stoul(strt);
 				unsigned long length = std::stoul(leng);
 
-				if (start >= m_ambeLength || (start + length) >= m_ambeLength)
+				if (start >= m_ambeLength || (start + length) > m_ambeLength)
 					LogInfo("The start or end for *%s* is out of range, start: %lu, end: %lu\n", name.c_str(), start, start + length);
 				else
 					m_index[name] = new CIndexRecord(name, start + SILENCE_LENGTH, length);
