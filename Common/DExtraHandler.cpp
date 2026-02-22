@@ -31,8 +31,6 @@ std::string                    CDExtraHandler::m_callsign;
 CDExtraProtocolHandlerPool* CDExtraHandler::m_pool = NULL;
 CDExtraProtocolHandler*     CDExtraHandler::m_incoming = NULL;
 
-bool                        CDExtraHandler::m_stateChange = false;
-
 CCallsignList*              CDExtraHandler::m_whiteList = NULL;
 CCallsignList*              CDExtraHandler::m_blackList = NULL;
 
@@ -66,7 +64,6 @@ m_header(NULL)
 
 	if (direction == DIR_INCOMING) {
 		m_pollTimer.start();
-		m_stateChange = true;
 		m_linkState = DEXTRA_LINKED;
 	} else {
 		m_linkState = DEXTRA_LINKING;
@@ -102,7 +99,6 @@ m_header(NULL)
 
 	if (direction == DIR_INCOMING) {
 		m_pollTimer.start();
-		m_stateChange = true;
 		m_linkState = DEXTRA_LINKED;
 	} else {
 		m_linkState = DEXTRA_LINKING;
@@ -481,8 +477,6 @@ void CDExtraHandler::unlink(IReflectorCallback* handler, const std::string& call
 					reflector->m_destination->process(data, reflector->m_direction, AS_DEXTRA);
 				}
 
-				m_stateChange = true;
-
 				delete m_reflectors[i];
 				m_reflectors[i] = NULL;
 			}
@@ -543,8 +537,6 @@ void CDExtraHandler::gatewayUpdate(const std::string& reflector, const std::stri
 					// No address, this probably shouldn't happen....
 					if (reflector->m_direction == DIR_OUTGOING && reflector->m_destination != NULL)
 						reflector->m_destination->linkFailed(DP_DEXTRA, reflector->m_reflector, false);
-
-					m_stateChange = true;
 
 					delete m_reflectors[i];
 					m_reflectors[i] = NULL;
@@ -733,8 +725,7 @@ bool CDExtraHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				m_tryTimer.stop();
 				m_pollTimer.start();
-				m_stateChange = true;
-				m_linkState   = DEXTRA_LINKED;
+				m_linkState = DEXTRA_LINKED;
 			}
 
 			return false;
@@ -763,8 +754,6 @@ bool CDExtraHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				if (m_direction == DIR_OUTGOING && m_destination != NULL)
 					m_destination->linkFailed(DP_DEXTRA, m_reflector, false);
-
-				m_stateChange = true;
 			}
 
 			return true;
@@ -787,9 +776,8 @@ bool CDExtraHandler::clockInt(unsigned int ms)
 		delete m_header;
 		m_header = NULL;
 
-		m_stateChange = true;
-		m_dExtraId    = 0x00U;
-		m_dExtraSeq   = 0x00U;
+		m_dExtraId  = 0x00U;
+		m_dExtraSeq = 0x00U;
 
 		switch (m_linkState) {
 			case DEXTRA_LINKING:
@@ -917,15 +905,6 @@ void CDExtraHandler::writeAMBEInt(IReflectorCallback* handler, CAMBEData& data, 
 			}
 			break;
 	}
-}
-
-bool CDExtraHandler::stateChange()
-{
-	bool stateChange = m_stateChange;
-
-	m_stateChange = false;
-
-	return stateChange;
 }
 
 unsigned int CDExtraHandler::calcBackoff()

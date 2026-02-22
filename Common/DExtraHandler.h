@@ -65,8 +65,6 @@ public:
 	static void gatewayUpdate(const std::string& reflector, const std::string& address);
 	static void clock(unsigned int ms);
 
-	static bool stateChange();
-
 	static void setWhiteList(CCallsignList* list);
 	static void setBlackList(CCallsignList* list);
 
@@ -99,8 +97,6 @@ private:
 	static std::string                    m_callsign;
 	static CDExtraProtocolHandlerPool* m_pool;
 	static CDExtraProtocolHandler*     m_incoming;
-
-	static bool                        m_stateChange;
 
 	static CCallsignList*              m_whiteList;
 	static CCallsignList*              m_blackList;

@@ -72,8 +72,6 @@ public:
 	static void gatewayUpdate(const std::string& gateway, const std::string& address);
 	static void clock(unsigned int ms);
 
-	static bool stateChange();
-
 	static void setWhiteList(CCallsignList* list);
 	static void setBlackList(CCallsignList* list);
 
@@ -106,8 +104,6 @@ private:
 	static std::string                   m_dplusLogin;
 	static CDPlusProtocolHandlerPool* m_pool;
 	static CDPlusProtocolHandler*     m_incoming;
-
-	static bool                       m_stateChange;
 
 	static CDPlusAuthenticator*       m_authenticator;
 

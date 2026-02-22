@@ -36,8 +36,6 @@ std::string                   CDPlusHandler::m_dplusLogin;
 CDPlusProtocolHandlerPool* CDPlusHandler::m_pool = NULL;
 CDPlusProtocolHandler*     CDPlusHandler::m_incoming = NULL;
 
-bool                       CDPlusHandler::m_stateChange = false;
-
 CDPlusAuthenticator*       CDPlusHandler::m_authenticator = NULL;
 
 CCallsignList*             CDPlusHandler::m_whiteList = NULL;
@@ -374,7 +372,6 @@ void CDPlusHandler::link(IReflectorCallback* handler, const std::string& repeate
 		CConnectData connect(CT_LINK1, address, DPLUS_PORT);
 		localPort = protoHandler->getPort();
 		protoHandler->writeConnect(connect);
-		m_stateChange = true;
 	} else {
 		LogError(("No space to add new D-Plus reflector, ignoring"));
 		delete dplus;
@@ -389,7 +386,6 @@ void CDPlusHandler::relink(IReflectorCallback* handler, const std::string &gatew
 				m_reflectors[i]->m_reflector = gateway;
 				m_reflectors[i]->m_dPlusId   = 0x00U;
 				m_reflectors[i]->m_dPlusSeq  = 0x00U;
-				m_stateChange = true;
 				return;
 			}
 		}
@@ -458,8 +454,6 @@ void CDPlusHandler::unlink(IReflectorCallback* handler, const std::string& calls
 					reflector->m_destination->process(data, reflector->m_direction, AS_DPLUS);
 				}
 
-				m_stateChange = true;
-
 				delete m_reflectors[i];
 				m_reflectors[i] =  NULL;
 			}
@@ -521,8 +515,6 @@ void CDPlusHandler::gatewayUpdate(const std::string& gateway, const std::string&
 					// No address, this probably shouldn't happen....
 					if (reflector->m_direction == DIR_OUTGOING && reflector->m_destination != NULL)
 						reflector->m_destination->linkFailed(DP_DPLUS, reflector->m_reflector, false);
-
-					m_stateChange = true;
 
 					delete m_reflectors[i];
 					m_reflectors[i] = NULL;
@@ -672,8 +664,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 					if (m_linkState == DPLUS_LINKING) {
 						LogInfo(("D-Plus ACK message received from %s"), m_reflector.c_str());
 						m_destination->linkUp(DP_DPLUS, m_reflector);
-						m_stateChange = true;
-						m_linkState   = DPLUS_LINKED;
+						m_linkState = DPLUS_LINKED;
 						m_tryTimer.stop();
 						m_pollTimer.start();
 						m_pollInactivityTimer.start();
@@ -694,7 +685,6 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 					if (m_linkState == DPLUS_UNLINKING) {
 						LogInfo(("D-Plus disconnect acknowledgement received from %s"), m_reflector.c_str());
 						m_destination->linkFailed(DP_DPLUS, m_reflector, false);
-						m_stateChange = true;
 						m_tryTimer.stop();
 					}
 					return true;
@@ -719,14 +709,12 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 						CConnectData reply(CT_ACK, m_yourAddress, m_yourPort);
 						m_handler->writeConnect(reply);
 						m_linkState   = DPLUS_LINKED;
-						m_stateChange = true;
 					}
 					return false;
 
 				case CT_UNLINK:
 					if (m_linkState == DPLUS_LINKED) {
 						LogInfo(("D-Plus dongle link to %s has ended (unlinked)"), m_reflector.c_str());
-						m_stateChange = true;
 						m_handler->writeConnect(connect);
 					}
 					return true;
@@ -753,9 +741,8 @@ bool CDPlusHandler::clockInt(unsigned int ms)
 		delete m_header;
 		m_header = NULL;
 
-		m_stateChange = true;
-		m_dPlusId     = 0x00U;
-		m_dPlusSeq    = 0x00U;
+		m_dPlusId  = 0x00U;
+		m_dPlusSeq = 0x00U;
 
 		if (!m_reflector.empty()) {
 			switch (m_linkState) {
@@ -886,15 +873,6 @@ void CDPlusHandler::writeAMBEInt(IReflectorCallback* handler, CAMBEData& data, D
 			m_handler->writeAMBE(data);
 			break;
 	}
-}
-
-bool CDPlusHandler::stateChange()
-{
-	bool stateChange = m_stateChange;
-
-	m_stateChange = false;
-
-	return stateChange;
 }
 
 unsigned int CDPlusHandler::calcBackoff()

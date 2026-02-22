@@ -30,8 +30,6 @@ CDCSHandler**            CDCSHandler::m_reflectors = NULL;
 CDCSProtocolHandlerPool* CDCSHandler::m_pool = NULL;
 CDCSProtocolHandler*     CDCSHandler::m_incoming = NULL;
 
-bool                     CDCSHandler::m_stateChange = false;
-
 GATEWAY_TYPE             CDCSHandler::m_gatewayType  = GT_REPEATER;
 
 CCallsignList*           CDCSHandler::m_whiteList = NULL;
@@ -77,7 +75,6 @@ m_rptCall2()
 
 	if (direction == DIR_INCOMING) {
 		m_pollTimer.start();
-		m_stateChange = true;
 		m_linkState = DCS_LINKED;
 	} else {
 		m_linkState = DCS_LINKING;
@@ -399,8 +396,6 @@ void CDCSHandler::unlink(IReflectorCallback* handler, const std::string& callsig
 
 					reflector->m_destination->process(data, reflector->m_direction, AS_DCS);
 				}
-
-				m_stateChange = true;
 			}
 		}
 	}	
@@ -461,8 +456,6 @@ void CDCSHandler::gatewayUpdate(const std::string& reflector, const std::string&
 					// No address, this probably shouldn't happen....
 					if (reflector->m_direction == DIR_OUTGOING && reflector->m_destination != NULL)
 						reflector->m_destination->linkFailed(DP_DCS, reflector->m_reflector, false);
-
-					m_stateChange = true;
 
 					delete m_reflectors[i];
 					m_reflectors[i] = NULL;
@@ -635,7 +628,6 @@ bool CDCSHandler::processInt(CConnectData& connect, CD_TYPE type)
 					m_destination->linkUp(DP_DCS, GET_DISP_REFLECTOR(this));
 
 				m_tryTimer.stop();
-				m_stateChange = true;
 				m_linkState   = DCS_LINKED;
 			}
 
@@ -674,8 +666,6 @@ bool CDCSHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				if (m_direction == DIR_OUTGOING && m_destination != NULL)
 					m_destination->linkFailed(DP_DCS, GET_DISP_REFLECTOR(this), false);
-
-				m_stateChange = true;
 			}
 
 			return true;
@@ -695,9 +685,8 @@ bool CDCSHandler::clockInt(unsigned int ms)
 	if (m_pollInactivityTimer.isRunning() && m_pollInactivityTimer.hasExpired()) {
 		m_pollInactivityTimer.start();
 
-		m_stateChange = true;
-		m_dcsId       = 0x00U;
-		m_dcsSeq      = 0x00U;
+		m_dcsId  = 0x00U;
+		m_dcsSeq = 0x00U;
 
 		switch (m_linkState) {
 			case DCS_LINKING:
@@ -815,15 +804,6 @@ void CDCSHandler::writeAMBEInt(IReflectorCallback* handler, CAMBEData& data, DIR
 	data.setRptSeq(m_seqNo++);
 	data.setDestination(m_yourAddress, m_yourPort);
 	m_handler->writeData(data);
-}
-
-bool CDCSHandler::stateChange()
-{
-	bool stateChange = m_stateChange;
-
-	m_stateChange = false;
-
-	return stateChange;
 }
 
 unsigned int CDCSHandler::calcBackoff()
