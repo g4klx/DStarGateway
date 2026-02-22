@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2011 by DV Developer Group. DJ0ABR
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
@@ -84,7 +84,7 @@ bool CDTMF::decode(const unsigned char* ambe, bool end)
 		else if (sym0 == DTMF_SYMH[0] && sym1 == DTMF_SYMH[1] && sym2 == DTMF_SYMH[2] && sym3 == DTMF_SYMH[3])
 			c = '#';
 
-		CLog::logTrace("Received DTMF Tone %c", c);
+		LogDebug("Received DTMF Tone %c", c);
 
 		if (c == m_lastChar) {
 			m_pressCount++;
@@ -104,7 +104,7 @@ bool CDTMF::decode(const unsigned char* ambe, bool end)
 		// If it is not a DTMF Code
 		if ((end || m_releaseCount >= 100U) && m_data.length() > 0U) {
 			m_command = m_data;
-			CLog::logDebug("Received DTMF Command %s", m_command.c_str());
+			LogDebug("Received DTMF Command %s", m_command.c_str());
 			m_data.clear();
 			m_releaseCount = 0U;
 		}
@@ -159,7 +159,7 @@ std::string CDTMF::translate()
 
 void CDTMF::reset()
 {
-	CLog::logTrace("DTMF Reset");
+	LogDebug("DTMF Reset");
 	m_data.clear();
 	m_command.clear();
 	m_pressed = false;

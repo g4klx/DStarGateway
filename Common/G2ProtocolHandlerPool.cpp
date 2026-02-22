@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -99,12 +100,12 @@ bool CG2ProtocolHandlerPool::readPackets()
     if(length <= 0) return false;
 
 	if(length == 1 && buffer[0] == 0U) {
-		CLog::logDebug("G2 Nat traversal packet received");
+		LogDebug("G2 Nat traversal packet received");
 	}
 
     CG2ProtocolHandler * handler = findHandler(addr, IMT_ADDRESS_AND_PORT);
     if(handler == nullptr) {
-        CLog::logTrace("new incoming G2 %s:%u", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port));
+        LogDebug("new incoming G2 %s:%u", inet_ntoa(TOIPV4(addr)->sin_addr), ntohs(TOIPV4(addr)->sin_port));
         handler = new CG2ProtocolHandler(&m_socket, addr, G2_BUFFER_LENGTH);
         m_pool.push_back(handler);
         m_index = m_pool.end();
@@ -120,7 +121,7 @@ void CG2ProtocolHandlerPool::traverseNat(const std::string& address)
 	
 	in_addr addr = CUDPReaderWriter::lookup(address);
 
-	CLog::logInfo("G2 Punching hole to %s", address.c_str());
+	LogInfo("G2 Punching hole to %s", address.c_str());
 
 	m_socket.write(&buffer, 1U, addr, G2_DV_PORT);
 }

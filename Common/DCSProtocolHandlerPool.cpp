@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017-2018 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -30,7 +30,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	CLog::logInfo("DCS UDP port base = %u\n", port);
+	LogInfo("DCS UDP port base = %u\n", port);
 }
 
 CDCSProtocolHandlerPool::~CDCSProtocolHandlerPool()
@@ -64,14 +64,14 @@ CDCSProtocolHandler *CDCSProtocolHandlerPool::getHandler(unsigned int port)
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			CLog::logInfo("New DCS Protocol Handler now on port %u.\n", port);
+			LogInfo("New DCS Protocol Handler now on port %u.\n", port);
 		} else {
 			delete proto;
 			proto = NULL;
-			CLog::logError("Can't open new DCS UDP port %u!\n", port);
+			LogError("Can't open new DCS UDP port %u!\n", port);
 		}
 	} else
-		CLog::logError("Can't allocate new CDCSProtocolHandler at port %u\n", port);
+		LogError("Can't allocate new CDCSProtocolHandler at port %u\n", port);
 	return proto;
 }
 
@@ -85,13 +85,13 @@ void CDCSProtocolHandlerPool::release(CDCSProtocolHandler *handler)
 			handler->close();
 			delete handler ;
 			m_index = m_pool.end(); // since we removed an element, m_index is out of order, just move it back to the end
-			CLog::logInfo("Released DCS ProtocolHandler on port %u.\n", port);
+			LogInfo("Released DCS ProtocolHandler on port %u.\n", port);
 
 			return;
 		}
 	}
 	// we should never get here!
-	CLog::logInfo("ERROR: could not find DCS ProtocolHander (port=%u) to release!\n", handler->getPort());
+	LogInfo("ERROR: could not find DCS ProtocolHander (port=%u) to release!\n", handler->getPort());
 }
 
 DCS_TYPE CDCSProtocolHandlerPool::read()

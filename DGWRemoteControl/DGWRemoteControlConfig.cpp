@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -97,7 +97,7 @@ bool CDGWRemoteControlConfig::open(CConfig & cfg)
 		return cfg.load();
 	}
 	catch(...) {
-		CLog::logError("Can't read %s\n", m_fileName.c_str());
+		fprintf(stderr, "Can't read %s\n", m_fileName.c_str());
 		return false;
 	}
 	return true;

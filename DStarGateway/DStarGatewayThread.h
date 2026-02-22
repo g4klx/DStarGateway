@@ -1,6 +1,6 @@
 /*
- *   Copyright (C) 2010-2015,2018 by Jonathan Naylor G4KLX
- *	 copyright (c) 2021 by Geoffrey F4FXL / KC3FRA
+ *   Copyright (C) 2010-2015,2018,2026 by Jonathan Naylor G4KLX
+ *   Copyright (c) 2021 by Geoffrey F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@
 
 class CDStarGatewayThread : public CThread{
 public:
-	CDStarGatewayThread(const std::string& logDir, const std::string& dataDir, const std::string& name);
+	CDStarGatewayThread(const std::string& dataDir, const std::string& name);
 	virtual ~CDStarGatewayThread();
 
 	virtual void setGateway(GATEWAY_TYPE type, const std::string& callsign, const std::string& address);
@@ -85,7 +85,6 @@ protected:
 	void* Entry();
 	
 private:
-	std::string                  m_logDir;
 	std::string					 m_dataDir;
 	std::string                  m_name;
 	bool                      m_killed;

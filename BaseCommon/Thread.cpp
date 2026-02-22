@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2024 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -57,5 +58,5 @@ void CThread::EntryRunner(CThread * thread)
 {
     assert(thread != nullptr);
     thread->Entry();
-    CLog::logTrace("Exiting %s thread", thread->m_name.c_str());
+    LogInfo("Exiting %s thread", thread->m_name.c_str());
 }

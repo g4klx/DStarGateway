@@ -4,6 +4,7 @@ CIRCDDB - ircDDB client library in C++
 Copyright (C) 2010-2011   Michael Dirska, DL1BFF (dl1bff@mdx.de)
 Copyright (c) 2017 by Thomas A. Early N7TAE
 Copyright (c) 2021 by Thomas Geoffrey Merck F4FXL / KC3FRA
+Copyright (C) 2026 by Jonathan Naylor G4KLX
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -77,7 +78,7 @@ void IRCProtocol::setNetworkReady(bool b)
 {
 	if (b == true) {
 		if (0 != m_state)
-			CLog::logInfo("IRCProtocol::setNetworkReady: unexpected state\n");
+			LogInfo("IRCProtocol::setNetworkReady: unexpected state\n");
 		m_state = 1;
 		chooseNewNick();
 	} else

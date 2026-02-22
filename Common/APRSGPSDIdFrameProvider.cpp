@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -38,12 +39,12 @@ void CAPRSGPSDIdFrameProvider::start()
 {
     int ret = ::gps_open(m_gpsdAddress.c_str(), m_gpsdPort.c_str(), &m_gpsdData);
     if (ret != 0) {
-        CLog::logError("Error when opening access to gpsd - %d - %s", errno, ::gps_errstr(errno));
+        LogError("Error when opening access to gpsd - %d - %s", errno, ::gps_errstr(errno));
         m_hasConnection = false;
     }
     else {
         ::gps_stream(&m_gpsdData, WATCH_ENABLE | WATCH_JSON, NULL);
-        CLog::logError("Connected to GPSD");
+        LogError("Connected to GPSD");
         m_hasConnection = true;
     }
 }

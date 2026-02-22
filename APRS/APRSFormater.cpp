@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -29,7 +30,7 @@ bool CAPRSFormater::frameToString(std::string& output, CAPRSFrame& frame)
     if(frame.getSource().empty()
         || frame.getDestination().empty()
         || frame.getBody().empty()) {
-            CLog::logWarning("Invalid APRS frame, missing source, destination or body");
+            LogWarning("Invalid APRS frame, missing source, destination or body");
             return false;
     }
 

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2012,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2012,2018,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -85,7 +85,7 @@ unsigned int CNMEASentenceCollector::getDataInt(unsigned char * data, unsigned i
 
     auto aprsFrameLen = aprsFrame.length();
     if(length < aprsFrameLen) {
-        CLog::logDebug("Not enough space to copy NMEA APRS frame");
+        LogDebug("Not enough space to copy NMEA APRS frame");
         return 0U;
     }
 

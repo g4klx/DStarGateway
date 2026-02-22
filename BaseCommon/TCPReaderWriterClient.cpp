@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -77,7 +77,7 @@ bool CTCPReaderWriterClient::open()
 
 	m_fd = ::socket(PF_INET, SOCK_STREAM, 0);
 	if (m_fd < 0) {
-		CLog::logInfo("Cannot create the TCP client socket, err=%d\n", errno);
+		LogInfo("Cannot create the TCP client socket, err=%d\n", errno);
 		return false;
 	}
 
@@ -88,13 +88,13 @@ bool CTCPReaderWriterClient::open()
 		addr.sin_port   = 0U;
 		addr.sin_addr.s_addr = ::inet_addr(m_localAddress.c_str());
 		if (addr.sin_addr.s_addr == INADDR_NONE) {
-			CLog::logInfo("The address is invalid - %s\n", m_localAddress.c_str());
+			LogInfo("The address is invalid - %s\n", m_localAddress.c_str());
 			close();
 			return false;
 		}
 
 		if (::bind(m_fd, (sockaddr*)&addr, sizeof(sockaddr_in)) == -1) {
-		CLog::logInfo("Cannot bind the TCP client address, err=%d\n", errno);
+		LogInfo("Cannot bind the TCP client address, err=%d\n", errno);
 			close();
 			return false;
 		}
@@ -112,14 +112,14 @@ bool CTCPReaderWriterClient::open()
 	}
 
 	if (::connect(m_fd, (sockaddr*)&addr, sizeof(struct sockaddr_in)) == -1) {
-		CLog::logInfo("Cannot connect the TCP client socket, err=%d\n", errno);
+		LogInfo("Cannot connect the TCP client socket, err=%d\n", errno);
 		close();
 		return false;
 	}
 
 	int noDelay = 1;
 	if (::setsockopt(m_fd, IPPROTO_TCP, TCP_NODELAY, (char *)&noDelay, sizeof(noDelay)) == -1) {
-		CLog::logInfo("Cannot set the TCP client socket option, err=%d\n", errno);
+		LogInfo("Cannot set the TCP client socket option, err=%d\n", errno);
 		close();
 		return false;
 	}
@@ -145,7 +145,7 @@ int CTCPReaderWriterClient::read(unsigned char* buffer, unsigned int length, uns
 
 	int ret = ::select(m_fd + 1, &readFds, NULL, NULL, &tv);
 	if (ret < 0) {
-		CLog::logInfo("Error returned from TCP client select, err=%d\n", errno);
+		LogInfo("Error returned from TCP client select, err=%d\n", errno);
 		return -1;
 	}
 
@@ -156,7 +156,7 @@ int CTCPReaderWriterClient::read(unsigned char* buffer, unsigned int length, uns
 	if (len == 0) {
 		return -2;
 	} else if (len < 0) {
-		CLog::logInfo("Error returned from recv, err=%d\n", errno);
+		LogInfo("Error returned from recv, err=%d\n", errno);
 		return -1;
 	}
 
@@ -192,7 +192,7 @@ bool CTCPReaderWriterClient::write(const unsigned char* buffer, unsigned int len
 
 	ssize_t ret = ::send(m_fd, (char *)buffer, length, 0);
 	if (ret != ssize_t(length)) {
-		CLog::logInfo("Error returned from send, err=%d\n", errno);
+		LogInfo("Error returned from send, err=%d\n", errno);
 		return false;
 	}
 

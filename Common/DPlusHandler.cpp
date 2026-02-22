@@ -273,7 +273,7 @@ void CDPlusHandler::process(const CPollData& poll)
 	}	
 
 	// If we cannot find an existing link, we ignore the poll
-	CLog::logInfo(("Incoming poll from unknown D-Plus dongle"));
+	LogInfo(("Incoming poll from unknown D-Plus dongle"));
 }
 
 void CDPlusHandler::process(CConnectData& connect)
@@ -315,7 +315,7 @@ void CDPlusHandler::process(CConnectData& connect)
 		return;
 
 	if (type != CT_LINK1) {
-		CLog::logInfo(("Incoming D-Plus message from unknown source"));
+		LogInfo(("Incoming D-Plus message from unknown source"));
 		return;
 	}
 
@@ -346,7 +346,7 @@ void CDPlusHandler::process(CConnectData& connect)
 		CConnectData connect(CT_LINK1, yourAddress, yourPort);
 		m_incoming->writeConnect(connect);
 	} else {
-		CLog::logError("No space to add new D-Plus dongle, ignoring");
+		LogError("No space to add new D-Plus dongle, ignoring");
 		delete dplus;
 	}
 }
@@ -376,7 +376,7 @@ void CDPlusHandler::link(IReflectorCallback* handler, const std::string& repeate
 		protoHandler->writeConnect(connect);
 		m_stateChange = true;
 	} else {
-		CLog::logError(("No space to add new D-Plus reflector, ignoring"));
+		LogError(("No space to add new D-Plus reflector, ignoring"));
 		delete dplus;
 	}
 }
@@ -406,7 +406,7 @@ void CDPlusHandler::unlink(IReflectorCallback* handler, const std::string& calls
 
 			if (exclude) {
 				if (reflector->m_direction == DIR_OUTGOING && reflector->m_destination == handler && reflector->m_reflector != callsign) {
-					CLog::logInfo("Removing outgoing D-Plus link %s, %s", reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
+					LogInfo("Removing outgoing D-Plus link %s, %s", reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
 
 					if (reflector->m_linkState == DPLUS_LINKING || reflector->m_linkState == DPLUS_LINKED) {
 						CConnectData connect(CT_UNLINK, reflector->m_yourAddress, DPLUS_PORT);
@@ -424,7 +424,7 @@ void CDPlusHandler::unlink(IReflectorCallback* handler, const std::string& calls
 				}
 			} else {
 				if (reflector->m_destination == handler && reflector->m_reflector == callsign) {
-					CLog::logInfo(("Removing D-Plus link %s, %s"), reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
+					LogInfo(("Removing D-Plus link %s, %s"), reflector->m_repeater.c_str(), reflector->m_reflector.c_str());
 
 					if (reflector->m_linkState == DPLUS_LINKING || reflector->m_linkState == DPLUS_LINKED) {
 						CConnectData connect(CT_UNLINK, reflector->m_yourAddress, DPLUS_PORT);
@@ -473,7 +473,7 @@ void CDPlusHandler::unlink()
 		CDPlusHandler* reflector = m_reflectors[i];
 		if (reflector != NULL) {
 			if (!reflector->m_reflector.empty())
-				CLog::logInfo(("Unlinking from D-Plus reflector or dongle %s"), reflector->m_reflector.c_str());
+				LogInfo(("Unlinking from D-Plus reflector or dongle %s"), reflector->m_reflector.c_str());
 
 			CConnectData connect(CT_UNLINK, reflector->m_yourAddress, reflector->m_yourPort);
 			reflector->m_handler->writeConnect(connect);
@@ -513,10 +513,10 @@ void CDPlusHandler::gatewayUpdate(const std::string& gateway, const std::string&
 			if (!reflector->m_reflector.empty() && reflector->m_reflector.substr(0, LONG_CALLSIGN_LENGTH - 1U) == gatewayBase) {
 				if (!address.empty()) {
 					// A new address, change the value
-					CLog::logInfo("Changing IP address of D-Plus gateway or reflector %s to %s", gatewayBase.c_str(), address.c_str());
+					LogInfo("Changing IP address of D-Plus gateway or reflector %s to %s", gatewayBase.c_str(), address.c_str());
 					reflector->m_yourAddress.s_addr = ::inet_addr(address.c_str());
 				} else {
-					CLog::logInfo("IP address for D-Plus gateway or reflector %s has been removed", gatewayBase.c_str());
+					LogInfo("IP address for D-Plus gateway or reflector %s has been removed", gatewayBase.c_str());
 
 					// No address, this probably shouldn't happen....
 					if (reflector->m_direction == DIR_OUTGOING && reflector->m_destination != NULL)
@@ -566,7 +566,7 @@ void CDPlusHandler::processInt(CHeaderData& header)
 	if (m_whiteList != NULL) {
 		bool res = m_whiteList->isInList(my);
 		if (!res) {
-			CLog::logInfo(("%s rejected from D-Plus as not found in the white list"), my.c_str());
+			LogInfo(("%s rejected from D-Plus as not found in the white list"), my.c_str());
 			m_dPlusId = 0x00U;
 			return;
 		}
@@ -575,7 +575,7 @@ void CDPlusHandler::processInt(CHeaderData& header)
 	if (m_blackList != NULL) {
 		bool res = m_blackList->isInList(my);
 		if (res) {
-			CLog::logInfo(("%s rejected from D-Plus as found in the black list"), my.c_str());
+			LogInfo(("%s rejected from D-Plus as found in the black list"), my.c_str());
 			m_dPlusId = 0x00U;
 			return;
 		}
@@ -670,7 +670,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 			switch (type) {
 				case CT_ACK:
 					if (m_linkState == DPLUS_LINKING) {
-						CLog::logInfo(("D-Plus ACK message received from %s"), m_reflector.c_str());
+						LogInfo(("D-Plus ACK message received from %s"), m_reflector.c_str());
 						m_destination->linkUp(DP_DPLUS, m_reflector);
 						m_stateChange = true;
 						m_linkState   = DPLUS_LINKED;
@@ -682,7 +682,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				case CT_NAK:
 					if (m_linkState == DPLUS_LINKING) {
-						CLog::logInfo(("D-Plus NAK message received from %s"), m_reflector.c_str());
+						LogInfo(("D-Plus NAK message received from %s"), m_reflector.c_str());
 						m_destination->linkRefused(DP_DPLUS, m_reflector);
 						CConnectData reply(CT_UNLINK, connect.getYourAddress(), connect.getYourPort());
 						m_handler->writeConnect(reply);
@@ -692,7 +692,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				case CT_UNLINK:
 					if (m_linkState == DPLUS_UNLINKING) {
-						CLog::logInfo(("D-Plus disconnect acknowledgement received from %s"), m_reflector.c_str());
+						LogInfo(("D-Plus disconnect acknowledgement received from %s"), m_reflector.c_str());
 						m_destination->linkFailed(DP_DPLUS, m_reflector, false);
 						m_stateChange = true;
 						m_tryTimer.stop();
@@ -715,7 +715,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 			switch (type) {
 				case CT_LINK2: {
 						m_reflector = connect.getRepeater();
-						CLog::logInfo(("D-Plus dongle link to %s has started"), m_reflector.c_str());
+						LogInfo(("D-Plus dongle link to %s has started"), m_reflector.c_str());
 						CConnectData reply(CT_ACK, m_yourAddress, m_yourPort);
 						m_handler->writeConnect(reply);
 						m_linkState   = DPLUS_LINKED;
@@ -725,7 +725,7 @@ bool CDPlusHandler::processInt(CConnectData& connect, CD_TYPE type)
 
 				case CT_UNLINK:
 					if (m_linkState == DPLUS_LINKED) {
-						CLog::logInfo(("D-Plus dongle link to %s has ended (unlinked)"), m_reflector.c_str());
+						LogInfo(("D-Plus dongle link to %s has ended (unlinked)"), m_reflector.c_str());
 						m_stateChange = true;
 						m_handler->writeConnect(connect);
 					}
@@ -760,13 +760,13 @@ bool CDPlusHandler::clockInt(unsigned int ms)
 		if (!m_reflector.empty()) {
 			switch (m_linkState) {
 				case DPLUS_LINKING:
-					CLog::logInfo(("D-Plus link to %s has failed to connect"), m_reflector.c_str());
+					LogInfo(("D-Plus link to %s has failed to connect"), m_reflector.c_str());
 					break;
 				case DPLUS_LINKED:
-					CLog::logInfo(("D-Plus link to %s has failed (poll inactivity)"), m_reflector.c_str());
+					LogInfo(("D-Plus link to %s has failed (poll inactivity)"), m_reflector.c_str());
 					break;
 				case DPLUS_UNLINKING:
-					CLog::logInfo(("D-Plus link to %s has failed to disconnect cleanly"), m_reflector.c_str());
+					LogInfo(("D-Plus link to %s has failed to disconnect cleanly"), m_reflector.c_str());
 					break;
 				default:
 					break;

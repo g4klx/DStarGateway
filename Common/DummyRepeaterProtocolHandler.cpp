@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021 by Geoffrey Merck F4FXL / KC3FRA
  * 
  *   This program is free software; you can redistribute it and/or modify
@@ -41,7 +41,7 @@ bool CDummyRepeaterProtocolHandler::writeHeader(CHeaderData& header)
 	unsigned char buffer[50U];
 	unsigned int length = header.getHBRepeaterData(buffer, 50U, true);
 
-	CLog::logInfo("Sending Header to port: %u, id: %04X", header.getYourPort(), header.getId());
+	LogInfo("Sending Header to port: %u, id: %04X", header.getYourPort(), header.getId());
 
 	CUtils::dump("Data", buffer + 8U, length - 8U);
 
@@ -53,7 +53,7 @@ bool CDummyRepeaterProtocolHandler::writeAMBE(CAMBEData& data)
 	unsigned char buffer[30U];
 	unsigned int length = data.getHBRepeaterData(buffer, 30U);
 
-	CLog::logInfo("Sending AMBE to port: %u, seq: %02X, id: %04X", data.getYourPort(), data.getSeq(), data.getId());
+	LogInfo("Sending AMBE to port: %u, seq: %02X, id: %04X", data.getYourPort(), data.getSeq(), data.getId());
 
 	CUtils::dump("Data", buffer + 9U, length - 9U);
 

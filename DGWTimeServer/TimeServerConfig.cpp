@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -40,16 +41,15 @@ CTimeServerConfig::~CTimeServerConfig()
 bool CTimeServerConfig::load()
 {
 	bool ret = false;
-	CLog::logInfo("Loading Configuration from %s", m_fileName.c_str());
+	printf("Loading Configuration from %s\n", m_fileName.c_str());
 	CConfig cfg(m_fileName);
 
 	ret = open(cfg);
 	if(ret) {
 		ret = loadTimeServer(cfg) && ret;
 		ret = loadRepeaters(cfg) && ret;
-        ret = loadDaemon(cfg) && ret;
+		ret = loadDaemon(cfg) && ret;
 		ret = loadPaths(cfg) && ret;
-		ret = loadLog(cfg) && ret;
     }
 
 	return ret;
@@ -61,7 +61,7 @@ bool CTimeServerConfig::open(CConfig & cfg)
 		return cfg.load();
 	}
 	catch(...) {
-		CLog::logError("Can't read %s\n", m_fileName.c_str());
+		fprintf(stderr, "Can't read %s\n", m_fileName.c_str());
 		return false;
 	}
 	return true;
@@ -89,7 +89,7 @@ bool CTimeServerConfig::loadRepeaters(const CConfig & cfg)
 
 		bool alreadyConfigured = std::any_of(m_repeaters.begin(), m_repeaters.end(), [repeater](TRepeater * r) { return r->band == repeater->band;});
 		if(alreadyConfigured) {
-			CLog::logWarning("%s-%s repeater already configured, ignoring", m_timeServer.callsign.c_str(), repeater->band.c_str());
+			printf("%s-%s repeater already configured, ignoring", m_timeServer.callsign.c_str(), repeater->band.c_str());
 			delete repeater;
 			continue;
 		}
@@ -149,42 +149,6 @@ bool CTimeServerConfig::loadPaths(const CConfig & cfg)
 	return ret;
 }
 
-bool CTimeServerConfig::loadLog(const CConfig & cfg)
-{
-	bool ret = cfg.getValue("log", "path", m_log.logDir, 0, 2048, "/var/log/dstargateway/");
-	if(ret && m_log.logDir[m_log.logDir.length() - 1] != '/') {
-		m_log.logDir.push_back('/');
-	}
-
-	ret = cfg.getValue("log", "fileRoot", m_log.fileRoot, 0, 64, "dgwtimeserver") && ret;
-	ret = cfg.getValue("log", "fileRotate", m_log.fileRotate, true) && ret;
-
-	std::string levelStr;
-	ret = cfg.getValue("log", "fileLevel", levelStr, "info", {"trace", "debug", "info", "warning", "error", "fatal", "none"}) && ret;
-	if(ret) {
-		if(levelStr == "trace")			m_log.fileLevel = LOG_TRACE;
-		else if(levelStr == "debug")	m_log.fileLevel = LOG_DEBUG;
-		else if(levelStr == "info")		m_log.fileLevel = LOG_INFO;
-		else if(levelStr == "warning")	m_log.fileLevel = LOG_WARNING;
-		else if(levelStr == "error")	m_log.fileLevel = LOG_ERROR;
-		else if(levelStr == "fatal")	m_log.fileLevel = LOG_FATAL;
-		else if(levelStr == "none")		m_log.fileLevel = LOG_NONE;
-	}
-
-	ret = cfg.getValue("log", "displayLevel", levelStr, "info", {"trace", "debug", "info", "warning", "error", "fatal", "none"}) && ret;
-	if(ret) {
-		if(levelStr == "trace")			m_log.displayLevel = LOG_TRACE;
-		else if(levelStr == "debug")	m_log.displayLevel = LOG_DEBUG;
-		else if(levelStr == "info")		m_log.displayLevel = LOG_INFO;
-		else if(levelStr == "warning")	m_log.displayLevel = LOG_WARNING;
-		else if(levelStr == "error")	m_log.displayLevel = LOG_ERROR;
-		else if(levelStr == "fatal")	m_log.displayLevel = LOG_FATAL;
-		else if(levelStr == "none")		m_log.displayLevel = LOG_NONE;
-	}
-
-	return ret;
-}
-
 void CTimeServerConfig::getTimeServer(TTimeServer& timeserver) const
 {
 	timeserver = m_timeServer;
@@ -210,7 +174,3 @@ void CTimeServerConfig::getPaths(TPaths& paths) const
 	paths = m_paths;
 }
 
-void CTimeServerConfig::getLog(TLog& log) const
-{
-	log = m_log;
-}

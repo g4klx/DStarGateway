@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017-2018 by Thomas A. Early
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -30,7 +30,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	CLog::logInfo("DExtra UDP port base = %u\n", port);
+	LogInfo("DExtra UDP port base = %u\n", port);
 }
 
 CDPlusProtocolHandlerPool::~CDPlusProtocolHandlerPool()
@@ -65,14 +65,14 @@ CDPlusProtocolHandler* CDPlusProtocolHandlerPool::getHandler(unsigned int port)
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			CLog::logInfo("New D Plus Protocol Handler now on UDP port %u.\n", port);
+			LogInfo("New D Plus Protocol Handler now on UDP port %u.\n", port);
 		} else {
 			delete proto;
 			proto = NULL;
-			CLog::logError("Can't open new DPlus UDP port %u!\n", port);
+			LogError("Can't open new DPlus UDP port %u!\n", port);
 		}
 	} else
-		CLog::logError("Can't allocate new DPlus ProtocolHandler at port %u\n", port);
+		LogError("Can't allocate new DPlus ProtocolHandler at port %u\n", port);
 	return proto;
 }
 
@@ -86,12 +86,12 @@ void CDPlusProtocolHandlerPool::release(CDPlusProtocolHandler *handler)
 			handler->close();
 			delete handler;
 			m_index = m_pool.end(); // m_index might be ut of order so reset it
-			CLog::logInfo("Releasing DPlus ProtocolHandler on port %u.\n", port);
+			LogInfo("Releasing DPlus ProtocolHandler on port %u.\n", port);
 			return;
 		}
 	}
 	// we should never get here!
-	CLog::logInfo("ERROR: could not find  DPlus ProtocolHander (port=%u) to release!\n", handler->getPort());
+	LogInfo("ERROR: could not find  DPlus ProtocolHander (port=%u) to release!\n", handler->getPort());
 }
 
 DPLUS_TYPE CDPlusProtocolHandlerPool::read()

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011,2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017-2018 by Thomas A. Early N7TAE
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ bool CG2ProtocolHandler::writeHeader(const CHeaderData& header)
 
 	assert(CNetUtils::match(header.getDestination(), m_address, IMT_ADDRESS_ONLY));
 
-	//CLog::logTrace("Write header to %s:%u", inet_ntoa(addr), ntohs(TOIPV4(m_address)->sin_port));
+	//LogDebug("Write header to %s:%u", inet_ntoa(addr), ntohs(TOIPV4(m_address)->sin_port));
 
 	for (unsigned int i = 0U; i < 5U; i++) {
 		bool res = m_socket->write(buffer, length, m_address);
@@ -81,7 +81,7 @@ bool CG2ProtocolHandler::writeAMBE(const CAMBEData& data)
 #endif
 
 	assert(CNetUtils::match(data.getDestination(), m_address, IMT_ADDRESS_ONLY));
-	//CLog::logTrace("Write ambe to %s:%u", inet_ntoa(addr), ntohs(TOIPV4(m_address)->sin_port));
+	//LogDebug("Write ambe to %s:%u", inet_ntoa(addr), ntohs(TOIPV4(m_address)->sin_port));
 	return m_socket->write(buffer, length, m_address);
 }
 
@@ -98,7 +98,7 @@ bool CG2ProtocolHandler::setBuffer(unsigned char * buffer, int length)
 	m_length = length;
 
 	if (m_buffer[0] != 'D' || m_buffer[1] != 'S' || m_buffer[2] != 'V' || m_buffer[3] != 'T') {
-		CLog::logTrace("DSVT");
+		LogDebug("DSVT");
 		return true;
 	} else {
 		// Header or data packet type?

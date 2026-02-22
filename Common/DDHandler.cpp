@@ -56,7 +56,6 @@ unsigned int   CDDHandler::m_maxRoutes    = 0U;
 CEthernet**    CDDHandler::m_list         = NULL;
 unsigned char* CDDHandler::m_buffer       = NULL;
 bool           CDDHandler::m_logEnabled   = false;
-std::string       CDDHandler::m_logDir       = "";
 std::string       CDDHandler::m_name         = "";
 CTimer         CDDHandler::m_timer        = CTimer(1000U, MIN_HEARD_TIME_SECS);
 
@@ -109,7 +108,7 @@ void CDDHandler::initialise(unsigned int maxRoutes, const std::string& name)
 #if defined(__linux__)
 	m_fd = ::open("/dev/net/tun", O_RDWR);
 	if (m_fd < 0) {
-		CLog::logError("Cannot open /dev/net/tun");
+		LogError("Cannot open /dev/net/tun");
 		return;
 	}
 
@@ -120,18 +119,18 @@ void CDDHandler::initialise(unsigned int maxRoutes, const std::string& name)
 	::strcpy(ifr1.ifr_name, "tap%d");
 
 	if (::ioctl(m_fd, TUNSETIFF, (void *)&ifr1) < 0) {
-		CLog::logError("TUNSETIFF ioctl failed, closing the tap device");
+		LogError("TUNSETIFF ioctl failed, closing the tap device");
 		::close(m_fd);
 		m_fd = -1;
 		return;
 	}
 
 	std::string device = std::string(ifr1.ifr_name);
-	CLog::logInfo("DD mode Tap interface created on %s", device.c_str());
+	LogInfo("DD mode Tap interface created on %s", device.c_str());
 
 	int fd = ::socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd < 0) {
-		CLog::logError("Unable to open the config socket, closing the tap device");
+		LogError("Unable to open the config socket, closing the tap device");
 		::close(m_fd);
 		m_fd = -1;
 		return;
@@ -143,7 +142,7 @@ void CDDHandler::initialise(unsigned int maxRoutes, const std::string& name)
 
 	ifr2.ifr_flags = IFF_UP | IFF_BROADCAST | IFF_MULTICAST;
 	if (::ioctl(fd, SIOCSIFFLAGS, (void *)&ifr2) < 0) {
-		CLog::logError("SIOCSIFFLAGS ioctl failed, closing the tap device");
+		LogError("SIOCSIFFLAGS ioctl failed, closing the tap device");
 		::close(m_fd);
 		m_fd = -1;
 		return;
@@ -153,9 +152,8 @@ void CDDHandler::initialise(unsigned int maxRoutes, const std::string& name)
 #endif
 }
 
-void CDDHandler::setLogging(bool enabled, const std::string& dir)
+void CDDHandler::setLogging(bool enabled)
 {
-	m_logDir     = dir;
 	m_logEnabled = enabled;
 }
 
@@ -209,7 +207,7 @@ void CDDHandler::process(CDDData& data)
 	}
 
 	if (!found) {
-		CLog::logInfo("Adding DD user %s with ethernet address %02X:%02X:%02X:%02X:%02X:%02X", myCall1.c_str(),
+		LogInfo("Adding DD user %s with ethernet address %02X:%02X:%02X:%02X:%02X:%02X", myCall1.c_str(),
 			address[0], address[1], address[2], address[3], address[4], address[5]);
 
 		CEthernet* ethernet = new CEthernet(address, myCall1);
@@ -224,7 +222,7 @@ void CDDHandler::process(CDDData& data)
 		}
 
 		if (!found) {
-			CLog::logError("No space to add new DD ethernet address");
+			LogError("No space to add new DD ethernet address");
 			delete ethernet;
 			return;
 		}
@@ -235,7 +233,7 @@ void CDDHandler::process(CDDData& data)
 
 	ssize_t len = ::write(m_fd, (char*)m_buffer, length);
 	if (len != ssize_t(length))
-		CLog::logError("Error returned from write()");
+		LogError("Error returned from write()");
 #endif
 }
 
@@ -264,7 +262,7 @@ CDDData* CDDHandler::read()
 
 	int ret = ::select(m_fd + 1, &readFds, NULL, NULL, &tv);
 	if (ret < 0) {
-		CLog::logError("Error returned from select()");
+		LogError("Error returned from select()");
 		return NULL;
 	}
 
@@ -281,7 +279,7 @@ CDDData* CDDHandler::read()
 
 	ssize_t len = ::read(m_fd, (char*)m_buffer, BUFFER_LENGTH);
 	if (len <= 0) {
-		CLog::logError("Error returned from read()");
+		LogError("Error returned from read()");
 		return NULL;
 	}
 
@@ -306,17 +304,17 @@ CDDData* CDDHandler::read()
 	}
 
 	if (ethernet == NULL) {
-		CLog::logWarning("Cannot find the ethernet address of %02X:%02X:%02X:%02X:%02X:%02X in the ethernet list", address[0], address[1], address[2], address[3], address[4], address[5]);
+		LogWarning("Cannot find the ethernet address of %02X:%02X:%02X:%02X:%02X:%02X in the ethernet list", address[0], address[1], address[2], address[3], address[4], address[5]);
 		return NULL;
 	}
 
 	CRepeaterHandler* handler = CRepeaterHandler::findDDRepeater();
 	if (handler == NULL) {
-		CLog::logWarning("Incoming DD data to unknown repeater");
+		LogWarning("Incoming DD data to unknown repeater");
 		return NULL;
 	}
 
-	// CLog::logInfo("Mapping ethernet address %02X:%02X:%02X:%02X:%02X:%02X to user %s",
+	// LogInfo("Mapping ethernet address %02X:%02X:%02X:%02X:%02X:%02X to user %s",
 	//				address[0], address[1], address[2], address[3], address[4], address[5],
 	//				ethernet->getCallsign().c_str());
 

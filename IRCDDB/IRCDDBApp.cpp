@@ -2,7 +2,7 @@
 CIRCDDB - ircDDB client library in C++
 
 Copyright (C) 2010-2011   Michael Dirska, DL1BFF (dl1bff@mdx.de)
-Copyright (C) 2012        Jonathan Naylor, G4KLX
+Copyright (C) 2012,2026   Jonathan Naylor, G4KLX
 Copyright (c) 2017 by Thomas A. Early N7TAE
 Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
 
@@ -186,7 +186,7 @@ void IRCDDBApp::rptrQTH(const std::string& callsign, double latitude, double lon
 
 	m_d->m_moduleQTH[cs] = cs + std::string(" ") + pos + std::string(" ") + d1 + std::string(" ") + d2;
 
-	CLog::logInfo("QTH: %s\n", m_d->m_moduleQTH[cs].c_str());
+	LogInfo("QTH: %s\n", m_d->m_moduleQTH[cs].c_str());
 
 	std::string url = infoURL;
 
@@ -196,7 +196,7 @@ void IRCDDBApp::rptrQTH(const std::string& callsign, double latitude, double lon
 
 	if (url.size()) {
 		m_d->m_moduleURL[cs] = cs + std::string(" ") + url;
-		CLog::logInfo("URL: %s\n", m_d->m_moduleURL[cs].c_str());
+		LogInfo("URL: %s\n", m_d->m_moduleURL[cs].c_str());
 	}
 
 	m_d->m_infoTimer = 5; // send info in 5 seconds
@@ -214,7 +214,7 @@ void IRCDDBApp::rptrQRG(const std::string& callsign, double txFrequency, double 
 
 	std::lock_guard lockModuleQRG(m_d->m_moduleQRGMutex);
 	m_d->m_moduleQRG[cs] = cs + std::string(" ") + f;
-	CLog::logInfo("QRG: %s\n", m_d->m_moduleQRG[cs].c_str());
+	LogInfo("QRG: %s\n", m_d->m_moduleQRG[cs].c_str());
 
 	m_d->m_infoTimer = 5; // send info in 5 seconds
 }
@@ -269,7 +269,7 @@ IRCDDB_RESPONSE_TYPE IRCDDBApp::getReplyMessageType()
 	if(msgType.compare("NATTRAVERSAL_DPLUS") == 0)
 		return IDRT_NATTRAVERSAL_DPLUS;
 
-	CLog::logWarning("IRCDDBApp::getMessageType: unknown msg type: %s\n", msgType.c_str());
+	LogWarning("IRCDDBApp::getMessageType: unknown msg type: %s\n", msgType.c_str());
 
 	return IDRT_NONE;
 }
@@ -352,7 +352,7 @@ void IRCDDBApp::userLeave(const std::string& nick)
 
 	if (m_d->m_currentServer.size()) {
 		if (m_d->m_userMap.count(m_d->m_myNick) != 1) {
-			CLog::logInfo("IRCDDBApp::userLeave: could not find own nick\n");
+			LogInfo("IRCDDBApp::userLeave: could not find own nick\n");
 			return;
 		}
 
@@ -380,13 +380,13 @@ void IRCDDBApp::userListReset()
 void IRCDDBApp::setCurrentNick(const std::string& nick)
 {
 	m_d->m_myNick = nick;
-	CLog::logInfo("IRCDDBApp::setCurrentNick %s\n", nick.c_str());
+	LogInfo("IRCDDBApp::setCurrentNick %s\n", nick.c_str());
 }
 
 void IRCDDBApp::setBestServer(const std::string& ircUser)
 {
 	m_d->m_bestServer = ircUser;
-	CLog::logInfo("IRCDDBApp::setBestServer %s\n", ircUser.c_str());
+	LogInfo("IRCDDBApp::setBestServer %s\n", ircUser.c_str());
 }
 
 void IRCDDBApp::setTopic(const std::string& topic)
@@ -723,7 +723,7 @@ bool IRCDDBApp::getNickForRepeater(const std::string& repeater, std::string& nic
 	}
 
 	nick.clear();
-	CLog::logDebug("Unable to find IRC nick for repeater %s", repeater.c_str());
+	LogDebug("Unable to find IRC nick for repeater %s", repeater.c_str());
 	return false;
 }
 
@@ -748,7 +748,7 @@ void IRCDDBApp::doNotFound(std::string& msg, std::string& retval)
 		tableID = std::stoi(tk);
 
 		if (tableID<0 || tableID>=numberOfTables) {
-			CLog::logInfo("invalid table ID %d\n", tableID);
+			LogInfo("invalid table ID %d\n", tableID);
 			return;
 		}
 
@@ -779,7 +779,7 @@ void IRCDDBApp::doUpdate(std::string& msg)
 	if (std::regex_match(tk, m_d->m_tablePattern)) {
 		tableID = std::stoi(tk);
 		if ((tableID < 0) || (tableID >= numberOfTables)) {
-			CLog::logInfo("invalid table ID %d\n", tableID);
+			LogInfo("invalid table ID %d\n", tableID);
 			return;
 		}
 
@@ -854,7 +854,7 @@ void IRCDDBApp::doUpdate(std::string& msg)
 					nick = sm1[1];
 
 				if (1 == m_d->m_rptrMap.count(value)) {
-					// CLog::logTrace("doUptate RPTR already present");
+					// LogDebug("doUptate RPTR already present");
 					IRCDDBAppRptrObject o = m_d->m_rptrMap[value];
 					zonerp_cs = o.m_zonerp_cs;
 					CUtils::ReplaceChar(zonerp_cs, '_', ' ');
@@ -863,7 +863,7 @@ void IRCDDBApp::doUpdate(std::string& msg)
 					zonerp_cs.push_back('G');
 				}
 				else {
-					// CLog::logTrace("doUptate RPTR not present");
+					// LogDebug("doUptate RPTR not present");
 					zonerp_cs = arearp_cs.substr(0, arearp_cs.length() - 1U);
 					ip_addr = nick.empty() ? getIPAddressFromCall(zonerp_cs) : getIPAddressFromNick(nick);
 					zonerp_cs.push_back('G');
@@ -1017,7 +1017,7 @@ void IRCDDBApp::Entry()
 				break;
 
 			case 2:	// choose server
-				CLog::logInfo("IRCDDBApp: state=2 choose new 's-'-user\n");
+				LogInfo("IRCDDBApp: state=2 choose new 's-'-user\n");
 				if (NULL == getSendQ())
 					m_d->m_state = 10;
 				else {
@@ -1043,7 +1043,7 @@ void IRCDDBApp::Entry()
 					if (sendlistTableID < 0)
 						m_d->m_state = 6; // end of sendlist
 					else {
-						CLog::logInfo("IRCDDBApp: state=3 tableID=%d\n", sendlistTableID);
+						LogInfo("IRCDDBApp: state=3 tableID=%d\n", sendlistTableID);
 						m_d->m_state = 4; // send "SENDLIST"
 						m_d->m_timer = 900; // 15 minutes max for update
 					}
@@ -1082,7 +1082,7 @@ void IRCDDBApp::Entry()
 				if (NULL == getSendQ())
 					m_d->m_state = 10; // disconnect DB
 				else {
-					CLog::logInfo( "IRCDDBApp: state=6 initialization completed\n");
+					LogInfo( "IRCDDBApp: state=6 initialization completed\n");
 					m_d->m_infoTimer = 2;
 					m_d->m_initReady = true;
 					m_d->m_state = 7;

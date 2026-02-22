@@ -2,7 +2,7 @@
 CIRCDDB - ircDDB client library in C++
 
 Copyright (C) 2010-2011   Michael Dirska, DL1BFF (dl1bff@mdx.de)
-Copyright (C) 2012        Jonathan Naylor, G4KLX
+Copyright (C) 2012,2026   Jonathan Naylor, G4KLX
 Copyright (c) 2017 by Thomas A. Early
 
 This program is free software: you can redistribute it and/or modify
@@ -93,7 +93,7 @@ void IRCClient::Entry()
 	int result = CUtils::getAllIPV4Addresses(m_local_addr, 0, &numAddr, &myaddr, 1);
 
 	if (result || 1!=numAddr) {
-		CLog::logInfo("IRCClient::Entry: local address not parseable, using 0.0.0.0\n");
+		LogInfo("IRCClient::Entry: local address not parseable, using 0.0.0.0\n");
 		memset(&myaddr, 0, sizeof(struct sockaddr_in));
 	}
 
@@ -104,7 +104,7 @@ void IRCClient::Entry()
 		switch (state) {
 			case 0:
 				if (m_terminateThread.load(std::memory_order_relaxed)) {
-					CLog::logInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
+					LogInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
 					return;
 				}
 
@@ -112,7 +112,7 @@ void IRCClient::Entry()
 					timer = 30;
 
 					if (0 == CUtils::getAllIPV4Addresses(m_host_name, m_port, &numAddr, addr, MAXIPV4ADDR)) {
-						CLog::logInfo("IRCClient::Entry: number of DNS entries %d\n", numAddr);
+						LogInfo("IRCClient::Entry: number of DNS entries %d\n", numAddr);
 						if (numAddr > 0) {
 							currentAddr = 0;
 							state = 1;
@@ -124,7 +124,7 @@ void IRCClient::Entry()
 
 			case 1:
 				if (m_terminateThread.load(std::memory_order_relaxed)) {
-					CLog::logInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
+					LogInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
 					return;
 				}
 
@@ -132,12 +132,12 @@ void IRCClient::Entry()
 					sock = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
 
 					if (sock < 0) {
-						CLog::logInfo("IRCClient::Entry: socket\n");
+						LogInfo("IRCClient::Entry: socket\n");
 						timer = 30;
 						state = 0;
 					} else {
 						if (fcntl(sock, F_SETFL, O_NONBLOCK) < 0) {
-							CLog::logInfo("IRCClient::Entry: fcntl\n");
+							LogInfo("IRCClient::Entry: fcntl\n");
 							close(sock);
 							timer = 30;
 							state = 0;
@@ -145,12 +145,12 @@ void IRCClient::Entry()
 							unsigned char * h = (unsigned char *) &(myaddr.sin_addr);
 
 							if (h[0] || h[1] || h[2] || h[3])
-								CLog::logInfo("IRCClient::Entry: bind: local address %d.%d.%d.%d\n", h[0], h[1], h[2], h[3]);
+								LogInfo("IRCClient::Entry: bind: local address %d.%d.%d.%d\n", h[0], h[1], h[2], h[3]);
 
 							int res = bind(sock, (struct sockaddr *)&myaddr, sizeof (struct sockaddr_in));
 
 							if (res) {
-								CLog::logInfo("IRCClient::Entry: bind\n");
+								LogInfo("IRCClient::Entry: bind\n");
 								close(sock);
 								state = 0;
 								timer = 30;
@@ -158,20 +158,20 @@ void IRCClient::Entry()
 							}
 
 							h = (unsigned char *) &(addr[currentAddr].sin_addr);
-							CLog::logInfo("IRCClient::Entry: trying to connect to %d.%d.%d.%d\n", h[0], h[1], h[2], h[3]);
+							LogInfo("IRCClient::Entry: trying to connect to %d.%d.%d.%d\n", h[0], h[1], h[2], h[3]);
 
 							res = connect(sock, (struct sockaddr *)(addr + currentAddr), sizeof (struct sockaddr_in));
 
 							if (res == 0) {
-								CLog::logInfo("IRCClient::Entry: connected\n");
+								LogInfo("IRCClient::Entry: connected\n");
 								state = 4;
 							} else { 
 								if (errno == EINPROGRESS) {
-									CLog::logInfo("IRCClient::Entry: connect in progress\n");
+									LogInfo("IRCClient::Entry: connect in progress\n");
 									state = 3;
 									timer = 10;  // 5 second timeout
 								} else {
-									CLog::logInfo("IRCClient::Entry: connect\n");
+									LogInfo("IRCClient::Entry: connect\n");
 									close(sock);
 									currentAddr++;
 									if (currentAddr >= numAddr) {
@@ -200,7 +200,7 @@ void IRCClient::Entry()
 
 					int res = select(sock+1, NULL, &myset, NULL, &tv); 
 					if (res < 0) {
-						CLog::logInfo("IRCClient::Entry: select\n");
+						LogInfo("IRCClient::Entry: select\n");
 						close(sock);
 						state = 0;
 						timer = 30;
@@ -213,13 +213,13 @@ void IRCClient::Entry()
 						val_len = sizeof value;
 
 						if (getsockopt(sock, SOL_SOCKET, SO_ERROR, (char *) &value, &val_len) < 0) {
-							CLog::logInfo("IRCClient::Entry: getsockopt\n");
+							LogInfo("IRCClient::Entry: getsockopt\n");
 							close(sock);
 							state = 0;
 							timer = 30;
 						} else {
 							if (value) {
-								CLog::logInfo("IRCClient::Entry: SO_ERROR=%d\n", value);
+								LogInfo("IRCClient::Entry: SO_ERROR=%d\n", value);
 								close(sock);
 								currentAddr ++;
 								if (currentAddr >= numAddr) {
@@ -230,13 +230,13 @@ void IRCClient::Entry()
 									timer = 2;
 								}
 							} else {
-								CLog::logInfo("IRCClient::Entry: connected2\n");
+								LogInfo("IRCClient::Entry: connected2\n");
 								state = 4;
 							}
 						}
 					}
 					else if (timer == 0) {  // select timeout and timer timeout
-						CLog::logInfo("IRCClient::Entry: connect timeout\n");
+						LogInfo("IRCClient::Entry: connect timeout\n");
 						close(sock);
 						currentAddr ++;
 						if (currentAddr >= numAddr) {
@@ -289,12 +289,12 @@ void IRCClient::Entry()
 							int r = send(sock, buf, len, 0);
 
 							if (r != len) {
-								CLog::logInfo("IRCClient::Entry: short write %d < %d\n", r, len);
+								LogInfo("IRCClient::Entry: short write %d < %d\n", r, len);
 								timer = 0;
 								state = 6;
 							}
 						} else {
-							CLog::logInfo("IRCClient::Entry: no NL at end, len=%d\n", len);
+							LogInfo("IRCClient::Entry: no NL at end, len=%d\n", len);
 							timer = 0;
 							state = 6;
 						}
@@ -322,7 +322,7 @@ void IRCClient::Entry()
 					close(sock);
 
 					if (m_terminateThread) { // request to end the thread
-						CLog::logInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
+						LogInfo("IRCClient::Entry: thread terminated at state=%d\n", state);
 						return;
 					}
 					timer = 30;

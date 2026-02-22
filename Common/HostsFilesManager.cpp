@@ -1,5 +1,6 @@
 /*
- *	 Copyright (c) 2024 by Geoffrey F4FXL / KC3FRA
+ *   Copyright (c) 2024 by Geoffrey F4FXL / KC3FRA
+ *   Copytight (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -88,7 +89,7 @@ void CHostsFilesManager::clock(unsigned int ms)
     m_downloadTimer.clock(ms);
 
     if(m_downloadTimer.hasExpired()) {
-		CLog::logInfo("Downloading hosts files after %u hours", m_downloadTimer.getTimeout() / 3600U);
+		LogInfo("Downloading hosts files after %u hours", m_downloadTimer.getTimeout() / 3600U);
         UpdateHostsAsync(); // call and forget
 		m_downloadTimer.start();
     }
@@ -101,14 +102,14 @@ void CHostsFilesManager::setDownloadTimeout(unsigned int seconds)
 
 bool CHostsFilesManager::UpdateHostsFromInternet()
 {
-    CLog::logInfo("Updating hosts files from internet");
+    LogInfo("Updating hosts files from internet");
     bool ret = true;
     if(m_dextraEnabled && !m_dextraUrl.empty()) ret = m_downloadCallback(m_dextraUrl, m_hostFilesDirectory + "/" + DEXTRA_HOSTS_FILE_NAME) && ret;
     if(m_dcsEnabled    && !m_dcsUrl.empty())    ret = m_downloadCallback(m_dcsUrl, m_hostFilesDirectory + "/" + DCS_HOSTS_FILE_NAME) && ret;
     if(m_dplusEnabled  && !m_dplusUrl.empty())  ret = m_downloadCallback(m_dplusUrl, m_hostFilesDirectory + "/" + DPLUS_HOSTS_FILE_NAME) && ret;
     if(m_xlxEnabled    && !m_xlxUrl.empty())    ret = m_downloadCallback(m_xlxUrl, m_hostFilesDirectory + "/" + XLX_HOSTS_FILE_NAME) && ret;
 
-    if(!ret) CLog::logWarning("Some hosts files failed to downlaod");
+    if(!ret) LogWarning("Some hosts files failed to downlaod");
 
     CHostsFilesManager::loadReflectors(m_hostFilesDirectory);
 
@@ -161,7 +162,7 @@ void CHostsFilesManager::loadReflectors(const std::string & directory)
 void CHostsFilesManager::loadReflectors(const std::string & hostFileName, DSTAR_PROTOCOL proto)
 {
     if(m_cache == nullptr) {
-        CLog::logDebug("HostsFilesManager cache not initilized");
+        LogDebug("HostsFilesManager cache not initilized");
         return;
     }
 
@@ -180,7 +181,7 @@ void CHostsFilesManager::loadReflectors(const std::string & hostFileName, DSTAR_
 			addrText = CStringUtils::string_format("%u.%u.%u.%u", ucp[0U] & 0xFFU, ucp[1U] & 0xFFU, ucp[2U] & 0xFFU, ucp[3U] & 0xFFU);
 
 			if (lock)
-				CLog::logInfo("Locking %s to %s", reflector.c_str(), addrText.c_str());
+				LogInfo("Locking %s to %s", reflector.c_str(), addrText.c_str());
 
 			reflector.resize(LONG_CALLSIGN_LENGTH - 1U, ' ');
 			reflector += "G";
@@ -207,5 +208,5 @@ void CHostsFilesManager::loadReflectors(const std::string & hostFileName, DSTAR_
 		break;
 	}
 
-	CLog::logInfo("Loaded %u of %u %s hosts from %s", count, hostFile.getCount(), protoString.c_str() , hostFileName.c_str());
+	LogInfo("Loaded %u of %u %s hosts from %s", count, hostFile.getCount(), protoString.c_str() , hostFileName.c_str());
 }

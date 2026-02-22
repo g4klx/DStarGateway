@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2006-2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2006-2014,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ in_addr CUDPReaderWriter::lookup(const std::string& hostname)
 		return addr;
 	}
 
-	CLog::logWarning("Cannot find address for host %s\n", hostname.c_str());
+	LogWarning("Cannot find address for host %s\n", hostname.c_str());
 
 	addr.s_addr = INADDR_NONE;
 	return addr;
@@ -68,7 +68,7 @@ bool CUDPReaderWriter::open()
 {
 	m_fd = ::socket(PF_INET, SOCK_DGRAM, 0);
 	if (m_fd < 0) {
-		CLog::logError("Cannot create the UDP socket, err: %s\n", strerror(errno));
+		LogError("Cannot create the UDP socket, err: %s\n", strerror(errno));
 		return false;
 	}
 
@@ -82,19 +82,19 @@ bool CUDPReaderWriter::open()
 		if (m_address.size()) {
 			addr.sin_addr.s_addr = ::inet_addr(m_address.c_str());
 			if (addr.sin_addr.s_addr == INADDR_NONE) {
-				CLog::logError("The address is invalid - %s\n", m_address.c_str());
+				LogError("The address is invalid - %s\n", m_address.c_str());
 				return false;
 			}
 		}
 
 		int reuse = 1;
 		if (::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) == -1) {
-			CLog::logError("Cannot set the UDP socket option (port: %u), err: %s\n", m_port, strerror(errno));
+			LogError("Cannot set the UDP socket option (port: %u), err: %s\n", m_port, strerror(errno));
 			return false;
 		}
 
 		if (::bind(m_fd, (sockaddr*)&addr, sizeof(sockaddr_in)) == -1) {
-			CLog::logError("Cannot bind the UDP address (port: %u), err: %s\n", m_port, strerror(errno));
+			LogError("Cannot bind the UDP address (port: %u), err: %s\n", m_port, strerror(errno));
 			return false;
 		}
 	}
@@ -116,7 +116,7 @@ int CUDPReaderWriter::read(unsigned char* buffer, unsigned int length, struct so
 
 	int ret = ::select(m_fd + 1, &readFds, NULL, NULL, &tv);
 	if (ret < 0) {
-		CLog::logError("Error returned from UDP select (port: %u), err: %s\n", m_port, strerror(errno));
+		LogError("Error returned from UDP select (port: %u), err: %s\n", m_port, strerror(errno));
 		return -1;
 	}
 
@@ -127,7 +127,7 @@ int CUDPReaderWriter::read(unsigned char* buffer, unsigned int length, struct so
 
 	ssize_t len = ::recvfrom(m_fd, (char*)buffer, length, 0, (sockaddr *)&addr, &size);
 	if (len <= 0) {
-		CLog::logError("Error returned from recvfrom (port: %u), err: %s\n", m_port, strerror(errno));
+		LogError("Error returned from recvfrom (port: %u), err: %s\n", m_port, strerror(errno));
 		return -1;
 	}
 
@@ -163,7 +163,7 @@ bool CUDPReaderWriter::write(const unsigned char* buffer, unsigned int length, c
 {
 	ssize_t ret = ::sendto(m_fd, (char *)buffer, length, 0, (sockaddr *)&addr, sizeof(addr));
 	if (ret < 0) {
-		CLog::logError("Error returned from sendto (port: %u), err: %s\n", m_port, strerror(errno));
+		LogError("Error returned from sendto (port: %u), err: %s\n", m_port, strerror(errno));
 		return false;
 	}
 

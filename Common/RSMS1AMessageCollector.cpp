@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2012,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2012,2018,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -48,7 +48,7 @@ bool CRSMS1AMessageCollector::isValidSentence(const std::string& sentence)
 
 bool CRSMS1AMessageCollector::isValidMsg(const std::string& msg)
 {
-    CLog::logDebug("RS-MS1A");
+    LogDebug("RS-MS1A");
     // checking validity involves parsing, so we do minumum checks here. Big chekc done in getDataInt
     return !msg.empty() && boost::starts_with(msg, "$$Msg");
 }
@@ -65,7 +65,7 @@ unsigned int CRSMS1AMessageCollector::getDataInt(unsigned char * data, unsigned 
     auto aprsFrameLen = aprsFrame.length();
 
     if(length < aprsFrameLen) {
-        CLog::logDebug("Not enough space to copy RSMS1A message frame");
+        LogDebug("Not enough space to copy RSMS1A message frame");
         return 0U;
     }
 

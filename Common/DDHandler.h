@@ -41,7 +41,7 @@ class CDDHandler {
 public:
 	static void initialise(unsigned int maxRoutes, const std::string& name);
 
-	static void setLogging(bool enabled, const std::string& dir);
+	static void setLogging(bool enabled);
 	static void setIRC(CIRCDDB* irc);
 
 	static void process(CDDData& data);
@@ -59,7 +59,6 @@ private:
 	static CEthernet**    m_list;
 	static unsigned char* m_buffer;
 	static bool           m_logEnabled;
-	static std::string       m_logDir;
 	static std::string       m_name;
 	static CTimer         m_timer;
 };

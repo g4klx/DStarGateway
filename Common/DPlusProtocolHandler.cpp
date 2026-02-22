@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -113,7 +113,7 @@ void CDPlusProtocolHandler::traverseNat(const std::string& address, unsigned int
 	
 	in_addr addr = CUDPReaderWriter::lookup(address);
 
-	CLog::logInfo("DPlus Punching hole to %s:%u", address.c_str(), remotePort);
+	LogInfo("DPlus Punching hole to %s:%u", address.c_str(), remotePort);
 
 	m_socket.write(&buffer, 1U, addr, remotePort);
 }

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2014,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) Thomas A. Early N7TAE
  *   Copyright (c) 2021 Geoffrey Merck F4FXL / KC3FRA
  *
@@ -42,7 +42,7 @@ m_id(0U)
 
 	m_name.resize(SHORT_CALLSIGN_LENGTH, ' ');
 
-	CLog::logInfo("Connected '%s' to %s using file - %s\n", name.c_str(), callsign.c_str(), fileName.c_str());
+	LogInfo("Connected '%s' to %s using file - %s\n", name.c_str(), callsign.c_str(), fileName.c_str());
 }
 
 CAnnouncementUnit::~CAnnouncementUnit()

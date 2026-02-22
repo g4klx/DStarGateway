@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011,2012,2018 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2012,2018,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -69,7 +69,7 @@ void CAPRSHandler::writeHeader(const std::string& callsign, const CHeaderData& h
 {
 	CAPRSEntry* entry = m_array[callsign];
 	if (entry == NULL) {
-		CLog::logError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
+		LogError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
 		return;
 	}
 
@@ -87,7 +87,7 @@ void CAPRSHandler::writeData(const std::string& callsign, const CAMBEData& data)
 
 	CAPRSEntry* entry = m_array[callsign];
 	if (entry == NULL) {
-		CLog::logError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
+		LogError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
 		return;
 	}
 
@@ -114,13 +114,13 @@ void CAPRSHandler::writeData(const std::string& callsign, const CAMBEData& data)
 	{
 		CAPRSFrame frame;
 		if(!CAPRSParser::parseFrame(rawFrame, frame)) {
-			CLog::logWarning("Failed to parse DPRS Frame : %s", rawFrame.c_str());
+			LogWarning("Failed to parse DPRS Frame : %s", rawFrame.c_str());
 			return;
 		}
 
 		// If we already have a q-construct, don't send it on
 		if(std::any_of(frame.getPath().begin(), frame.getPath().end(), [] (std::string s) { return !s.empty() && s[0] == 'q'; })) {
-			CLog::logWarning("DPRS Frame already has q construct, not forwarding to APRS-IS: %s", rawFrame.c_str());
+			LogWarning("DPRS Frame already has q construct, not forwarding to APRS-IS: %s", rawFrame.c_str());
 			return;
 		}
 
@@ -130,7 +130,7 @@ void CAPRSHandler::writeData(const std::string& callsign, const CAMBEData& data)
 		std::string output ;
 		CAPRSFormater::frameToString(output, frame);
 
-		CLog::logInfo("DPRS\t%s\t%s\t%s", dstarCall.c_str(), frame.getSource().c_str(), rawFrame.c_str());
+		LogInfo("DPRS\t%s\t%s\t%s", dstarCall.c_str(), frame.getSource().c_str(), rawFrame.c_str());
 
 		m_backend->write(frame);
 	});
@@ -140,7 +140,7 @@ void CAPRSHandler::writeStatus(const std::string& callsign, const std::string st
 {
 	CAPRSEntry* entry = m_array[callsign];
 	if (entry == NULL) {
-		CLog::logError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
+		LogError("Cannot find the callsign \"%s\" in the APRS array", callsign.c_str());
 		return;
 	}
 

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -119,7 +119,7 @@ void CDExtraProtocolHandler::traverseNat(const std::string& address, unsigned in
 	
 	in_addr addr = CUDPReaderWriter::lookup(address);
 
-	CLog::logInfo("DExtra Punching hole to %s:%u", address.c_str(), remotePort);
+	LogInfo("DExtra Punching hole to %s:%u", address.c_str(), remotePort);
 
 	m_socket.write(&buffer, 1U, addr, remotePort);
 }

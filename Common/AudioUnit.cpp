@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011-2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2011-2014,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -194,7 +194,7 @@ void CAudioUnit::clock(unsigned int ms)
 		while (m_out < needed && m_out < m_data.size()) {
 			CAMBEData* data = m_data[m_out];
 			m_out++;
-			// CLog::logTrace("m_out %u, needed %u, m_data %u", m_out, needed, m_data.size());
+			// LogDebug("m_out %u, needed %u, m_data %u", m_out, needed, m_data.size());
 			m_handler->process(*data, DIR_INCOMING, AS_INFO);
 		}
 
@@ -210,7 +210,7 @@ void CAudioUnit::clock(unsigned int ms)
 
 void CAudioUnit::cancel()
 {
-	CLog::logTrace("Audio Unit Cancel");
+	LogDebug("Audio Unit Cancel");
 	m_status = AS_IDLE;
 	m_out    = 0U;
 
@@ -261,7 +261,7 @@ void CAudioUnit::spellReflector(const std::string &reflector)
 
 void CAudioUnit::sendStatus(LINK_STATUS status, const std::string& reflector, const std::string &text)
 {
-	CLog::logTrace("Audio Unit sendStatus");
+	LogDebug("Audio Unit sendStatus");
 
 	// do some clean up, delete old message
 	for (auto item : m_data) {

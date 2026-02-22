@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011,2012 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2012,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -26,6 +26,7 @@
 #include "DStarGatewayConfig.h"
 #include "DStarDefines.h"
 #include "Log.h"
+#include "StringUtils.h"
 
 CDStarGatewayConfig::CDStarGatewayConfig(const std::string &pathname)
 : m_fileName(pathname)
@@ -36,7 +37,7 @@ CDStarGatewayConfig::CDStarGatewayConfig(const std::string &pathname)
 bool CDStarGatewayConfig::load()
 {
 	bool ret = false;
-	CLog::logInfo("Loading Configuration from %s", m_fileName.c_str());
+	LogInfo("Loading Configuration from %s", m_fileName.c_str());
 	CConfig cfg(m_fileName);
 
 	ret = open(cfg);
@@ -67,7 +68,7 @@ bool CDStarGatewayConfig::load()
 		m_gateway.callsign.push_back('G');
 	}
 	else {
-		CLog::logError("Loading Configuration from %s failed", m_fileName.c_str());
+		LogError("Loading Configuration from %s failed", m_fileName.c_str());
 	}
 
 	return ret;
@@ -154,43 +155,20 @@ bool CDStarGatewayConfig::loadAPRS(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadLog(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("log", "path", m_log.logDir, 0, 2048, "/var/log/dstargateway/");
-	if(ret && m_log.logDir[m_log.logDir.length() - 1] != '/') {
-		m_log.logDir.push_back('/');
-	}
+	bool ret = cfg.getValue("log", "displayLevel", m_log.displayLevel, 0U, 6U, 2U);
+	ret = cfg.getValue("log", "mqttLevel", m_log.mqttLevel, 0U, 6U, 2U) && ret;
 
-	ret = cfg.getValue("log", "fileRoot", m_log.fileRoot, 0, 64, "dstargateway") && ret;
-	ret = cfg.getValue("log", "fileRotate", m_log.fileRotate, true) && ret;
+	ret = cfg.getValue("log", "address", m_log.address, 1U, 25U, "127.0.0.1") && ret;
+	ret = cfg.getValue("log", "port", m_log.port, 1U, 65535U, 1883U) && ret;
+	ret = cfg.getValue("log", "keepalive", m_log.keepalive, 0U, 240U, 60U) && ret;
 
-	std::string levelStr;
-	ret = cfg.getValue("log", "fileLevel", levelStr, "info", {"trace", "debug", "info", "warning", "error", "fatal", "none"}) && ret;
-	if(ret) {
-		if(levelStr == "trace")			m_log.fileLevel = LOG_TRACE;
-		else if(levelStr == "debug")	m_log.fileLevel = LOG_DEBUG;
-		else if(levelStr == "info")		m_log.fileLevel = LOG_INFO;
-		else if(levelStr == "warning")	m_log.fileLevel = LOG_WARNING;
-		else if(levelStr == "error")	m_log.fileLevel = LOG_ERROR;
-		else if(levelStr == "fatal")	m_log.fileLevel = LOG_FATAL;
-		else if(levelStr == "none")		m_log.fileLevel = LOG_NONE;
-	}
+	ret = cfg.getValue("log", "authenticate", m_log.authenticate, false) && ret;
+	ret = cfg.getValue("log", "username", m_log.username, 0, 1024, "mmdvm") && ret;
+	ret = cfg.getValue("log", "password", m_log.password, 0U, 30U, "mmdvm") && ret;
 
-	ret = cfg.getValue("log", "displayLevel", levelStr, "info", {"trace", "debug", "info", "warning", "error", "fatal", "none"}) && ret;
-	if(ret) {
-		if(levelStr == "trace")			m_log.displayLevel = LOG_TRACE;
-		else if(levelStr == "debug")	m_log.displayLevel = LOG_DEBUG;
-		else if(levelStr == "info")		m_log.displayLevel = LOG_INFO;
-		else if(levelStr == "warning")	m_log.displayLevel = LOG_WARNING;
-		else if(levelStr == "error")	m_log.displayLevel = LOG_ERROR;
-		else if(levelStr == "fatal")	m_log.displayLevel = LOG_FATAL;
-		else if(levelStr == "none")		m_log.displayLevel = LOG_NONE;
-	}
+	ret = cfg.getValue("log", "name", m_log.name, 0U, 30U, "dstar-gateway") && ret;
 
 	ret = cfg.getValue("log", "logIRCDDBTraffic", m_log.logIRCDDBTraffic, false) && ret;
-
-	std::string thresholdStr;
-	ret = cfg.getValue("log", "repeatthreshold", thresholdStr, "2", {"disabled", "1", "2", "3", "4","5", "6", "7", "8", "9", "10"}) && ret;
-	if(thresholdStr == "disabled") m_log.repeatThreshold = 0;
-	else m_log.repeatThreshold = ::atoi(thresholdStr.c_str());
 
 	return ret;
 }
@@ -231,7 +209,7 @@ bool CDStarGatewayConfig::loadRepeaters(const CConfig & cfg)
 {
 	m_repeaters.clear();
 	for(unsigned int i = 0; i < 4; i++) {
-		std::string section = CStringUtils::string_format("repeater_%d", i+ 1);
+		std::string section = CStringUtils::string_format("repeater_%u", i + 1U);
 		bool repeaterEnabled;
 
 		bool ret = cfg.getValue(section, "enabled", repeaterEnabled, false);
@@ -293,7 +271,7 @@ bool CDStarGatewayConfig::loadRepeaters(const CConfig & cfg)
 	}
 
 	if(m_repeaters.size() == 0U) {
-		CLog::logError("Configuration error: no repeaters configured !");
+		LogError("Configuration error: no repeaters configured !");
 		return false;
 	}
 
@@ -404,7 +382,7 @@ bool CDStarGatewayConfig::open(CConfig & cfg)
 		return cfg.load();
 	}
 	catch(...) {
-		CLog::logError("Can't read %s\n", m_fileName.c_str());
+		LogError("Can't read %s\n", m_fileName.c_str());
 		return false;
 	}
 	return true;

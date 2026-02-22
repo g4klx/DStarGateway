@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -38,9 +39,9 @@ IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolH
             CIcomRepeaterProtocolHandler * icomRepeaterHandler = new CIcomRepeaterProtocolHandler(gatewayConfig.icomAddress, gatewayConfig.icomPort, repeaterAddress, repeaterPort);
 			bool res = icomRepeaterHandler->open();
             if (res) {
-                CLog::logInfo("Icom repeater controller listening on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
+                LogInfo("Icom repeater controller listening on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
             } else {
-				CLog::logError("Cannot open the Icom repeater protocol handler on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
+				LogError("Cannot open the Icom repeater protocol handler on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
 				delete icomRepeaterHandler;
 				icomRepeaterHandler = NULL;
 			}
@@ -57,9 +58,9 @@ IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolH
     		CHBRepeaterProtocolHandler * hbRepeaterHandler = new CHBRepeaterProtocolHandler(gatewayConfig.hbAddress, gatewayConfig.hbPort);
 			bool res = hbRepeaterHandler->open();
 			if (res) {
-                CLog::logInfo("Home Brew repeater controller listening on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
+                LogInfo("Home Brew repeater controller listening on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
             } else {
-				CLog::logError("Cannot open the Homebrew repeater protocol handler on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
+				LogError("Cannot open the Homebrew repeater protocol handler on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
 				delete hbRepeaterHandler;
 				hbRepeaterHandler = NULL;
 			}
@@ -72,9 +73,9 @@ IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolH
             CDummyRepeaterProtocolHandler * dummyRepeaterHandler = new CDummyRepeaterProtocolHandler;
 			bool res = dummyRepeaterHandler->open();
 			if (res) {
-                CLog::logInfo("Dummy repeater controller is open");
+                LogInfo("Dummy repeater controller is open");
             } else {
-				CLog::logError("Cannot open the Dummy repeater protocol handler");
+				LogError("Cannot open the Dummy repeater protocol handler");
 				delete dummyRepeaterHandler;
 				dummyRepeaterHandler = NULL;
 			}

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2011,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -62,7 +62,7 @@ int CTCPReaderWriterServer::read(unsigned char* buffer, unsigned int length, uns
 	if (m_client != NULL) {
 		int ret = m_client->read(buffer, length, secs);
 		if (ret < 0) {
-			CLog::logInfo("Lost TCP connection to port %u", m_port);
+			LogInfo("Lost TCP connection to port %u", m_port);
 
 			m_client->close();
 			delete m_client;
@@ -87,7 +87,7 @@ bool CTCPReaderWriterServer::write(const unsigned char* buffer, unsigned int len
 	if (m_client != NULL) {
 		bool ret = m_client->write(buffer, length);
 		if (!ret) {
-			CLog::logInfo("Lost TCP connection to port %u", m_port);
+			LogInfo("Lost TCP connection to port %u", m_port);
 
 			m_client->close();
 			delete m_client;
@@ -117,7 +117,7 @@ void* CTCPReaderWriterServer::Entry()
 				case -1:
 					break;
 				default:
-					CLog::logInfo("Incoming TCP connection to port %u", m_port);
+					LogInfo("Incoming TCP connection to port %u", m_port);
 					m_client = new CTCPReaderWriterClient(ret);
 					close();
 					break;
@@ -137,10 +137,10 @@ void* CTCPReaderWriterServer::Entry()
 	}
 	catch (std::exception& e) {
 		std::string message(e.what());
-		CLog::logError("Exception raised in the TCP Reader-Writer Server thread - \"%s\"", message.c_str());
+		LogError("Exception raised in the TCP Reader-Writer Server thread - \"%s\"", message.c_str());
 	}
 	catch (...) {
-		CLog::logError("Unknown exception raised in the TCP Reader-Writer Server thread");
+		LogError("Unknown exception raised in the TCP Reader-Writer Server thread");
 	}
 #endif
 
@@ -158,7 +158,7 @@ bool CTCPReaderWriterServer::open()
 {
 	m_fd = ::socket(PF_INET, SOCK_STREAM, 0);
 	if (m_fd < 0) {
-		CLog::logError("Cannot create the TCP server socket, err=%d", errno);
+		LogError("Cannot create the TCP server socket, err=%d", errno);
 		return false;
 	}
 
@@ -172,20 +172,20 @@ bool CTCPReaderWriterServer::open()
 		addr.sin_addr = lookup(m_address);
 
 	if (addr.sin_addr.s_addr == INADDR_NONE) {
-		CLog::logError("The address is invalid - %s", m_address.c_str());
+		LogError("The address is invalid - %s", m_address.c_str());
 		close();
 		return false;
 	}
 
 	int reuse = 1;
 	if (::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, (char *)&reuse, sizeof(reuse)) == -1) {
-		CLog::logError("Cannot set the TCP server socket option, err=%d", errno);
+		LogError("Cannot set the TCP server socket option, err=%d", errno);
 		close();
 		return false;
 	}
 
 	if (::bind(m_fd, (sockaddr*)&addr, sizeof(struct sockaddr_in)) == -1) {
-		CLog::logError("Cannot bind the TCP server address, err=%d", errno);
+		LogError("Cannot bind the TCP server address, err=%d", errno);
 		close();
 		return false;
 	}
@@ -216,7 +216,7 @@ int CTCPReaderWriterServer::accept()
 
 	int ret = ::select(m_fd + 1, &readFds, NULL, NULL, &tv);
 	if (ret < 0) {
-		CLog::logError("Error returned from TCP server select, err=%d", errno);
+		LogError("Error returned from TCP server select, err=%d", errno);
 		return -2;
 	}
 
@@ -237,7 +237,7 @@ int CTCPReaderWriterServer::accept()
 
 	ret = ::accept(m_fd, (sockaddr*)&addr, &len);
 	if (ret < 0) {
-		CLog::logError("Error returned from TCP server accept, err=%d", errno);
+		LogError("Error returned from TCP server accept, err=%d", errno);
 	}
 
 	return ret;

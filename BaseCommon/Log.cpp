@@ -1,6 +1,5 @@
-
 /*
- *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2015,2016,2020,2022,2023,2025 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,58 +16,92 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <ctime>
-#include <sstream>
-#include <cassert>
-
 #include "Log.h"
-#include "LogConsoleTarget.h"
+#include "MQTTConnection.h"
 
-bool CLog::m_addedTargets(false);
-std::recursive_mutex CLog::m_targetsMutex;
-std::vector<CLogTarget *> CLog::m_targets = { new CLogConsoleTarget(LOG_DEBUG) };
-std::string CLog::m_prevMsg = "";
-uint CLog::m_prevMsgCount = 0U;
-uint CLog::m_repeatThreshold = 2U;
+#if defined(_WIN32) || defined(_WIN64)
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#include <unistd.h>
+#endif
 
+#include <cstdio>
+#include <cstdlib>
+#include <cstdarg>
+#include <ctime>
+#include <cassert>
+#include <cstring>
 
-void CLog::addTarget(CLogTarget* target)
+CMQTTConnection* m_mqtt = nullptr;
+
+static unsigned int m_mqttLevel = 2U;
+
+static unsigned int m_displayLevel = 2U;
+
+static char LEVELS[] = " DMIWEF";
+
+void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel)
 {
-    assert(target != nullptr);
-
-    std::lock_guard lockTargets(m_targetsMutex);
-
-    if(!m_addedTargets) {
-        // It is the first time we add an external target, clear the default one(s)
-        m_addedTargets = true;
-        finalise();
-    }
-
-    m_targets.push_back(target);
+	m_mqttLevel    = mqttLevel;
+	m_displayLevel = displayLevel;
 }
 
-void CLog::finalise()
+void LogFinalise()
 {
-    std::lock_guard lockTargets(m_targetsMutex);
-    for(auto target : m_targets) {
-        delete target;
-    }
-
-    m_targets.clear();
-    m_prevMsg.clear();
-    m_prevMsgCount = 0;
+	if (m_mqtt != nullptr) {
+		m_mqtt->close();
+		delete m_mqtt;
+		m_mqtt = nullptr;
+	}
 }
 
-uint& CLog::getRepeatThreshold()
+void Log(unsigned int level, const char* fmt, ...)
 {
-    return CLog::m_repeatThreshold;
+	assert(fmt != nullptr);
+
+	char buffer[501U];
+#if defined(_WIN32) || defined(_WIN64)
+	SYSTEMTIME st;
+	::GetSystemTime(&st);
+
+	::sprintf(buffer, "%c: %04u-%02u-%02u %02u:%02u:%02u.%03u ", LEVELS[level], st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+#else
+	struct timeval now;
+	::gettimeofday(&now, nullptr);
+
+	struct tm* tm = ::gmtime(&now.tv_sec);
+
+	::sprintf(buffer, "%c: %04d-%02d-%02d %02d:%02d:%02d.%03lld ", LEVELS[level], tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000LL);
+#endif
+
+	va_list vl;
+	va_start(vl, fmt);
+
+	::vsnprintf(buffer + ::strlen(buffer), 500 - ::strlen(buffer), fmt, vl);
+
+	va_end(vl);
+
+	if (m_mqtt != nullptr && level >= m_mqttLevel && m_mqttLevel != 0U)
+		m_mqtt->publish("log", buffer);
+
+	if (level >= m_displayLevel && m_displayLevel != 0U) {
+		::fprintf(stdout, "%s\n", buffer);
+		::fflush(stdout);
+	}
+
+	if (level == 6U)		// Fatal
+		exit(1);
 }
 
-void CLog::getTimeStamp(std::string & s)
+void WriteJSON(const std::string& topLevel, nlohmann::json& json)
 {
-    std::time_t now= std::time(0);
-    std::tm* now_tm= std::gmtime(&now);
-    char buf[64];
-    std::strftime(buf, 42, "%Y-%m-%d %T", now_tm);
-    s = std::string(buf);
+	if (m_mqtt != nullptr) {
+		nlohmann::json top;
+
+		top[topLevel] = json;
+
+		m_mqtt->publish("json", top.dump());
+	}
 }
+

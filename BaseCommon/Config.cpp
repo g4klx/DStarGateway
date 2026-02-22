@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (c) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,7 +44,7 @@ bool CConfig::load()
     std::ifstream file;
     file.open(m_filename, std::ios::in);
     if(!file.is_open()) {
-        CLog::logError("Failed to open configuration file %s", m_filename.c_str());
+        LogError("Failed to open configuration file %s", m_filename.c_str());
         return false;
     }
 
@@ -131,14 +132,14 @@ bool CConfig::getValue(const std::string &section, const std::string& key, int &
     }
 
     if(!isDecimalInteger(val->m_value)){
-        CLog::logError("Configuration error: %s.%s is not a valid number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
+        LogError("Configuration error: %s.%s is not a valid number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
         return false;
     }
 
     int tmpValue = std::strtol(val->m_value.c_str(), nullptr, 10);
 
     if(tmpValue < min || tmpValue > max) {
-        CLog::logError("Configuration error: %s.%s is out of range must be between %d and %d, actual %d", section.c_str(), key.c_str(), min, max, tmpValue);
+        LogError("Configuration error: %s.%s is out of range must be between %d and %d, actual %d", section.c_str(), key.c_str(), min, max, tmpValue);
         return false;
     }
 
@@ -155,14 +156,14 @@ bool CConfig::getValue(const std::string &section, const std::string& key, doubl
     }
 
     if(!isFloatingPoint(val->m_value)){
-        CLog::logError("Configuration error: %s.%s is not a valid floating point number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
+        LogError("Configuration error: %s.%s is not a valid floating point number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
         return false;
     }
 
     double tmpValue = std::strtold(val->m_value.c_str(), nullptr);
 
     if(tmpValue < min || tmpValue > max) {
-        CLog::logError("Configuration error: %s.%s is out of range must be between %f and %f, actual %f", section.c_str(), key.c_str(), min, max, tmpValue);
+        LogError("Configuration error: %s.%s is out of range must be between %f and %f, actual %f", section.c_str(), key.c_str(), min, max, tmpValue);
         return false;
     }
 
@@ -179,14 +180,14 @@ bool CConfig::getValue(const std::string &section, const std::string& key, unsig
     }
 
     if(!isDecimalInteger(val->m_value)){
-        CLog::logError("Configuration error: %s.%s is not a valid number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
+        LogError("Configuration error: %s.%s is not a valid number (%s)", section.c_str(), key.c_str(), val->m_value.c_str());
         return false;
     }
 
     unsigned int tmpValue = std::strtol(val->m_value.c_str(), nullptr, 10);
 
     if(tmpValue < min || tmpValue > max) {
-        CLog::logError("Configuration error: %s.%s is out of range must be between %u and %u, actual %u", section.c_str(), key.c_str(), min, max, tmpValue);
+        LogError("Configuration error: %s.%s is out of range must be between %u and %u, actual %u", section.c_str(), key.c_str(), min, max, tmpValue);
         return false;
     }
 
@@ -203,7 +204,7 @@ bool CConfig::getValue(const std::string &section, const std::string& key, std::
         valueTemp = defaultValue;
 
     if(valueTemp.length() < minLen || valueTemp.length() > maxLen) {
-        CLog::logError("Configuration error: %s.%s has an invalid length, length must be between %u and %u, actual %u", section.c_str(), key.c_str(), minLen, maxLen, valueTemp.length());
+        LogError("Configuration error: %s.%s has an invalid length, length must be between %u and %u, actual %u", section.c_str(), key.c_str(), minLen, maxLen, valueTemp.length());
         return false;
     }
 
@@ -244,7 +245,7 @@ bool CConfig::getValue(const std::string &section, const std::string& key, std::
     std::string allowedValuesStr = allowedValuesStreamStr.str();
     allowedValuesStr.resize(allowedValuesStr.length() - 2);
 
-    CLog::logError("Configuration error: %s.%s has an invalid value, valid values are: %s. Actual: %s", section.c_str(), key.c_str(), allowedValuesStr.c_str(), valueTemp.c_str());
+    LogError("Configuration error: %s.%s has an invalid value, valid values are: %s. Actual: %s", section.c_str(), key.c_str(), allowedValuesStr.c_str(), valueTemp.c_str());
     return false;
 }
 

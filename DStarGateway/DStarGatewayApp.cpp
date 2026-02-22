@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021,2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -41,20 +41,21 @@
 #include "Version.h"
 #include "GitVersion.h"
 #include "RepeaterProtocolHandlerFactory.h"
+#include "MQTTConnection.h"
 #include "Log.h"
-#include "LogFileTarget.h"
-#include "LogConsoleTarget.h"
-#include "APRSGPSDIdFrameProvider.h"
 #include "APRSFixedIdFrameProvider.h"
 #include "Daemon.h"
 #include "APRSISHandlerThread.h"
 #include "DummyAPRSHandlerThread.h"
 #include "HostsFilesManager.h"
 
+// In Log.cpp
+extern CMQTTConnection* m_mqtt;
+
 CDStarGatewayApp * CDStarGatewayApp::g_app = nullptr;
-const std::string BANNER_1 = CStringUtils::string_format("%s Copyright (C) %s\n", FULL_PRODUCT_NAME.c_str(), VENDOR_NAME.c_str());
-const std::string BANNER_2 = "DStarGateway comes with ABSOLUTELY NO WARRANTY; see the LICENSE for details.\n";
-const std::string BANNER_3 = "This is free software, and you are welcome to distribute it under certain conditions that are discussed in the LICENSE file.\n\n";
+const char* BANNER_1 = " Copyright (C) ";
+const char* BANNER_2 = "DStarGateway comes with ABSOLUTELY NO WARRANTY; see the LICENSE for details.";
+const char* BANNER_3 = "This is free software, and you are welcome to distribute it under certain conditions that are discussed in the LICENSE file.";
 
 #ifdef UNIT_TESTS
 int fakemain(int argc, char *argv[])
@@ -79,7 +80,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	std::cout << std::endl << BANNER_1 << BANNER_2 << BANNER_3;
+	std::cout << std::endl << FULL_PRODUCT_NAME << BANNER_1 << VENDOR_NAME << std::endl << BANNER_2 << std::endl << BANNER_3 << std::endl << std::endl;
 
 	if ('-' == argv[1][0]) {
 		return 0;
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
-		CLog::logFatal("Invalid configuration, aborting");
+		LogFatal("Invalid configuration, aborting");
 		return false;
 	}
 
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 	config->getDaemon(daemon);
 
 	if (daemon.daemon) {
-		CLog::logInfo("Configured as a daemon, detaching ...");
+		LogInfo("Configured as a daemon, detaching ...");
 		auto res = CDaemon::daemonise(daemon.pidFile, daemon.user);
 
 		switch (res)
@@ -107,9 +108,9 @@ int main(int argc, char *argv[])
 			case DR_PIDFILE_FAILED:
 			case DR_FAILURE:
 			default:
-				CLog::logFatal("Failed to run as daemon");
+				LogFatal("Failed to run as daemon");
 				delete config;
-				CLog::finalise();
+				LogFinalise();
 				return 1;
 		}
 	}
@@ -117,16 +118,23 @@ int main(int argc, char *argv[])
 	// Setup Log
 	TLog logConf;
 	config->getLog(logConf);
-	CLog::finalise();
-	CLog::getRepeatThreshold() = logConf.repeatThreshold;
-	if(logConf.displayLevel	!= LOG_NONE && !daemon.daemon) CLog::addTarget(new CLogConsoleTarget(logConf.displayLevel));
-	if(logConf.fileLevel		!= LOG_NONE) CLog::addTarget(new CLogFileTarget(logConf.fileLevel, logConf.logDir, logConf.fileRoot, logConf.fileRotate));
+
+	LogInitialise(logConf.displayLevel, logConf.mqttLevel);
+
+	std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>> subscriptions;
+	// if (m_conf.getRemoteCommandsEnabled())
+	//	subscriptions.push_back(std::make_pair("command", CDStarGatewayApp::onCommand));
+
+	m_mqtt = new CMQTTConnection(logConf.address, logConf.port, logConf.name, logConf.authenticate, logConf.username, logConf.password, subscriptions, logConf.keepalive);
+	bool ret = m_mqtt->open();
+	if (!ret)
+		return 1;
 
 	//write banner in log file if we are dameon
 	if(daemon.daemon) {
-		CLog::logInfo(BANNER_1);
-		CLog::logInfo(BANNER_2);
-		CLog::logInfo(BANNER_3);
+		LogInfo(BANNER_1);
+		LogInfo(BANNER_2);
+		LogInfo(BANNER_3);
 	}
 
 	CDStarGatewayApp gateway(config);
@@ -165,13 +173,14 @@ void CDStarGatewayApp::run()
 {
 	m_thread->Run();
 	m_thread->Wait();
-	CLog::logInfo("exiting\n");
-	CLog::finalise();
+	LogInfo("exiting\n");
+	LogFinalise();
 }
 
 bool CDStarGatewayApp::createThread()
 {
-	CLog::logTrace("Entering CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Entering CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+
 	// Log
 	TLog log;
 	m_config->getLog(log);
@@ -179,7 +188,7 @@ bool CDStarGatewayApp::createThread()
 	// Paths
 	Tpaths paths;
 	m_config->getPaths(paths);
-	m_thread = new CDStarGatewayThread(log.logDir, paths.dataDir, "");
+	m_thread = new CDStarGatewayThread(paths.dataDir, "");
 
 	// Setup the gateway
 	TGateway gatewayConfig;
@@ -259,7 +268,7 @@ bool CDStarGatewayApp::createThread()
 	bool atLeastOneRepeater = false;
 	CRepeaterProtocolHandlerFactory repeaterProtocolFactory;
 	for(unsigned int i = 0U; i < m_config->getRepeaterCount(); i++) {
-		CLog::logTrace("Adding repeaters - CDStarGatewayApp::createThread - Rpt Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
+		LogDebug("Adding repeaters - CDStarGatewayApp::createThread - Rpt Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
 		TRepeater rptrConfig;
 		m_config->getRepeater(i, rptrConfig);
 		auto  repeaterProtocolHandler = repeaterProtocolFactory.getRepeaterProtocolHandler(rptrConfig.hwType, gatewayConfig, rptrConfig.address, rptrConfig.port);
@@ -297,64 +306,64 @@ bool CDStarGatewayApp::createThread()
 		if(!ddEnabled) ddEnabled = rptrConfig.band.length() > 1U;
 	}
 
-	CLog::logTrace("Repeaters Added - CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Repeaters Added - CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 
 	if(!atLeastOneRepeater) {
-		CLog::logError("Error: no repeaters are enabled or opening network communication to repeater failed");
+		LogError("Error: no repeaters are enabled or opening network communication to repeater failed");
 		return false;
 	}
 
 	m_thread->setDDModeEnabled(ddEnabled);
-	CLog::logInfo("DD Mode enabled: %d", int(ddEnabled));
+	LogInfo("DD Mode enabled: %d", int(ddEnabled));
 
 	// Setup ircddb
 	auto ircddbVersionInfo = "linux_" + PRODUCT_NAME + "-" + VERSION;
 	std::vector<CIRCDDB *> clients;
 	for(unsigned int i=0; i < m_config->getIrcDDBCount(); i++) {
-		CLog::logTrace("Adding Ircddb - CDStarGatewayApp::createThread - Ircddb  Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
+		LogDebug("Adding Ircddb - CDStarGatewayApp::createThread - Ircddb  Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
 		TircDDB ircDDBConfig;
 		m_config->getIrcDDB(i, ircDDBConfig);
-		CLog::logInfo("ircDDB Network %d set to %s user: %s, Quadnet %d", i + 1,ircDDBConfig.hostname.c_str(), ircDDBConfig.username.c_str(), ircDDBConfig.isQuadNet);
+		LogInfo("ircDDB Network %d set to %s user: %s, Quadnet %d", i + 1,ircDDBConfig.hostname.c_str(), ircDDBConfig.username.c_str(), ircDDBConfig.isQuadNet);
 		CIRCDDB * ircDDB = new CIRCDDBClient(ircDDBConfig.hostname, 9007U, ircDDBConfig.username, ircDDBConfig.password, ircddbVersionInfo, gatewayConfig.address, ircDDBConfig.isQuadNet);
 		clients.push_back(ircDDB);
 	}
-	CLog::logTrace("Added Ircddb - CDStarGatewayApp::createThread - Ircddb  Count %i - Thread ID %s", clients.size(), THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Added Ircddb - CDStarGatewayApp::createThread - Ircddb  Count %i - Thread ID %s", clients.size(), THREAD_ID_STR(std::this_thread::get_id()));
 	if(clients.size() > 0U) {
 		CIRCDDBMultiClient* multiClient = new CIRCDDBMultiClient(clients);
 		bool res = multiClient->open();
 		if (!res) {
-			CLog::logError("Cannot initialise the ircDDB protocol handler\n");
+			LogError("Cannot initialise the ircDDB protocol handler\n");
 			return false;
 		}
 		m_thread->setIRC(multiClient);
 	}
 
-	CLog::logTrace("Setting Up Dextra CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Setting Up Dextra CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup Dextra
 	TDextra dextraConfig;
 	m_config->getDExtra(dextraConfig);
-	CLog::logInfo("DExtra enabled: %d, max. dongles: %u, url: %s", int(dextraConfig.enabled), dextraConfig.maxDongles, dextraConfig.hostfileUrl.c_str());
+	LogInfo("DExtra enabled: %d, max. dongles: %u, url: %s", int(dextraConfig.enabled), dextraConfig.maxDongles, dextraConfig.hostfileUrl.c_str());
 	m_thread->setDExtra(dextraConfig.enabled, dextraConfig.maxDongles);
 
-	CLog::logTrace("Setting Up DCS CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Setting Up DCS CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DCS
 	TDCS dcsConfig;
 	m_config->getDCS(dcsConfig);
-	CLog::logInfo("DCS enabled: %d, url: %s", int(dcsConfig.enabled), dcsConfig.hostfileUrl.c_str());
+	LogInfo("DCS enabled: %d, url: %s", int(dcsConfig.enabled), dcsConfig.hostfileUrl.c_str());
 	m_thread->setDCS(dcsConfig.enabled);
 
-	CLog::logTrace("Setting Up DPlus CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Setting Up DPlus CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DPlus
 	TDplus dplusConfig;
 	m_config->getDPlus(dplusConfig);
-	CLog::logInfo("D-Plus enabled: %d, max. dongles: %u, login: %s, url: %s", int(dplusConfig.enabled), dplusConfig.maxDongles, dplusConfig.login.c_str(), dplusConfig.hostfileUrl.c_str());
+	LogInfo("D-Plus enabled: %d, max. dongles: %u, login: %s, url: %s", int(dplusConfig.enabled), dplusConfig.maxDongles, dplusConfig.login.c_str(), dplusConfig.hostfileUrl.c_str());
 	m_thread->setDPlus(dplusConfig.enabled, dplusConfig.maxDongles, dplusConfig.login);
 
-	CLog::logTrace("Setting Up XLX CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
+	LogDebug("Setting Up XLX CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup XLX
 	TXLX xlxConfig;
 	m_config->getXLX(xlxConfig);
-	CLog::logInfo("XLX enabled: %d, Hosts file url: %s", int(xlxConfig.enabled), xlxConfig.hostfileUrl.c_str());
+	LogInfo("XLX enabled: %d, Hosts file url: %s", int(xlxConfig.enabled), xlxConfig.hostfileUrl.c_str());
 	m_thread->setXLX(xlxConfig.enabled);
 
 	// Setup hostsfiles
@@ -370,7 +379,7 @@ bool CDStarGatewayApp::createThread()
 	// Setup Remote
 	TRemote remoteConfig;
 	m_config->getRemote(remoteConfig);
-	CLog::logInfo("Remote enabled: %d, port %u", int(remoteConfig.enabled), remoteConfig.port);
+	LogInfo("Remote enabled: %d, port %u", int(remoteConfig.enabled), remoteConfig.port);
 	m_thread->setRemote(remoteConfig.enabled, remoteConfig.password, remoteConfig.port);
 
 	// Get final things ready
@@ -387,7 +396,7 @@ bool CDStarGatewayApp::createThread()
 
 void CDStarGatewayApp::sigHandlerExit(int sig)
 {
-	CLog::logInfo("Caught signal : %s, shutting down gateway", strsignal(sig));
+	LogInfo("Caught signal : %s, shutting down gateway", strsignal(sig));
 
 	if(g_app != nullptr && g_app->m_thread != nullptr) {
 		g_app->m_thread->kill();
@@ -396,12 +405,12 @@ void CDStarGatewayApp::sigHandlerExit(int sig)
 
 void CDStarGatewayApp::sigHandlerFatal(int sig)
 {
-	CLog::logFatal("Caught signal : %s", strsignal(sig));
+	LogFatal("Caught signal : %s", strsignal(sig));
 	fprintf(stderr, "Caught signal : %s\n", strsignal(sig));
 #ifdef DEBUG_DSTARGW
 	std::stringstream stackTrace;
 	stackTrace <<  boost::stacktrace::stacktrace();
-	CLog::logFatal("Stack Trace : \n%s", stackTrace.str().c_str());
+	LogFatal("Stack Trace : \n%s", stackTrace.str().c_str());
 	fprintf(stderr, "Stack Trace : \n%s\n", stackTrace.str().c_str());
 #endif
 	exit(3);
@@ -410,7 +419,7 @@ void CDStarGatewayApp::sigHandlerFatal(int sig)
 void CDStarGatewayApp::sigHandlerUSR(int sig)
 {
 	if(sig == SIGUSR1) {
-		CLog::logInfo("Caught signal : %s, updating host files", strsignal(sig));
+		LogInfo("Caught signal : %s, updating host files", strsignal(sig));
 
 		CHostsFilesManager::UpdateHostsAsync(); // call and forget
 	}
@@ -431,16 +440,16 @@ void CDStarGatewayApp::terminateHandler()
             std::rethrow_exception(eptr);
         }
 		else {
-			CLog::logFatal("Unhandled unknown exception occured");
+			LogFatal("Unhandled unknown exception occured");
 			fprintf(stderr, "Unknown ex\n");
 		}
     } catch(const std::exception& e) {
-        CLog::logFatal("Unhandled exception occured %s", e.what());
+        LogFatal("Unhandled exception occured %s", e.what());
 		fprintf(stderr, "Unhandled ex %s\n", e.what());
     }
 
 #ifdef DEBUG_DSTARGW
-	CLog::logFatal("Stack Trace : \n%s", stackTrace.str().c_str());
+	LogFatal("Stack Trace : \n%s", stackTrace.str().c_str());
 #endif
 	exit(2);
 }

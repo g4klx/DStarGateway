@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2011-2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2011-2014,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -48,7 +48,7 @@ m_out(0U)
 	auto vstr = SHORT_PRODUCT_NAME;
 	vstr.resize(NUM_FRAMES, ' ');
 
-	CLog::logInfo("Version text set to \"%s\"\n", vstr.c_str());
+	LogInfo("Version text set to \"%s\"\n", vstr.c_str());
 
 	CSlowDataEncoder encoder;
 	encoder.setTextData(vstr);

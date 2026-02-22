@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011,2012,2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2012,2014,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 
 #include "Defs.h"
 #include "Config.h"
-#include "LogSeverity.h"
 
 typedef struct {
 	bool daemon;
@@ -89,12 +88,15 @@ typedef struct {
 } THostsFiles;
 
 typedef struct {
-	std::string logDir;
-	LOG_SEVERITY displayLevel;
-	LOG_SEVERITY fileLevel;
-	std::string fileRoot;
-	bool fileRotate;
-	uint repeatThreshold;
+	unsigned int displayLevel;
+	unsigned int mqttLevel;
+	std::string address;
+	unsigned int port;
+	unsigned int keepalive;
+	bool authenticate;
+	std::string username;
+	std::string password;
+	std::string name;
 	bool logIRCDDBTraffic;
 } TLog;
 

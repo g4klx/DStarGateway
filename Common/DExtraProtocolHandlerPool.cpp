@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017-2018 by Thomas A. Early
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	CLog::logInfo("DExtra UDP port base = %u\n", port);
+	LogInfo("DExtra UDP port base = %u\n", port);
 }
 
 CDExtraProtocolHandlerPool::~CDExtraProtocolHandlerPool()
@@ -64,14 +64,14 @@ CDExtraProtocolHandler* CDExtraProtocolHandlerPool::getHandler(unsigned int port
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			CLog::logInfo("New CDExtraProtocolHandler now on UDP port %u.\n", port);
+			LogInfo("New CDExtraProtocolHandler now on UDP port %u.\n", port);
 		} else {
 			delete proto;
 			proto = NULL;
-			CLog::logInfo("ERROR: Can't open new DExtra UDP port %u!\n", port);
+			LogInfo("ERROR: Can't open new DExtra UDP port %u!\n", port);
 		}
 	} else
-		CLog::logInfo("ERROR: Can't allocate new CDExtraProtocolHandler at port %u\n", port);
+		LogInfo("ERROR: Can't allocate new CDExtraProtocolHandler at port %u\n", port);
 	return proto;
 }
 
@@ -85,13 +85,13 @@ void CDExtraProtocolHandlerPool::release(CDExtraProtocolHandler *handler)
 			handler->close();
 			delete handler;
 			m_index = m_pool.end(); // m_index might be out of order, reset it
-			CLog::logInfo("Releasing DExtra Protocol Handler on port %u.\n", port);
+			LogInfo("Releasing DExtra Protocol Handler on port %u.\n", port);
 
 			return;
 		}
 	}
 	// we should never get here!
-	CLog::logInfo("ERROR: could not find DExtra Protocol Hander (port=%u) to release!\n", handler->getPort());
+	LogInfo("ERROR: could not find DExtra Protocol Hander (port=%u) to release!\n", handler->getPort());
 }
 
 DEXTRA_TYPE CDExtraProtocolHandlerPool::read()

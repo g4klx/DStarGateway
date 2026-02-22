@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -39,7 +39,7 @@ m_locks()
 		return;
 
 	if (logging)
-		CLog::logInfo("Reading %s", fileName.c_str());
+		LogInfo("Reading %s", fileName.c_str());
 
 	while(!file.eof()) {
 		std::string line;

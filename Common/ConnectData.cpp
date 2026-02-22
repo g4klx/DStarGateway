@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2012,2013 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2012,2013,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2017 by Thomas A. Early N7TAE
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
@@ -257,7 +257,7 @@ bool CConnectData::setDPlusData(const unsigned char* data, unsigned int length, 
 
 		case 8U: {
 				std::string reply((const char*)(data + 4U), 4U);
-				CLog::logInfo("D-Plus reply is %.4s\n", reply.c_str());
+				LogInfo("D-Plus reply is %.4s\n", reply.c_str());
 
 				if (::memcmp(data + 4U, "OKRW", 4U) == 0)
 					m_type = CT_ACK;

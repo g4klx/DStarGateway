@@ -1,5 +1,6 @@
 /*
  *   Copyright (C) 2021-2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -43,14 +44,14 @@ bool CAPRSToDPRS::messageToDPRS(std::string& dprs, std::string& text, CHeaderDat
 {
     auto frameBody = frame.getBody();
     if(frameBody.length() < 11 || frameBody[0] != ':' || frameBody[10] != ':') {
-        CLog::logDebug("Invalid APRS message body : %s", frameBody.c_str());
+        LogDebug("Invalid APRS message body : %s", frameBody.c_str());
         return false;
     }
 
     // extract recipient
     auto recipient = boost::trim_copy(frameBody.substr(1, 9));
     if(recipient.empty()) {
-        CLog::logDebug("APRS message has no recipient");
+        LogDebug("APRS message has no recipient");
         return false;
     }
     auto dashPos = recipient.find_first_of('-');

@@ -1,6 +1,6 @@
 /*
  *   Copyright (C) 2012,2013 by Jonathan Naylor G4KLX
- *	 Copyright (C) 2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -30,7 +30,6 @@
 #include "Utils.h"
 #include "NetUtils.h"
 #include "StringUtils.h"
-#include "Log.h"
 
 const unsigned int MAX_FRAMES = 60U * DSTAR_FRAMES_PER_SEC;
 
@@ -77,12 +76,12 @@ void * CTimeServerThread::Entry()
 	if (m_format != FORMAT_TEXT_TIME) {
 		bool ret = loadAMBE();
 		if (!ret) {
-			CLog::logWarning(("Cannot load the AMBE data, using text only time"));
+			printf("Cannot load the AMBE data, using text only time\n");
 			m_format = FORMAT_TEXT_TIME;
 		}
 	}
 
-	CLog::logInfo(("Starting the Time Server thread"));
+	printf("Starting the Time Server thread\n");
 
 	unsigned int lastMin = 0U;
 
@@ -112,7 +111,7 @@ void * CTimeServerThread::Entry()
 		Sleep(450UL);
 	}
 
-	CLog::logInfo(("Stopping the Time Server thread"));
+	printf("Stopping the Time Server thread\n");
 
 	return nullptr;
 }
@@ -998,7 +997,7 @@ void CTimeServerThread::buildAudio(const std::vector<std::string>& words, CSlowD
 	m_data.clear();
 
 	if(words.size() == 0U || m_ambeFileReader == nullptr)
-		CLog::logWarning("No words, falling back to text only");
+		fprintf(stderr, "No words, falling back to text only\n");
 
 	if(m_format == FORMAT_VOICE_TIME && words.size() != 0U) {
 		// Build the audio
@@ -1146,17 +1145,17 @@ bool CTimeServerThread::send(const std::vector<std::string> &words, unsigned int
 	buildAudio(words, encoder);
 
 	if (m_data.size() == 0U) {
-		CLog::logWarning(("Not sending, no audio files loaded"));
+		fprintf(stderr, "Not sending, no audio files loaded\n");
 		return false;
 	}
 
 	if(m_format == FORMAT_VOICE_TIME) {
 		std::string text = boost::algorithm::join(words, " ");
 		boost::replace_all(text, "_", " ");
-		CLog::logInfo("Sending voice \"%s\", sending text \"%s\"", text.c_str(), slowData.c_str());
+		printf("Sending voice \"%s\", sending text \"%s\"\n", text.c_str(), slowData.c_str());
 	}
 	else {
-		CLog::logInfo("Sending text \"%s\"", slowData.c_str());
+		printf("Sending text \"%s\"\n", slowData.c_str());
 	}
 
 	// Build id and socket lists
@@ -1226,7 +1225,7 @@ bool CTimeServerThread::sendHeader(CUDPReaderWriter& socket, const CHeaderData &
 	unsigned int length = header.getG2Data(buffer, 60U, true);
 
 #if defined(DUMP_TX)
-	CUtils::dump(("Sending Header"), buffer, length);
+	CUtils::dump("Sending Header", buffer, length);
 	return true;
 #else
 	for (unsigned int i = 0U; i < 5U; i++) {
@@ -1245,7 +1244,7 @@ bool CTimeServerThread::sendData(CUDPReaderWriter& socket, const CAMBEData& data
 	unsigned int length = data.getG2Data(buffer, 40U);
 
 #if defined(DUMP_TX)
-	CUtils::dump(("Sending Data"), buffer, length);
+	CUtils::dump("Sending Data", buffer, length);
 	return true;
 #else
 	return socket.write(buffer, length, data.getYourAddress(), data.getYourPort());

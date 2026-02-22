@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010-2014,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010-2014,2018,2020,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -115,11 +115,11 @@ bool CAPRSISHandlerThread::start()
 
 void* CAPRSISHandlerThread::Entry()
 {
-	CLog::logInfo("Starting the APRS Writer thread");
+	LogInfo("Starting the APRS Writer thread");
 
 	m_connected = connect();
 	if (!m_connected) {
-		CLog::logInfo("Connect attempt to the APRS server has failed");
+		LogInfo("Connect attempt to the APRS server has failed");
 		startReconnectionTimer();
 	}
 
@@ -133,10 +133,10 @@ void* CAPRSISHandlerThread::Entry()
 				if (m_reconnectTimer.isRunning() && m_reconnectTimer.hasExpired()) {
 					m_reconnectTimer.stop();
 
-					CLog::logDebug("Trying to reconnect to the APRS server");
+					LogDebug("Trying to reconnect to the APRS server");
 					m_connected = connect();
 					if (!m_connected) {
-						CLog::logInfo("Reconnect attempt to the APRS server has failed");
+						LogInfo("Reconnect attempt to the APRS server has failed");
 						startReconnectionTimer();
 					}
 					else {
@@ -151,13 +151,13 @@ void* CAPRSISHandlerThread::Entry()
 				if(!m_queue.empty()){
 					auto frameStr = m_queue.getData();
 
-					CLog::logInfo("APRS Frame sent to IS ==> %s", frameStr.c_str());
+					LogInfo("APRS Frame sent to IS ==> %s", frameStr.c_str());
 
 					bool ret = m_socket.writeLine(frameStr);
 					if (!ret) {
 						m_connected = false;
 						m_socket.close();
-						CLog::logInfo("Error when writing to the APRS server");
+						LogInfo("Error when writing to the APRS server");
 						startReconnectionTimer();
 					}
 				}
@@ -168,7 +168,7 @@ void* CAPRSISHandlerThread::Entry()
 					if (length < 0 || m_keepAliveTimer.hasExpired()) {
 						m_connected = false;
 						m_socket.close();
-						CLog::logError("Error when reading from the APRS server");
+						LogError("Error when reading from the APRS server");
 						startReconnectionTimer();
 					}
 					else if(length > 0 && line[0] == '#') {
@@ -176,7 +176,7 @@ void* CAPRSISHandlerThread::Entry()
 					}
 					else if(line.length() > 0 && line[0] != '#') {
 						m_keepAliveTimer.start();
-						CLog::logDebug("APRS Frame received from IS <== %s", line.c_str());
+						LogDebug("APRS Frame received from IS <== %s", line.c_str());
 						CAPRSFrame readFrame;
 						if(CAPRSParser::parseFrame(line, readFrame)) {
 							for(auto cb : m_APRSReadCallbacks) {
@@ -200,16 +200,16 @@ void* CAPRSISHandlerThread::Entry()
 	}
 	catch (std::exception& e) {
 		std::string message(e.what());
-		CLog::logInfo("Exception raised in the APRS Writer thread - \"%s\"", message.c_str());
+		LogInfo("Exception raised in the APRS Writer thread - \"%s\"", message.c_str());
 		throw;
 	}
 	catch (...) {
-		CLog::logInfo("Unknown exception raised in the APRS Writer thread");
+		LogInfo("Unknown exception raised in the APRS Writer thread");
 		throw;
 	}
 #endif
 
-	CLog::logInfo("Stopping the APRS Writer thread");
+	LogInfo("Stopping the APRS Writer thread");
 
 	return NULL;
 }
@@ -228,7 +228,7 @@ void CAPRSISHandlerThread::write(CAPRSFrame& frame)
 	std::string frameString;
 	if(CAPRSFormater::frameToString(frameString, frame)) {
 		boost::trim_if(frameString, [] (char c) { return c == '\r' || c == '\n'; }); // trim all CRLF, we will add our own, just to make sure we get rid of any garbage that might come from slow data
-		CLog::logTrace("Queued APRS Frame : %s", frameString.c_str());
+		LogDebug("Queued APRS Frame : %s", frameString.c_str());
 		frameString.append("\r\n");
 
 		m_queue.addData(frameString);
@@ -265,11 +265,11 @@ bool CAPRSISHandlerThread::connect()
 	std::string serverResponse("");
 	length = m_socket.readLine(serverResponse, APRS_TIMEOUT);
 	if (length == 0) {
-		CLog::logInfo("No reply from the APRS server after %u seconds", APRS_TIMEOUT);
+		LogInfo("No reply from the APRS server after %u seconds", APRS_TIMEOUT);
 		m_socket.close();
 		return false;
 	}
-	CLog::logInfo("Received login banner : %s", serverResponse.c_str());
+	LogInfo("Received login banner : %s", serverResponse.c_str());
 
 	std::string filter(m_filter);
 	if (filter.length() > 0) filter = " filter " + filter;
@@ -278,7 +278,7 @@ bool CAPRSISHandlerThread::connect()
 					<< " pass " << m_password
 					<< " vers " << (!m_clientName.empty() ? m_clientName : FULL_PRODUCT_NAME)
 					<< filter;
-	//CLog::logInfo("Connect String : ") + connectString);
+	//LogInfo("Connect String : ") + connectString);
 	ret = m_socket.writeLine(connectString.str());
 	if (!ret) {
 		m_socket.close();
@@ -287,19 +287,19 @@ bool CAPRSISHandlerThread::connect()
 	
 	length = m_socket.readLine(serverResponse, APRS_TIMEOUT);
 	if (length == 0) {
-		CLog::logInfo("No reply from the APRS server after %u seconds", APRS_TIMEOUT);
+		LogInfo("No reply from the APRS server after %u seconds", APRS_TIMEOUT);
 		m_socket.close();
 		return false;
 	}
 	if (length < 0) {
-		CLog::logInfo("Error when reading from the APRS server (connect)");
+		LogInfo("Error when reading from the APRS server (connect)");
 		m_socket.close();
 		return false;
 	}
 
-	CLog::logInfo("Response from APRS server: %s", serverResponse.c_str());
+	LogInfo("Response from APRS server: %s", serverResponse.c_str());
 
-	CLog::logInfo("Connected to the APRS server");
+	LogInfo("Connected to the APRS server");
 
 	return true;
 }
@@ -311,7 +311,7 @@ void CAPRSISHandlerThread::startReconnectionTimer()
 	if (m_tries > 10U)
 		m_tries = 10U;
 
-	CLog::logDebug("Next APRS reconnection try in %u minute", m_tries);
+	LogDebug("Next APRS reconnection try in %u minute", m_tries);
 
 	m_reconnectTimer.setTimeout(m_tries * 60U);
 	m_reconnectTimer.start();

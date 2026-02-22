@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -53,7 +54,7 @@ bool CAMBEFileReader::readAmbe()
 {
     struct stat sbuf;
     if (stat(m_ambeFile.c_str(), &sbuf)) {
-        CLog::logWarning("File %s not readable\n", m_ambeFile.c_str());
+        LogWarning("File %s not readable\n", m_ambeFile.c_str());
         return false;
     }
 
@@ -61,23 +62,23 @@ bool CAMBEFileReader::readAmbe()
 
 	FILE *file = fopen(m_ambeFile.c_str(), "rb");
 	if (NULL == file) {
-		CLog::logError("Cannot open %s for reading\n", m_ambeFile.c_str());
+		LogError("Cannot open %s for reading\n", m_ambeFile.c_str());
 		return false;
 	}
 
-	CLog::logInfo("Reading %s\n", m_ambeFile.c_str());
+	LogInfo("Reading %s\n", m_ambeFile.c_str());
 
 	unsigned char buffer[VOICE_FRAME_LENGTH_BYTES];
 
 	size_t n = fread(buffer, sizeof(unsigned char), 4, file);
 	if (n != 4) {
-		CLog::logError("Unable to read the header from %s\n", m_ambeFile.c_str());
+		LogError("Unable to read the header from %s\n", m_ambeFile.c_str());
 		fclose(file);
 		return false;
 	}
 
 	if (memcmp(buffer, "AMBE", 4)) {
-		CLog::logError("Invalid header from %s\n", m_ambeFile.c_str());
+		LogError("Invalid header from %s\n", m_ambeFile.c_str());
 		fclose(file);
 		return false;
 	}
@@ -96,7 +97,7 @@ bool CAMBEFileReader::readAmbe()
 
 	n = fread(p, 1, length, file);
 	if (n != length) {
-		CLog::logError("Unable to read the AMBE data from %s\n", m_ambeFile.c_str());
+		LogError("Unable to read the AMBE data from %s\n", m_ambeFile.c_str());
 		fclose(file);
 		delete[] m_ambe;
         m_ambeLength = 0U;
@@ -114,20 +115,20 @@ bool CAMBEFileReader::readIndex()
 	struct stat sbuf;
 
     if (stat(m_indexFile.c_str(), &sbuf)) {
-        CLog::logError("File %s not readable\n", m_indexFile.c_str());
+        LogError("File %s not readable\n", m_indexFile.c_str());
         return false;
     }
 
 	FILE *file = fopen(m_indexFile.c_str(), "r");
 	if (file == nullptr) {
-		CLog::logError("Cannot open %s for reading\n", m_indexFile.c_str());
+		LogError("Cannot open %s for reading\n", m_indexFile.c_str());
 		return false;
 	}
 
 	// Add a silence entry at the beginning
 	m_index[" "] = new CIndexRecord(" ", 0, SILENCE_LENGTH);
 
-	CLog::logInfo("Reading %s\n", m_indexFile.c_str());
+	LogInfo("Reading %s\n", m_indexFile.c_str());
 
 	char line[128];
 	while (fgets(line, 128, file)) {
@@ -142,7 +143,7 @@ bool CAMBEFileReader::readIndex()
 				unsigned long length = std::stoul(leng);
 
 				if (start >= m_ambeLength || (start + length) >= m_ambeLength)
-					CLog::logInfo("The start or end for *%s* is out of range, start: %lu, end: %lu\n", name.c_str(), start, start + length);
+					LogInfo("The start or end for *%s* is out of range, start: %lu, end: %lu\n", name.c_str(), start, start + length);
 				else
 					m_index[name] = new CIndexRecord(name, start + SILENCE_LENGTH, length);
 			}
@@ -157,7 +158,7 @@ bool CAMBEFileReader::readIndex()
 bool CAMBEFileReader::lookup(const std::string &id, std::vector<CAMBEData *>& data)
 {
 	if(m_index.count(id) == 0U) {
-		CLog::logError("Cannot find the AMBE index for *%s*", id.c_str());
+		LogError("Cannot find the AMBE index for *%s*", id.c_str());
 		return false;
 	}
 

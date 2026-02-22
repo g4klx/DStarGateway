@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2014 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2014,2026 by Jonathan Naylor G4KLX
  *   Copyright (C) 2022 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -27,11 +27,9 @@
 #endif
 
 #include "DGWTimeServerApp.h"
+#include "StringUtils.h"
 #include "Version.h"
-#include "Log.h"
 #include "Daemon.h"
-#include "LogConsoleTarget.h"
-#include "LogFileTarget.h"
 
 CDGWTimeServerApp * CDGWTimeServerApp::g_app = nullptr;
 const std::string BANNER_1 = CStringUtils::string_format("%s v%s Copyright (C) %s\n", APPLICATION_NAME.c_str(), LONG_VERSION.c_str(),  VENDOR_NAME.c_str());
@@ -70,7 +68,7 @@ int main(int argc, char * argv[])
 	TDaemon daemon;
 	config.getDameon(daemon);
 	if (daemon.daemon) {
-		CLog::logInfo("Configured as a daemon, detaching ...");
+		printf("Configured as a daemon, detaching ...");
 		auto res = CDaemon::daemonise(daemon.pidFile, daemon.user);
 
 		switch (res)
@@ -82,18 +80,10 @@ int main(int argc, char * argv[])
 			case DR_PIDFILE_FAILED:
 			case DR_FAILURE:
 			default:
-				CLog::logFatal("Failed to run as daemon");
-				CLog::finalise();
+				fprintf(stderr, "Failed to run as daemon");
 				return 1;
 		}
 	}
-
-	// Setup Log
-	TLog logConf;
-	config.getLog(logConf);
-	CLog::finalise();
-	if(logConf.displayLevel	!= LOG_NONE && !daemon.daemon) CLog::addTarget(new CLogConsoleTarget(logConf.displayLevel));
-	if(logConf.fileLevel		!= LOG_NONE) CLog::addTarget(new CLogFileTarget(logConf.fileLevel, logConf.logDir, logConf.fileRoot, logConf.fileRotate));
 
 	// Start the app
 	CDGWTimeServerApp app(&config);
@@ -156,7 +146,7 @@ bool CDGWTimeServerApp::createThread()
 
 void CDGWTimeServerApp::sigHandler(int sig)
 {
-	CLog::logInfo("Caught signal : %s, shutting down time server", strsignal(sig));
+	fprintf(stderr, "Caught signal : %s, shutting down time server", strsignal(sig));
 
 	if(g_app != nullptr && g_app->m_thread != nullptr) {
 		g_app->m_thread->kill();
@@ -165,12 +155,10 @@ void CDGWTimeServerApp::sigHandler(int sig)
 
 void CDGWTimeServerApp::sigHandlerFatal(int sig)
 {
-	CLog::logFatal("Caught signal : %s", strsignal(sig));
 	fprintf(stderr, "Caught signal : %s\n", strsignal(sig));
 #ifdef DEBUG_DSTARGW
 	std::stringstream stackTrace;
 	stackTrace <<  boost::stacktrace::stacktrace();
-	CLog::logFatal("Stack Trace : \n%s", stackTrace.str().c_str());
 	fprintf(stderr, "Stack Trace : \n%s\n", stackTrace.str().c_str());
 #endif
 	exit(3);
@@ -190,17 +178,15 @@ void CDGWTimeServerApp::terminateHandler()
         if (eptr != nullptr) {
             std::rethrow_exception(eptr);
         }
-		else {
-			CLog::logFatal("Unhandled unknown exception occured");
-			fprintf(stderr, "Unknown ex\n");
-		}
+	else {
+		fprintf(stderr, "Unknown ex\n");
+	}
     } catch(const std::exception& e) {
-        CLog::logFatal("Unhandled exception occured %s", e.what());
-		fprintf(stderr, "Unhandled ex %s\n", e.what());
+	fprintf(stderr, "Unhandled ex %s\n", e.what());
     }
 
 #ifdef DEBUG_DSTARGW
-	CLog::logFatal("Stack Trace : \n%s", stackTrace.str().c_str());
+	fprintf(stderr, "Stack Trace : \n%s", stackTrace.str().c_str());
 #endif
 	exit(2);
 }

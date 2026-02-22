@@ -71,7 +71,7 @@ void CG2Handler::process(CHeaderData& header)
 	unsigned char flag1 = header.getFlag1();
 	if (flag1 == 0x01) {
 		// Don't check the incoming stream
-		// CLog::logInfo("G2 busy message received"));
+		// LogInfo("G2 busy message received"));
 		return;
 	}
 
@@ -94,7 +94,7 @@ void CG2Handler::process(CHeaderData& header)
 	// Find the destination repeater
 	CRepeaterHandler* repeater = CRepeaterHandler::findDVRepeater(header.getRptCall2());
 	if (repeater == NULL) {
-		CLog::logInfo("Incoming G2 header from %s to unknown repeater - %s", header.getMyCall1().c_str(), header.getRptCall2().c_str());
+		LogInfo("Incoming G2 header from %s to unknown repeater - %s", header.getMyCall1().c_str(), header.getRptCall2().c_str());
 		return;		// Not found, ignore
 	}
 
@@ -109,7 +109,7 @@ void CG2Handler::process(CHeaderData& header)
 		}
 	}
 
-	CLog::logInfo("No space to add new G2 route, ignoring");
+	LogInfo("No space to add new G2 route, ignoring");
 
 	delete route;
 }
@@ -178,7 +178,7 @@ bool CG2Handler::clockInt(unsigned int ms)
 	m_inactivityTimer.clock(ms);
 
 	if (m_inactivityTimer.isRunning() && m_inactivityTimer.hasExpired()) {
-		CLog::logInfo("Inactivity timeout for a G2 route has expired");
+		LogInfo("Inactivity timeout for a G2 route has expired");
 		return true;
 	}
 

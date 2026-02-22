@@ -1,5 +1,6 @@
 /*
  *   Copyright (c) 2022 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (c) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -44,7 +45,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 	if(!userName.empty() && getuid() == 0) {
 		user = getpwnam(userName.c_str());
 		if(user == nullptr) {
-			CLog::logFatal("Failed to get %s user", userName.c_str());
+			LogFatal("Failed to get %s user", userName.c_str());
 			return DR_FAILURE;
 		}
 	}
@@ -53,7 +54,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 	if (!pidFile.empty()) {	
 		auto tempFd = tryGetLock(pidFile);
 		if (tempFd < 0) {
-			CLog::logFatal("Failed to acquire lock on pidfile %s : %s", pidFile.c_str(), strerror(errno));
+			LogFatal("Failed to acquire lock on pidfile %s : %s", pidFile.c_str(), strerror(errno));
 			return DR_PIDFILE_FAILED;
 		}
 		releaseLock(tempFd, "");
@@ -61,7 +62,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 		if(user != nullptr) {
 			int res = chown(pidFile.c_str(), user->pw_uid, user->pw_gid);
 			if(res != 0) {
-				CLog::logFatal("Failed to set ownership of pidfile to user %s : %s", userName.c_str(), strerror(errno));
+				LogFatal("Failed to set ownership of pidfile to user %s : %s", userName.c_str(), strerror(errno));
 				return DR_FAILURE;
 			}
 		}
@@ -70,18 +71,18 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 	// change process ownership
 	if(user != nullptr) {
 		if(setgid(user->pw_gid) != 0) {
-			CLog::logFatal("Failed to set %s GID : %s", userName.c_str(), strerror(errno));
+			LogFatal("Failed to set %s GID : %s", userName.c_str(), strerror(errno));
 			return DR_FAILURE;
 		}
 
 		if(setuid(user->pw_uid) != 0) {
-			CLog::logFatal("Failed to set %s UID : %s", userName.c_str(), strerror(errno));
+			LogFatal("Failed to set %s UID : %s", userName.c_str(), strerror(errno));
 			return DR_FAILURE;
 		}
 
 		// Double check it worked (AKA Paranoia)
 		if (setuid(0) != -1){
-			CLog::logFatal("It's possible to regain root - something is wrong!, exiting");
+			LogFatal("It's possible to regain root - something is wrong!, exiting");
 			return DR_FAILURE;
 		}
 	}
@@ -93,7 +94,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 
 	/* An error occurred */
 	if (pid < 0) {
-		CLog::logFatal("Forking failed, exiting");
+		LogFatal("Forking failed, exiting");
 		return DR_FAILURE;
 	}
 
@@ -104,7 +105,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 
 	// On success: The child process becomes session leader
 	if (setsid() < 0) {
-		CLog::logFatal("Failed to set session id, exiting");
+		LogFatal("Failed to set session id, exiting");
         return DR_FAILURE;
 	}
 
@@ -118,7 +119,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 
 	// An error occurred
 	if (pid < 0) {
-		CLog::logFatal("Second forking failed, exiting");
+		LogFatal("Second forking failed, exiting");
 		return DR_FAILURE;
 	}
 
@@ -134,7 +135,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 	/* Change the working directory to the root directory */
 	/* or another appropriated directory */
 	if(chdir("/") != 0) {
-		CLog::logFatal("Faild to cd, exiting");
+		LogFatal("Faild to cd, exiting");
 		return DR_FAILURE;
 	}
 
@@ -171,7 +172,7 @@ DAEMONIZE_RESULT CDaemon::daemonise(const std::string& pidFile, const std::strin
 		/* Write PID to lockfile */
 		ssize_t writeCount = write(m_pid_fd, str, strlen(str));
 		if(writeCount < 0) {
-			CLog::logFatal("Failed to write to PID File. Err: %d", errno);
+			LogFatal("Failed to write to PID File. Err: %d", errno);
 			return DR_FAILURE;
 		}
 	}

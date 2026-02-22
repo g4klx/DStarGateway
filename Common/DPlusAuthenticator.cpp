@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012,2013,2015 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2012,2013,2015,2026 by Jonathan Naylor G4KLX
  *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
  *
  *   This program is free software; you can redistribute it and/or modify
@@ -67,7 +67,7 @@ void CDPlusAuthenticator::start()
 
 void* CDPlusAuthenticator::Entry()
 {
-	CLog::logInfo("Starting the D-Plus Authenticator thread");
+	LogInfo("Starting the D-Plus Authenticator thread");
 
 	authenticate(m_loginCallsign, OPENDSTAR_HOSTNAME, OPENDSTAR_PORT, '2', true);
 
@@ -90,16 +90,16 @@ void* CDPlusAuthenticator::Entry()
 	}
 	catch (std::exception& e) {
 		std::string message(e.what());
-		CLog::logError("Exception raised in the D-Plus Authenticator thread - \"%s\"", message.c_str());
+		LogError("Exception raised in the D-Plus Authenticator thread - \"%s\"", message.c_str());
 		throw;
 	}
 	catch (...) {
-		CLog::logError("Unknown exception raised in the D-Plus Authenticator thread");
+		LogError("Unknown exception raised in the D-Plus Authenticator thread");
 		throw;
 	}
 #endif
 
-	CLog::logInfo("Stopping the D-Plus Authenticator thread");
+	LogInfo("Stopping the D-Plus Authenticator thread");
 
 	return NULL;
 }
@@ -107,7 +107,7 @@ void* CDPlusAuthenticator::Entry()
 void CDPlusAuthenticator::stop()
 {
 	m_killed = true;
-	CLog::logInfo("Stopping DPpus Authenticator");
+	LogInfo("Stopping DPpus Authenticator");
 	Wait();
 }
 
@@ -168,12 +168,12 @@ bool CDPlusAuthenticator::authenticate(const std::string& callsign, const std::s
 		// Ensure that we get exactly len - 2U bytes from the TCP stream
 		ret = read(socket, buffer + 2U, len - 2U);
 		if (!ret) {
-			CLog::logInfo("Short read from %s:%u", hostname.c_str(), port);
+			LogInfo("Short read from %s:%u", hostname.c_str(), port);
 			break;
 		}
 
 		if ((buffer[1U] & 0xC0U) != 0xC0U || buffer[2U] != 0x01U) {
-			CLog::logInfo("Invalid packet received from %s:%u", hostname.c_str(), port);
+			LogInfo("Invalid packet received from %s:%u", hostname.c_str(), port);
 			CUtils::dump("Details:", buffer, len);
 			break;
 		}
@@ -191,7 +191,7 @@ bool CDPlusAuthenticator::authenticate(const std::string& callsign, const std::s
 			// An empty name or IP address or an inactive gateway/reflector is not written out
 			if (address.length() > 0U && name.length() > 0U && name.substr(0, 3) != "XRF" && active && writeToCache){
 				if (name.substr(0, 3) == "REF")
-					CLog::logInfo("D-Plus: %s\t%s", name.c_str(), address.c_str());
+					LogInfo("D-Plus: %s\t%s", name.c_str(), address.c_str());
 
 				name += "        ";
 				name = name.substr(LONG_CALLSIGN_LENGTH - 1U);
@@ -203,7 +203,7 @@ bool CDPlusAuthenticator::authenticate(const std::string& callsign, const std::s
 		ret = read(socket, buffer + 0U, 2U);
 	}
 
-	CLog::logInfo("Registered with %s using callsign %s", hostname.c_str(), callsign.c_str());
+	LogInfo("Registered with %s using callsign %s", hostname.c_str(), callsign.c_str());
 
 	socket.close();
 

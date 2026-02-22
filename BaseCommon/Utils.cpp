@@ -1,6 +1,6 @@
 /*
- *	Copyright (C) 2009,2013 Jonathan Naylor, G4KLX
- *  Copyright (c) 2017 by Thomas A. Early N7TAE
+ *	Copyright (C) 2009,2013,2026 Jonathan Naylor, G4KLX
+ *      Copyright (c) 2017 by Thomas A. Early N7TAE
  *
  *	This program is free software; you can redistribute it and/or modify
  *	it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ void CUtils::dump(const char* title, const bool* data, unsigned int length)
 	assert(title != NULL);
 	assert(data != NULL);
 
-	CLog::logInfo("%s\n", title);
+	LogInfo("%s\n", title);
 
 	unsigned int offset = 0U;
 
@@ -70,7 +70,7 @@ void CUtils::dump(const char* title, const bool* data, unsigned int length)
 
 		output += "*'";
 
-		CLog::logDebug("%04X:  %s\n", offset / 8U, output.c_str());
+		LogDebug("%04X:  %s\n", offset / 8U, output.c_str());
 
 		offset += 128U;
 	}
@@ -81,7 +81,7 @@ void CUtils::dumpRev(const char* title, const bool* data, unsigned int length)
 	assert(title != NULL);
 	assert(data != NULL);
 
-	CLog::logInfo("%s\n", title);
+	LogInfo("%s\n", title);
 
 	unsigned int offset = 0U;
 
@@ -115,7 +115,7 @@ void CUtils::dumpRev(const char* title, const bool* data, unsigned int length)
 
 		output += "*";
 
-		CLog::logDebug("%04X:  %s\n", offset / 8U, output.c_str());
+		LogDebug("%04X:  %s\n", offset / 8U, output.c_str());
 
 		offset += 128U;
 	}
@@ -126,7 +126,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 	assert(title != NULL);
 	assert(data != NULL);
 
-	CLog::logDebug("%s\n", title);
+	LogDebug("%s\n", title);
 
 	unsigned int offset = 0U;
 
@@ -157,7 +157,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 
 		output += "*";
 
-		CLog::logDebug("%04X:  %s\n", offset, output.c_str());
+		LogDebug("%04X:  %s\n", offset, output.c_str());
 
 		offset += 16U;
 
@@ -375,7 +375,7 @@ int CUtils::getAllIPV4Addresses(const char *name, unsigned short port, unsigned 
 		return 0;
 	} else {
 		std::string e(gai_strerror(r));
-		CLog::logInfo("getaddrinfo: %s\n", e.c_str());
+		LogInfo("getaddrinfo: %s\n", e.c_str());
 		return 1;
 	}
 }
