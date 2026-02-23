@@ -104,6 +104,7 @@ bool CG2ProtocolHandler::setBuffer(unsigned char * buffer, int length)
 		// Header or data packet type?
 		if ((m_buffer[14] & 0x80) == 0x80) {
 			m_type = GT_HEADER;
+			m_id = 0U; // reset the id for new header
 		}
 		else {
 			m_type = GT_AMBE;

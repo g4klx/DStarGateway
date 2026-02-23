@@ -456,7 +456,7 @@ void CDStarGatewayThread::addRepeater(const std::string& callsign, const std::st
 	CRepeaterHandler::add(callsign, band, address, port, hwType, reflector, atStartup, reconnect, dratsEnabled, frequency, offset, range, latitude, longitude, agl, description1, description2, url, handler, band1, band2, band3);
 
 	std::string repeater = callsign;
-	repeater.resize(LONG_CALLSIGN_LENGTH - 1U);
+	repeater.resize(LONG_CALLSIGN_LENGTH - 1U, ' ');
 	repeater += band;
 
 	// Add a fixed address and protocol for the local repeaters
