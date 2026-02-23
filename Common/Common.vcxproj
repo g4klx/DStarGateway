@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{DFAAD907-F9E9-4781-81C8-DD1AC91DD3D7}</ProjectGuid>
+    <RootNamespace>Common</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>C:\Users\naylo\source\repos\g4klx\DStarGateway\APRS;C:\Users\naylo\source\repos\g4klx\DStarGateway\DStarBase;C:\Users\naylo\source\repos\g4klx\DStarGateway\BaseCommon;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>C:\Users\naylo\source\repos\g4klx\DStarGateway\APRS;C:\Users\naylo\source\repos\g4klx\DStarGateway\DStarBase;C:\Users\naylo\source\repos\g4klx\DStarGateway\BaseCommon;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\naylo\source\repos\g4klx\DStarGateway\APRS;C:\Users\naylo\source\repos\g4klx\DStarGateway\DStarBase;C:\Users\naylo\source\repos\g4klx\DStarGateway\BaseCommon;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>C:\Users\naylo\source\repos\g4klx\DStarGateway\APRS;C:\Users\naylo\source\repos\g4klx\DStarGateway\DStarBase;C:\Users\naylo\source\repos\g4klx\DStarGateway\BaseCommon;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AnnouncementUnit.h" />
+    <ClInclude Include="APRSCollector.h" />
+    <ClInclude Include="APRSEntry.h" />
+    <ClInclude Include="APRSEntryStatus.h" />
+    <ClInclude Include="APRSFixedIdFrameProvider.h" />
+    <ClInclude Include="APRSGPSDIdFrameProvider.h" />
+    <ClInclude Include="APRSHandler.h" />
+    <ClInclude Include="APRSIdFrameProvider.h" />
+    <ClInclude Include="APRSISHandlerThread.h" />
+    <ClInclude Include="APRStoDPRS.h" />
+    <ClInclude Include="APRSUnit.h" />
+    <ClInclude Include="AudioUnit.h" />
+    <ClInclude Include="CacheManager.h" />
+    <ClInclude Include="CCSCallback.h" />
+    <ClInclude Include="CCSData.h" />
+    <ClInclude Include="CCSProtocolHandler.h" />
+    <ClInclude Include="ConnectData.h" />
+    <ClInclude Include="DCSHandler.h" />
+    <ClInclude Include="DCSProtocolHandler.h" />
+    <ClInclude Include="DCSProtocolHandlerPool.h" />
+    <ClInclude Include="DDHandler.h" />
+    <ClInclude Include="Defs.h" />
+    <ClInclude Include="DExtraHandler.h" />
+    <ClInclude Include="DExtraProtocolHandler.h" />
+    <ClInclude Include="DExtraProtocolHandlerPool.h" />
+    <ClInclude Include="DPlusAuthenticator.h" />
+    <ClInclude Include="DPlusHandler.h" />
+    <ClInclude Include="DPlusProtocolHandler.h" />
+    <ClInclude Include="DPlusProtocolHandlerPool.h" />
+    <ClInclude Include="DRATSServer.h" />
+    <ClInclude Include="DummyAPRSHandlerThread.h" />
+    <ClInclude Include="DummyRepeaterProtocolHandler.h" />
+    <ClInclude Include="EchoUnit.h" />
+    <ClInclude Include="G2Handler.h" />
+    <ClInclude Include="G2ProtocolHandler.h" />
+    <ClInclude Include="G2ProtocolHandlerPool.h" />
+    <ClInclude Include="GatewayCache.h" />
+    <ClInclude Include="GPSACollector.h" />
+    <ClInclude Include="HBRepeaterProtocolHandler.h" />
+    <ClInclude Include="HeardData.h" />
+    <ClInclude Include="HostsFilesManager.h" />
+    <ClInclude Include="IAPRSHandlerBackend.h" />
+    <ClInclude Include="IcomRepeaterProtocolHandler.h" />
+    <ClInclude Include="NMEASentenceCollector.h" />
+    <ClInclude Include="PollData.h" />
+    <ClInclude Include="ReflectorCallback.h" />
+    <ClInclude Include="RemoteHandler.h" />
+    <ClInclude Include="RemoteLinkData.h" />
+    <ClInclude Include="RemoteProtocolHandler.h" />
+    <ClInclude Include="RemoteRepeaterData.h" />
+    <ClInclude Include="RemoteUser.h" />
+    <ClInclude Include="RepeaterCache.h" />
+    <ClInclude Include="RepeaterCallback.h" />
+    <ClInclude Include="RepeaterHandler.h" />
+    <ClInclude Include="RepeaterProtocolHandler.h" />
+    <ClInclude Include="RSMS1AMessageBuilder.h" />
+    <ClInclude Include="RSMS1AMessageCollector.h" />
+    <ClInclude Include="SentenceCollector.h" />
+    <ClInclude Include="SlowDataCollector.h" />
+    <ClInclude Include="SlowDataCollectorThrottle.h" />
+    <ClInclude Include="StatusData.h" />
+    <ClInclude Include="TextCollector.h" />
+    <ClInclude Include="TextData.h" />
+    <ClInclude Include="UserCache.h" />
+    <ClInclude Include="VersionUnit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AnnouncementUnit.cpp" />
+    <ClCompile Include="APRSCollector.cpp" />
+    <ClCompile Include="APRSEntry.cpp" />
+    <ClCompile Include="APRSEntryStatus.cpp" />
+    <ClCompile Include="APRSFixedIdFrameProvider.cpp" />
+    <ClCompile Include="APRSGPSDIdFrameProvider.cpp" />
+    <ClCompile Include="APRSHandler.cpp" />
+    <ClCompile Include="APRSIdFrameProvider.cpp" />
+    <ClCompile Include="APRSISHandlerThread.cpp" />
+    <ClCompile Include="APRStoDPRS.cpp" />
+    <ClCompile Include="APRSUnit.cpp" />
+    <ClCompile Include="AudioUnit.cpp" />
+    <ClCompile Include="CacheManager.cpp" />
+    <ClCompile Include="CCSData.cpp" />
+    <ClCompile Include="CCSProtocolHandler.cpp" />
+    <ClCompile Include="ConnectData.cpp" />
+    <ClCompile Include="DCSHandler.cpp" />
+    <ClCompile Include="DCSProtocolHandler.cpp" />
+    <ClCompile Include="DCSProtocolHandlerPool.cpp" />
+    <ClCompile Include="DDHandler.cpp" />
+    <ClCompile Include="DExtraHandler.cpp" />
+    <ClCompile Include="DExtraProtocolHandler.cpp" />
+    <ClCompile Include="DExtraProtocolHandlerPool.cpp" />
+    <ClCompile Include="DPlusAuthenticator.cpp" />
+    <ClCompile Include="DPlusHandler.cpp" />
+    <ClCompile Include="DPlusProtocolHandler.cpp" />
+    <ClCompile Include="DPlusProtocolHandlerPool.cpp" />
+    <ClCompile Include="DRATSServer.cpp" />
+    <ClCompile Include="DummyAPRSHandlerThread.cpp" />
+    <ClCompile Include="DummyRepeaterProtocolHandler.cpp" />
+    <ClCompile Include="EchoUnit.cpp" />
+    <ClCompile Include="G2Handler.cpp" />
+    <ClCompile Include="G2ProtocolHandler.cpp" />
+    <ClCompile Include="G2ProtocolHandlerPool.cpp" />
+    <ClCompile Include="GatewayCache.cpp" />
+    <ClCompile Include="GPSACollector.cpp" />
+    <ClCompile Include="HBRepeaterProtocolHandler.cpp" />
+    <ClCompile Include="HeardData.cpp" />
+    <ClCompile Include="HostsFilesManager.cpp" />
+    <ClCompile Include="IcomRepeaterProtocolHandler.cpp" />
+    <ClCompile Include="NMEASentenceCollector.cpp" />
+    <ClCompile Include="PollData.cpp" />
+    <ClCompile Include="RemoteHandler.cpp" />
+    <ClCompile Include="RemoteLinkData.cpp" />
+    <ClCompile Include="RemoteProtocolHandler.cpp" />
+    <ClCompile Include="RemoteRepeaterData.cpp" />
+    <ClCompile Include="RemoteUser.cpp" />
+    <ClCompile Include="RepeaterCache.cpp" />
+    <ClCompile Include="RepeaterHandler.cpp" />
+    <ClCompile Include="RSMS1AMessageBuilder.cpp" />
+    <ClCompile Include="RSMS1AMessageCollector.cpp" />
+    <ClCompile Include="SentenceCollector.cpp" />
+    <ClCompile Include="SlowDataCollector.cpp" />
+    <ClCompile Include="SlowDataCollectorThrottle.cpp" />
+    <ClCompile Include="StatusData.cpp" />
+    <ClCompile Include="TextCollector.cpp" />
+    <ClCompile Include="TextData.cpp" />
+    <ClCompile Include="UserCache.cpp" />
+    <ClCompile Include="VersionUnit.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

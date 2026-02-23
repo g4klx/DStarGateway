@@ -1,6 +1,14 @@
 # Prerequisites
 *.d
 
+# Local Files
+*.user
+
+# Output directories
+x64
+Debug
+Release
+
 # Compiled Object files
 *.slo
 *.lo
