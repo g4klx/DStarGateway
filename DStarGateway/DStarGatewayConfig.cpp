@@ -134,9 +134,6 @@ bool CDStarGatewayConfig::loadDCS(const CConfig & cfg)
 bool CDStarGatewayConfig::loadAPRS(const CConfig & cfg)
 {
 	bool ret = cfg.getValue("aprs", "enabled", m_aprs.enabled, false);
-	ret = cfg.getValue("aprs", "port", m_aprs.port, 1U, 65535U, 14580U) && ret;
-	ret = cfg.getValue("aprs", "hostname", m_aprs.hostname, 0, 1024, "rotate.aprs2.net") && ret;
-	ret = cfg.getValue("aprs", "password", m_aprs.password, 0U, 30U, "") && ret;
 #ifdef USE_GPSD
 	std::string positionSource;
 	ret = cfg.getValue("aprs", "positionSource", positionSource, "fixed", {"fixed", "gpsd"}) && ret;
@@ -147,8 +144,6 @@ bool CDStarGatewayConfig::loadAPRS(const CConfig & cfg)
 #else
 	m_aprs.m_positionSource = POSSRC_FIXED;
 #endif
-
-	m_aprs.enabled = m_aprs.enabled && !m_aprs.password.empty();
 
 	return ret;
 }

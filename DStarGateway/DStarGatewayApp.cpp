@@ -208,8 +208,8 @@ bool CDStarGatewayApp::createThread()
 	m_config->getAPRS(aprsConfig);
 	CAPRSHandler * outgoingAprsWriter = nullptr;
 	CAPRSHandler * incomingAprsWriter = nullptr;
-	if(aprsConfig.enabled && !aprsConfig.password.empty()) {
-		CAPRSISHandlerThread* aprsisthread = new CAPRSISHandlerThread(gatewayConfig.callsign, aprsConfig.password, gatewayConfig.address, aprsConfig.hostname, aprsConfig.port);
+	if (aprsConfig.enabled) {
+		CAPRSISHandlerThread* aprsisthread = new CAPRSISHandlerThread(gatewayConfig.callsign);
 		outgoingAprsWriter = new CAPRSHandler((IAPRSHandlerBackend *)aprsisthread);
 
 		incomingAprsWriter = new CAPRSHandler((IAPRSHandlerBackend *)new CDummyAPRSHandlerBackend());

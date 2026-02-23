@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2010,2011,2012,2018,2020 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2010,2011,2012,2018,2020,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,9 +21,7 @@
 
 #include <vector>
 
-#include "TCPReaderWriterClient.h"
 #include "RingBuffer.h"
-#include "Timer.h"
 #include "Thread.h"
 #include "IAPRSHandlerBackend.h"
 #include "APRSFrame.h"
@@ -31,8 +29,8 @@
 
 class CAPRSISHandlerThread : public CThread, IAPRSHandlerBackend {
 public:
-	CAPRSISHandlerThread(const std::string& callsign, const std::string& password, const std::string& address, const std::string& hostname, unsigned int port);
-	CAPRSISHandlerThread(const std::string& callsign, const std::string& password, const std::string& address, const std::string& hostname, unsigned int port, const std::string& filter);
+	CAPRSISHandlerThread(const std::string& callsign);
+	CAPRSISHandlerThread(const std::string& callsign, const std::string& filter);
 	virtual ~CAPRSISHandlerThread();
 
 	bool start();
@@ -51,21 +49,12 @@ public:
 
 private:
 	std::string               m_username;
-	std::string               m_password;
 	std::string	           m_ssid;
-	CTCPReaderWriterClient m_socket;
 	CRingBuffer<std::string>     m_queue;
 	bool                   m_exit;
-	bool                   m_connected;
-	CTimer                 m_reconnectTimer;
-	CTimer				   m_keepAliveTimer;
-	unsigned int           m_tries;
 	std::vector<IReadAPRSFrameCallback *>  m_APRSReadCallbacks;
 	std::string               m_filter;
 	std::string               m_clientName;
-
-	bool connect();
-	void startReconnectionTimer();
 };
 
 #endif

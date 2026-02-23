@@ -102,9 +102,6 @@ typedef struct {
 
 typedef struct {
 	bool enabled;
-	std::string hostname;
-	unsigned int port;
-	std::string password;
 	POSITION_SOURCE m_positionSource;
 } TAPRS;
 
