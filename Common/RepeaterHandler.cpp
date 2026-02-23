@@ -1964,7 +1964,10 @@ void CRepeaterHandler::g2CommandHandler(const std::string& callsign, const std::
 		m_g2User = "CQCQCQ  ";
 
 		CRepeaterData* data = m_cache->findRepeater(m_g2Repeater);
-		m_irc->notifyRepeaterG2NatTraversal(m_g2Repeater);
+		if( data != NULL && data->getRepeater() == m_rptCallsign) {
+			// No point NAT traversal to ourselves
+			m_irc->notifyRepeaterG2NatTraversal(m_g2Repeater);
+		}
 
 		if (data == NULL) {
 			m_g2Status = G2_REPEATER;
