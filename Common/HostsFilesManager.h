@@ -1,5 +1,6 @@
 /*
- *	 Copyright (c) 2024 by Geoffrey F4FXL / KC3FRA
+ *   Copyright (c) 2024 by Geoffrey F4FXL / KC3FRA
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,21 +27,19 @@
 #include "Timer.h"
 #include "DStarDefines.h"
 
-typedef bool (*HostFileDownloadCallback)(const std::string &, const std::string &);
 
 class CHostsFilesManager {
 public: 
     static void setHostFilesDirectories(const std::string & hostFilesDir, const std::string & customHostFilesDir);
-    static void setDownloadCallback(HostFileDownloadCallback downloadCallback);
-    static void setDextra(bool enabled, const std::string & dextraUrl);
-    static void setDCS(bool enabled, const std::string & dcsUrl);
-    static void setDPlus(bool enabled, const std::string & dplusUrl);
-    static void setXLX(bool enabled, const std::string & xlxUrl);
+    static void setDextra(bool enabled);
+    static void setDCS(bool enabled);
+    static void setDPlus(bool enabled);
+    static void setXLX(bool enabled);
     static void setCache(CCacheManager * cache);
     static void clock(unsigned int ms);
     static void setDownloadTimeout(unsigned int seconds);
-    static bool UpdateHostsFromInternet();
-    static bool UpdateHostsFromLocal();
+    static void UpdateHostsFromInternet();
+    static void UpdateHostsFromLocal();
     static bool UpdateHosts();
     static std::future<bool> UpdateHostsAsync();
 
@@ -53,15 +52,8 @@ private:
     static bool m_dplusEnabled;
     static bool m_xlxEnabled;
 
-    static std::string m_dextraUrl;
-    static std::string m_dcsUrl;
-    static std::string m_dplusUrl;
-    static std::string m_xlxUrl;
-
     static CCacheManager * m_cache;
     static CTimer m_downloadTimer;
-
-    static HostFileDownloadCallback m_downloadCallback;
 
     static void loadReflectors(const std::string & directory);
     static void loadReflectors(const std::string & hostFileName, DSTAR_PROTOCOL proto);

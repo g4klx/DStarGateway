@@ -48,6 +48,7 @@ bool CDStarGatewayConfig::load()
 		ret = loadPaths(cfg) && ret;
 		ret = loadHostsFiles(cfg) && ret;
 		ret = loadLog(cfg) && ret;
+		ret = loadMQTT(cfg) && ret;
 		ret = loadAPRS(cfg) && ret;
 		ret = loadDextra(cfg) && ret;
 		ret = loadDCS(cfg) && ret;
@@ -76,27 +77,24 @@ bool CDStarGatewayConfig::load()
 
 bool CDStarGatewayConfig::loadDaemon(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("daemon", "daemon", m_daemon.daemon, false);
-	ret = cfg.getValue("daemon", "pidfile", m_daemon.pidFile, 0, 1024, "") && ret;
-	ret = cfg.getValue("daemon", "user", m_daemon.user, 0, 1024, "") && ret;
+	bool ret = cfg.getValue("Daemon", "daemon", m_daemon.daemon, false);
+	ret = cfg.getValue("Daemon", "pidfile", m_daemon.pidFile, 0, 1024, "") && ret;
+	ret = cfg.getValue("Daemon", "user", m_daemon.user, 0, 1024, "") && ret;
 	return ret;
 }
 
 bool CDStarGatewayConfig::loadXLX(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("xlx", "enabled", m_xlx.enabled, true);
-	ret = cfg.getValue("xlx", "hostfileUrl", m_xlx.hostfileUrl, 0, 1024, "") && ret;
-
-	m_xlx.enabled = m_xlx.enabled;
+	bool ret = cfg.getValue("XLX", "enabled", m_xlx.enabled, true);
 
 	return ret;
 }
 
 bool CDStarGatewayConfig::loadRemote(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("remote", "enabled", m_remote.enabled, false);
-	ret = cfg.getValue("remote", "port", m_remote.port, 1U, 65535U, 4242U) && ret;
-	ret = cfg.getValue("remote", "password", m_remote.password, 0, 1024, "") && ret;
+	bool ret = cfg.getValue("Remote Commands", "enabled", m_remote.enabled, false);
+	ret = cfg.getValue("Remote Commands", "port", m_remote.port, 1U, 65535U, 4242U) && ret;
+	ret = cfg.getValue("Remote Commands", "password", m_remote.password, 0, 1024, "") && ret;
 
 	m_remote.enabled = m_remote.enabled && !m_remote.password.empty();
 
@@ -105,18 +103,16 @@ bool CDStarGatewayConfig::loadRemote(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadDextra(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("dextra", "enabled", m_dextra.enabled, true);
-	ret = cfg.getValue("dextra", "maxDongles", m_dextra.maxDongles, 1U, 5U, 5U) && ret;
-	ret = cfg.getValue("dextra", "hostfileUrl", m_dextra.hostfileUrl, 0, 1024, "") && ret;
+	bool ret = cfg.getValue("Dextra", "enabled", m_dextra.enabled, true);
+	ret = cfg.getValue("Dextra", "maxDongles", m_dextra.maxDongles, 1U, 5U, 5U) && ret;
 	return ret;
 }
 
 bool CDStarGatewayConfig::loadDPlus(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("dplus", "enabled", m_dplus.enabled, true);
-	ret = cfg.getValue("dplus", "maxDongles", m_dplus.maxDongles, 1U, 5U, 5U) && ret;
-	ret = cfg.getValue("dplus", "login", m_dplus.login, 0, LONG_CALLSIGN_LENGTH, m_gateway.callsign) && ret;
-	ret = cfg.getValue("dplus", "hostfileUrl", m_dplus.hostfileUrl, 0, 1024, "") && ret;
+	bool ret = cfg.getValue("D-Plus", "enabled", m_dplus.enabled, true);
+	ret = cfg.getValue("D-Plus", "maxDongles", m_dplus.maxDongles, 1U, 5U, 5U) && ret;
+	ret = cfg.getValue("D-Plus", "login", m_dplus.login, 0, LONG_CALLSIGN_LENGTH, m_gateway.callsign) && ret;
 
 	m_dplus.enabled = m_dplus.enabled && !m_dplus.login.empty();
 	m_dplus.login = CUtils::ToUpper(m_dplus.login);
@@ -126,17 +122,16 @@ bool CDStarGatewayConfig::loadDPlus(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadDCS(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("dcs", "enabled", m_dcs.enabled, true);
-	ret = cfg.getValue("dcs", "hostfileUrl", m_dcs.hostfileUrl, 0, 1024, "") && ret;
+	bool ret = cfg.getValue("DCS", "enabled", m_dcs.enabled, true);
 	return ret;
 }
 
 bool CDStarGatewayConfig::loadAPRS(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("aprs", "enabled", m_aprs.enabled, false);
+	bool ret = cfg.getValue("APRS", "enabled", m_aprs.enabled, false);
 #ifdef USE_GPSD
 	std::string positionSource;
-	ret = cfg.getValue("aprs", "positionSource", positionSource, "fixed", {"fixed", "gpsd"}) && ret;
+	ret = cfg.getValue("APRS", "positionSource", positionSource, "fixed", {"fixed", "gpsd"}) && ret;
 	if(ret) {
 		if(positionSource == "fixed")	m_aprs.m_positionSource = POSSRC_FIXED;
 		else if(positionSource == "gpsd")	m_aprs.m_positionSource = POSSRC_GPSD;
@@ -150,27 +145,32 @@ bool CDStarGatewayConfig::loadAPRS(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadLog(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("log", "displayLevel", m_log.displayLevel, 0U, 6U, 2U);
-	ret = cfg.getValue("log", "mqttLevel", m_log.mqttLevel, 0U, 6U, 2U) && ret;
+	bool ret = cfg.getValue("Log", "displayLevel", m_log.displayLevel, 0U, 6U, 2U);
+	ret = cfg.getValue("Log", "mqttLevel", m_log.mqttLevel, 0U, 6U, 2U) && ret;
 
-	ret = cfg.getValue("log", "address", m_log.address, 1U, 25U, "127.0.0.1") && ret;
-	ret = cfg.getValue("log", "port", m_log.port, 1U, 65535U, 1883U) && ret;
-	ret = cfg.getValue("log", "keepalive", m_log.keepalive, 0U, 240U, 60U) && ret;
+	ret = cfg.getValue("Log", "logIRCDDBTraffic", m_log.logIRCDDBTraffic, false) && ret;
 
-	ret = cfg.getValue("log", "authenticate", m_log.authenticate, false) && ret;
-	ret = cfg.getValue("log", "username", m_log.username, 0, 1024, "mmdvm") && ret;
-	ret = cfg.getValue("log", "password", m_log.password, 0U, 30U, "mmdvm") && ret;
+	return ret;
+}
 
-	ret = cfg.getValue("log", "name", m_log.name, 0U, 30U, "dstar-gateway") && ret;
+bool CDStarGatewayConfig::loadMQTT(const CConfig & cfg)
+{
+	bool ret = cfg.getValue("MQTT", "address", m_mqtt.address, 1U, 25U, "127.0.0.1");
+	ret = cfg.getValue("MQTT", "port", m_mqtt.port, 1U, 65535U, 1883U) && ret;
+	ret = cfg.getValue("MQTT", "keepalive", m_mqtt.keepalive, 0U, 240U, 60U) && ret;
 
-	ret = cfg.getValue("log", "logIRCDDBTraffic", m_log.logIRCDDBTraffic, false) && ret;
+	ret = cfg.getValue("MQTT", "authenticate", m_mqtt.authenticate, false) && ret;
+	ret = cfg.getValue("MQTT", "username", m_mqtt.username, 0, 1024, "mmdvm") && ret;
+	ret = cfg.getValue("MQTT", "password", m_mqtt.password, 0U, 30U, "mmdvm") && ret;
+
+	ret = cfg.getValue("MQTT", "name", m_mqtt.name, 0U, 30U, "dstar-gateway") && ret;
 
 	return ret;
 }
 
 bool CDStarGatewayConfig::loadPaths(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("paths", "data", m_paths.dataDir, 0, 2048, "/usr/local/share/dstargateway.d/");
+	bool ret = cfg.getValue("Paths", "data", m_paths.dataDir, 0, 2048, "/usr/local/share/dstargateway.d/");
 
 	if(ret && m_paths.dataDir[m_paths.dataDir.length() - 1] != '/') {
 		m_paths.dataDir.push_back('/');
@@ -183,9 +183,9 @@ bool CDStarGatewayConfig::loadPaths(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadHostsFiles(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("HostsFiles", "downloadedHostsFiles", m_hostsFiles.downloadedHostFiles, 0, 2048, "/usr/local/share/dstargateway.d/");
-	ret = cfg.getValue("HostsFiles", "customHostsfiles", m_hostsFiles.customHostsFiles, 0, 2048, "/usr/local/share/dstargateway.d/hostsfiles.d/");
-	ret = cfg.getValue("HostsFiles", "downloadTimer", m_hostsFiles.downloadTimeout, 24U, 0xffffffffU, 72U);
+	bool ret = cfg.getValue("Hosts Files", "downloadedHostsFiles", m_hostsFiles.downloadedHostFiles, 0, 2048, "/usr/local/share/dstargateway.d/");
+	ret = cfg.getValue("Hosts Files", "customHostsfiles", m_hostsFiles.customHostsFiles, 0, 2048, "/usr/local/share/dstargateway.d/hostsfiles.d/");
+	ret = cfg.getValue("Hosts Files", "downloadTimer", m_hostsFiles.downloadTimeout, 24U, 0xffffffffU, 72U);
 
 	if(ret && m_hostsFiles.downloadedHostFiles[m_hostsFiles.downloadedHostFiles.length() - 1] != '/') {
 		m_hostsFiles.downloadedHostFiles.push_back('/');
@@ -204,7 +204,7 @@ bool CDStarGatewayConfig::loadRepeaters(const CConfig & cfg)
 {
 	m_repeaters.clear();
 	for(unsigned int i = 0; i < 4; i++) {
-		std::string section = CStringUtils::string_format("repeater_%u", i + 1U);
+		std::string section = CStringUtils::string_format("Repeater %u", i + 1U);
 		bool repeaterEnabled;
 
 		bool ret = cfg.getValue(section, "enabled", repeaterEnabled, false);
@@ -277,7 +277,7 @@ bool CDStarGatewayConfig::loadIrcDDB(const CConfig & cfg)
 {
 	bool ret = true;
 	for(unsigned int i = 0; i < 4; i++) {
-		std::string section = CStringUtils::string_format("ircddb_%d", i + 1);
+		std::string section = CStringUtils::string_format("IRCDDB %u", i + 1U);
 		bool ircEnabled;
 
 		ret = cfg.getValue(section, "enabled", ircEnabled, false) && ret;
@@ -358,9 +358,9 @@ bool CDStarGatewayConfig::loadGPSD(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadAccessControl(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("AccessControl", "whiteList", m_accessControl.whiteList, 0U, 2048U, "");
-	ret = cfg.getValue("AccessControl", "blackList", m_accessControl.blackList, 0U, 2048U, "") && ret;
-	ret = cfg.getValue("AccessControl", "restrictList", m_accessControl.restrictList, 0U, 2048U, "") && ret;
+	bool ret = cfg.getValue("Access Control", "whiteList", m_accessControl.whiteList, 0U, 2048U, "");
+	ret = cfg.getValue("Access Control", "blackList", m_accessControl.blackList, 0U, 2048U, "") && ret;
+	ret = cfg.getValue("Access Control", "restrictList", m_accessControl.restrictList, 0U, 2048U, "") && ret;
 	
 	return ret;
 }
@@ -425,6 +425,11 @@ void CDStarGatewayConfig::getRepeater(unsigned int index, TRepeater & repeater) 
 void CDStarGatewayConfig::getLog(TLog & log) const
 {
 	log = m_log;
+}
+
+void CDStarGatewayConfig::getMQTT(TMQTT & mqtt) const
+{
+	mqtt = m_mqtt;
 }
 
 void CDStarGatewayConfig::getPaths(Tpaths & paths) const

@@ -121,11 +121,15 @@ int main(int argc, char *argv[])
 
 	LogInitialise(logConf.displayLevel, logConf.mqttLevel);
 
+	// Setup MQTT
+	TMQTT mqttConf;
+	config->getMQTT(mqttConf);
+
 	std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>> subscriptions;
 	// if (m_conf.getRemoteCommandsEnabled())
 	//	subscriptions.push_back(std::make_pair("command", CDStarGatewayApp::onCommand));
 
-	m_mqtt = new CMQTTConnection(logConf.address, logConf.port, logConf.name, logConf.authenticate, logConf.username, logConf.password, subscriptions, logConf.keepalive);
+	m_mqtt = new CMQTTConnection(mqttConf.address, mqttConf.port, mqttConf.name, mqttConf.authenticate, mqttConf.username, mqttConf.password, subscriptions, mqttConf.keepalive);
 	bool ret = m_mqtt->open();
 	if (!ret)
 		return 1;
@@ -342,28 +346,28 @@ bool CDStarGatewayApp::createThread()
 	// Setup Dextra
 	TDextra dextraConfig;
 	m_config->getDExtra(dextraConfig);
-	LogInfo("DExtra enabled: %d, max. dongles: %u, url: %s", int(dextraConfig.enabled), dextraConfig.maxDongles, dextraConfig.hostfileUrl.c_str());
+	LogInfo("DExtra enabled: %d, max. dongles: %u", int(dextraConfig.enabled), dextraConfig.maxDongles);
 	m_thread->setDExtra(dextraConfig.enabled, dextraConfig.maxDongles);
 
 	LogDebug("Setting Up DCS CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DCS
 	TDCS dcsConfig;
 	m_config->getDCS(dcsConfig);
-	LogInfo("DCS enabled: %d, url: %s", int(dcsConfig.enabled), dcsConfig.hostfileUrl.c_str());
+	LogInfo("DCS enabled: %d", int(dcsConfig.enabled));
 	m_thread->setDCS(dcsConfig.enabled);
 
 	LogDebug("Setting Up DPlus CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup DPlus
 	TDplus dplusConfig;
 	m_config->getDPlus(dplusConfig);
-	LogInfo("D-Plus enabled: %d, max. dongles: %u, login: %s, url: %s", int(dplusConfig.enabled), dplusConfig.maxDongles, dplusConfig.login.c_str(), dplusConfig.hostfileUrl.c_str());
+	LogInfo("D-Plus enabled: %d, max. dongles: %u, login: %s", int(dplusConfig.enabled), dplusConfig.maxDongles, dplusConfig.login.c_str());
 	m_thread->setDPlus(dplusConfig.enabled, dplusConfig.maxDongles, dplusConfig.login);
 
 	LogDebug("Setting Up XLX CDStarGatewayApp::createThread - Thread ID %s", THREAD_ID_STR(std::this_thread::get_id()));
 	// Setup XLX
 	TXLX xlxConfig;
 	m_config->getXLX(xlxConfig);
-	LogInfo("XLX enabled: %d, Hosts file url: %s", int(xlxConfig.enabled), xlxConfig.hostfileUrl.c_str());
+	LogInfo("XLX enabled: %d", int(xlxConfig.enabled));
 	m_thread->setXLX(xlxConfig.enabled);
 
 	// Setup hostsfiles
@@ -371,10 +375,10 @@ bool CDStarGatewayApp::createThread()
 	m_config->getHostsFiles(hostsFilesConfig);
 	CHostsFilesManager::setHostFilesDirectories(hostsFilesConfig.downloadedHostFiles, hostsFilesConfig.customHostsFiles);
 	CHostsFilesManager::setDownloadTimeout(3600 * hostsFilesConfig.downloadTimeout);
-	CHostsFilesManager::setDextra(dextraConfig.enabled, dextraConfig.hostfileUrl);
-	CHostsFilesManager::setDCS   (dcsConfig.enabled,    dcsConfig.hostfileUrl);
-	CHostsFilesManager::setDPlus (dplusConfig.enabled,  dplusConfig.hostfileUrl);
-	CHostsFilesManager::setXLX   (xlxConfig.enabled, 	xlxConfig.hostfileUrl);
+	CHostsFilesManager::setDextra(dextraConfig.enabled);
+	CHostsFilesManager::setDCS(dcsConfig.enabled);
+	CHostsFilesManager::setDPlus(dplusConfig.enabled);
+	CHostsFilesManager::setXLX(xlxConfig.enabled);
 
 	// Setup Remote
 	TRemote remoteConfig;

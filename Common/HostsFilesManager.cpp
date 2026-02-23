@@ -33,15 +33,8 @@ bool CHostsFilesManager::m_dcsEnabled = false;
 bool CHostsFilesManager::m_dplusEnabled = false;
 bool CHostsFilesManager::m_xlxEnabled = false;
 
-std::string CHostsFilesManager::m_dextraUrl("");
-std::string CHostsFilesManager::m_dcsUrl("");
-std::string CHostsFilesManager::m_dplusUrl("");
-std::string CHostsFilesManager::m_xlxUrl("");
-
 CCacheManager * CHostsFilesManager::m_cache = nullptr;
 CTimer CHostsFilesManager::m_downloadTimer(1000U, 60 * 60 * 24);
-
-HostFileDownloadCallback CHostsFilesManager::m_downloadCallback = nullptr;
 
 void CHostsFilesManager::setHostFilesDirectories(const std::string & hostFilesDir, const std::string & customHostFilesDir)
 {
@@ -49,33 +42,24 @@ void CHostsFilesManager::setHostFilesDirectories(const std::string & hostFilesDi
     m_customFilesDirectory.assign(customHostFilesDir);
 }
 
-void CHostsFilesManager::setDownloadCallback(HostFileDownloadCallback callback)
-{
-	m_downloadCallback = callback;
-}
-
-void CHostsFilesManager::setDextra(bool enabled, const std::string & url)
+void CHostsFilesManager::setDextra(bool enabled)
 {
     m_dextraEnabled = enabled;
-    m_dextraUrl.assign(url);
 }
 
-void CHostsFilesManager::setDPlus(bool enabled, const std::string & url)
+void CHostsFilesManager::setDPlus(bool enabled)
 {
     m_dplusEnabled = enabled;
-    m_dplusUrl.assign(url);
 }
 
-void CHostsFilesManager::setDCS(bool enabled, const std::string & url)
+void CHostsFilesManager::setDCS(bool enabled)
 {
     m_dcsEnabled = enabled;
-    m_dcsUrl.assign(url);
 }
 
-void CHostsFilesManager::setXLX(bool enabled, const std::string & url)
+void CHostsFilesManager::setXLX(bool enabled)
 {
     m_xlxEnabled = enabled;
-    m_xlxUrl.assign(url);
 }
 
 void CHostsFilesManager::setCache(CCacheManager * cache)
@@ -88,51 +72,41 @@ void CHostsFilesManager::clock(unsigned int ms)
 {
     m_downloadTimer.clock(ms);
 
-    if(m_downloadTimer.hasExpired()) {
-		LogInfo("Downloading hosts files after %u hours", m_downloadTimer.getTimeout() / 3600U);
+    if (m_downloadTimer.hasExpired()) {
+	LogInfo("Downloading hosts files after %u hours", m_downloadTimer.getTimeout() / 3600U);
         UpdateHostsAsync(); // call and forget
-		m_downloadTimer.start();
+	m_downloadTimer.start();
     }
 }
 
 void CHostsFilesManager::setDownloadTimeout(unsigned int seconds)
 {
-	m_downloadTimer.start(seconds);
+    m_downloadTimer.start(seconds);
 }
 
-bool CHostsFilesManager::UpdateHostsFromInternet()
+void CHostsFilesManager::UpdateHostsFromInternet()
 {
-    LogInfo("Updating hosts files from internet");
-    bool ret = true;
-    if(m_dextraEnabled && !m_dextraUrl.empty()) ret = m_downloadCallback(m_dextraUrl, m_hostFilesDirectory + "/" + DEXTRA_HOSTS_FILE_NAME) && ret;
-    if(m_dcsEnabled    && !m_dcsUrl.empty())    ret = m_downloadCallback(m_dcsUrl, m_hostFilesDirectory + "/" + DCS_HOSTS_FILE_NAME) && ret;
-    if(m_dplusEnabled  && !m_dplusUrl.empty())  ret = m_downloadCallback(m_dplusUrl, m_hostFilesDirectory + "/" + DPLUS_HOSTS_FILE_NAME) && ret;
-    if(m_xlxEnabled    && !m_xlxUrl.empty())    ret = m_downloadCallback(m_xlxUrl, m_hostFilesDirectory + "/" + XLX_HOSTS_FILE_NAME) && ret;
-
-    if(!ret) LogWarning("Some hosts files failed to downlaod");
-
     CHostsFilesManager::loadReflectors(m_hostFilesDirectory);
-
-    return ret;
 }
 
-bool CHostsFilesManager::UpdateHostsFromLocal()
+void CHostsFilesManager::UpdateHostsFromLocal()
 {
     CHostsFilesManager::loadReflectors(m_customFilesDirectory);
-    return true;
 }
 
 bool CHostsFilesManager::UpdateHosts()
 {
-    bool ret = UpdateHostsFromInternet();
-    UpdateHostsFromLocal() && ret;
+    UpdateHostsFromInternet();
 
-    return ret;
+    UpdateHostsFromLocal();
+
+    return true;
 }
 
 std::future<bool> CHostsFilesManager::UpdateHostsAsync()
 {
     auto fut = std::async(std::launch::async, UpdateHosts);
+
     return fut;
 }
 

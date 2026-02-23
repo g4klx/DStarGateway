@@ -90,6 +90,10 @@ typedef struct {
 typedef struct {
 	unsigned int displayLevel;
 	unsigned int mqttLevel;
+	bool logIRCDDBTraffic;
+} TLog;
+
+typedef struct {
 	std::string address;
 	unsigned int port;
 	unsigned int keepalive;
@@ -97,8 +101,7 @@ typedef struct {
 	std::string username;
 	std::string password;
 	std::string name;
-	bool logIRCDDBTraffic;
-} TLog;
+} TMQTT;
 
 typedef struct {
 	bool enabled;
@@ -108,19 +111,16 @@ typedef struct {
 typedef struct {
 	bool enabled;
 	unsigned int maxDongles;
-	std::string hostfileUrl;
 } TDextra;
 
 typedef struct {
 	bool enabled;
 	std::string login;
 	unsigned int maxDongles;
-	std::string hostfileUrl;
 } TDplus;
 
 typedef struct {
 	bool enabled;
-	std::string hostfileUrl;
 } TDCS;
 
 typedef struct {
@@ -129,7 +129,6 @@ typedef struct {
 
 typedef struct {
 	bool enabled;
-	std::string hostfileUrl;
 } TXLX;
 
 typedef struct {
@@ -164,6 +163,7 @@ public:
 	void getRepeater(unsigned int repeaterIndex, TRepeater & repeater) const;
 	unsigned int getRepeaterCount() const;
 	void getLog(TLog& log) const;
+	void getMQTT(TMQTT& mqtt) const;
 	void getPaths(Tpaths & paths) const;
 	void getHostsFiles(THostsFiles & hostsFiles) const;
 	void getAPRS(TAPRS & aprs) const;
@@ -185,6 +185,7 @@ private:
 	bool loadIrcDDB(const CConfig & cfg);
 	bool loadRepeaters(const CConfig & cfg);
 	bool loadLog(const CConfig & cfg);
+	bool loadMQTT(const CConfig & cfg);
 	bool loadPaths(const CConfig & cfg);
 	bool loadHostsFiles(const CConfig & cfg);
 	bool loadAPRS(const CConfig & cfg);
@@ -211,6 +212,7 @@ private:
 	TRemote m_remote;
 	TXLX m_xlx;
 	TLog m_log;
+	TMQTT m_mqtt;
 #ifdef USE_GPSD
 	TGPSD m_gpsd;
 #endif

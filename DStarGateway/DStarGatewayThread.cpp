@@ -136,7 +136,6 @@ CDStarGatewayThread::~CDStarGatewayThread()
 void* CDStarGatewayThread::Entry()
 {
 	CHostsFilesManager::setCache(&m_cache);
-	// CHostsFilesManager::setDownloadCallback(CHostsFileDownloader::download);
 	CHostsFilesManager::UpdateHosts(); 
 
 	std::string dextraAddress = m_dextraEnabled ? m_gatewayAddress : LOOPBACK_ADDRESS;
