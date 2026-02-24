@@ -30,12 +30,12 @@
 
 class CHostsFilesManager {
 public: 
-    static void setHostFilesDirectories(const std::string & hostFilesDir, const std::string & customHostFilesDir);
+    static void setHostFilesDirectories(const std::string& hostFilesDir, const std::string& customHostFilesDir);
     static void setDextra(bool enabled);
     static void setDCS(bool enabled);
     static void setDPlus(bool enabled);
     static void setXLX(bool enabled);
-    static void setCache(CCacheManager * cache);
+    static void setCache(CCacheManager* cache);
     static void clock(unsigned int ms);
     static void setDownloadTimeout(unsigned int seconds);
     static void UpdateHostsFromInternet();
@@ -52,11 +52,10 @@ private:
     static bool m_dplusEnabled;
     static bool m_xlxEnabled;
 
-    static CCacheManager * m_cache;
+    static CCacheManager* m_cache;
     static CTimer m_downloadTimer;
 
-    static void loadReflectors(const std::string & directory);
-    static void loadReflectors(const std::string & hostFileName, DSTAR_PROTOCOL proto);
+    static void loadReflectors(const std::string& directory);
 };
 
 #endif

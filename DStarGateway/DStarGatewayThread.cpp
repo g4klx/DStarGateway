@@ -46,7 +46,6 @@
 #include "HeardData.h"
 #include "PollData.h"
 #include "AMBEData.h"
-#include "HostFile.h"
 #include "CCSData.h"
 #include "DDData.h"
 #include "Utils.h"
@@ -1100,7 +1099,7 @@ CDStarGatewayStatusData* CDStarGatewayThread::getStatus() const
 		if (ret) {
 			std::string incoming1 = CDExtraHandler::getIncoming(callsign);
 			std::string incoming2 = CDCSHandler::getIncoming(callsign);
-#if USE_CCS
+#ifdef USE_CCS
 			std::string incoming3 = CCCSHandler::getIncoming(callsign);
 #endif
 
@@ -1111,7 +1110,7 @@ CDStarGatewayStatusData* CDStarGatewayThread::getStatus() const
 			if (!incoming2.empty()) {
 				incoming = incoming2 + " ";
 			}
-#if USE_CCS
+#ifdef USE_CCS
 			if (!incoming3.empty()) {
 				incoming = incoming3 + " ";
 			}

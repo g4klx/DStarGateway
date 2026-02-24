@@ -19,8 +19,10 @@
 
 #include <cassert>
 
+#include <fstream>
+#include <nlohmann/json.hpp>
+
 #include "HostsFilesManager.h"
-#include "HostFile.h"
 #include "StringUtils.h"
 #include "UDPReaderWriter.h"
 #include "Log.h"
@@ -110,77 +112,75 @@ std::future<bool> CHostsFilesManager::UpdateHostsAsync()
     return fut;
 }
 
-void CHostsFilesManager::loadReflectors(const std::string & directory)
+void CHostsFilesManager::loadReflectors(const std::string& directory)
 {
-    if (m_xlxEnabled) {
-		std::string fileName = directory + "/" + XLX_HOSTS_FILE_NAME;
-		loadReflectors(fileName, DP_DCS);
-	}
-	
-	if (m_dplusEnabled) {
-		std::string fileName = directory + "/" + DPLUS_HOSTS_FILE_NAME;
-		loadReflectors(fileName, DP_DPLUS);
+	if (m_cache == nullptr) {
+		LogWarning("HostsFilesManager cache not initilized");
+		return;
 	}
 
-	if (m_dextraEnabled) {
-		std::string fileName = directory + "/" + DEXTRA_HOSTS_FILE_NAME;
-		loadReflectors(fileName, DP_DEXTRA);
-	}
+	unsigned int dplusCount = 0U;
+	unsigned int dextraCount = 0U;
+	unsigned int dcsCount = 0U;
 
-	if (m_dcsEnabled) {
-		std::string fileName = directory + "/" + DCS_HOSTS_FILE_NAME;
-		loadReflectors(fileName, DP_DCS);
-	}
-}
+	std::string filename = directory + "/" + JSON_HOSTS_FILE_NAME;
 
-void CHostsFilesManager::loadReflectors(const std::string & hostFileName, DSTAR_PROTOCOL proto)
-{
-    if(m_cache == nullptr) {
-        LogDebug("HostsFilesManager cache not initilized");
-        return;
-    }
+	try {
+		std::fstream file(filename);
 
-	unsigned int count = 0U;
+		nlohmann::json data = nlohmann::json::parse(file);
 
-	CHostFile hostFile(hostFileName, false);
-	for (unsigned int i = 0U; i < hostFile.getCount(); i++) {
-		std::string reflector = hostFile.getName(i);
-		in_addr address    = CUDPReaderWriter::lookup(hostFile.getAddress(i));
-		bool lock          = hostFile.getLock(i);
+		bool hasData = data["reflectors"].is_array();
+		if (!hasData)
+			throw;
 
-		if (address.s_addr != INADDR_NONE) {
-			unsigned char* ucp = (unsigned char*)&address;
+		nlohmann::json::array_t hosts = data["reflectors"];
+		for (const auto& it : hosts) {
+			std::string reflector = it["name"];
 
-			std::string addrText;
-			addrText = CStringUtils::string_format("%u.%u.%u.%u", ucp[0U] & 0xFFU, ucp[1U] & 0xFFU, ucp[2U] & 0xFFU, ucp[3U] & 0xFFU);
+			// unsigned short port = it["port"];
 
-			if (lock)
-				LogInfo("Locking %s to %s", reflector.c_str(), addrText.c_str());
+			std::string type = it["reflector_type"];
+
+			bool isNull = it["ipv4"].is_null();
+			if (isNull)
+				continue;
+
+			std::string ipv4 = it["ipv4"];
 
 			reflector.resize(LONG_CALLSIGN_LENGTH - 1U, ' ');
 			reflector += "G";
-			m_cache->updateGateway(reflector, addrText, proto, lock, true);
 
-			count++;
+			if (type == "REF") {
+				if (m_dplusEnabled) {
+					m_cache->updateGateway(reflector, ipv4, DP_DPLUS, false, true);
+					dplusCount++;
+				}
+			} else if (type == "XRF") {
+				if (m_dextraEnabled) {
+					m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, false, true);
+					dextraCount++;
+				}
+			} else if (type == "DCS") {
+				if (m_dcsEnabled) {
+					m_cache->updateGateway(reflector, ipv4, DP_DCS, false, true);
+					dcsCount++;
+				}
+			} else {
+				LogWarning("Unknown type of \"%s\" found in %s", filename.c_str());
+			}
 		}
 	}
-
-	std::string protoString;
-	switch (proto)
-	{
-	case DP_DEXTRA:
-		protoString =  "DExtra";
-		break;
-	case DP_DCS:
-		protoString = "DCS";
-		break;
-	case DP_DPLUS:
-		protoString = "DPlus";
-		break;
-	default:
-		// ???
-		break;
+	catch (...) {
+		LogError("Unable to load/parse JSON file %s", filename.c_str());
+		return;
 	}
 
-	LogInfo("Loaded %u of %u %s hosts from %s", count, hostFile.getCount(), protoString.c_str() , hostFileName.c_str());
+	if (m_dplusEnabled)
+		LogInfo("Loaded %u D-Plus hosts from %s", dplusCount, filename.c_str());
+	if (m_dextraEnabled)
+		LogInfo("Loaded %u Dextra hosts from %s", dextraCount, filename.c_str());
+	if (m_dcsEnabled)
+		LogInfo("Loaded %u DCS hosts from %s", dcsCount, filename.c_str());
 }
+

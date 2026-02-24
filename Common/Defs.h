@@ -22,10 +22,7 @@
 
 #include <string>
 
-const std::string DEXTRA_HOSTS_FILE_NAME("DExtra_Hosts.txt");
-const std::string DCS_HOSTS_FILE_NAME("DCS_Hosts.txt");
-const std::string DPLUS_HOSTS_FILE_NAME("DPlus_Hosts.txt");
-const std::string XLX_HOSTS_FILE_NAME("XLX_Hosts.txt");
+const std::string JSON_HOSTS_FILE_NAME("DStar_Hosts.json");
 const std::string GATEWAY_HOSTS_FILE_NAME("Gateway_Hosts.txt");
 
 const std::string STARNET_BASE_NAME("STARnet");
