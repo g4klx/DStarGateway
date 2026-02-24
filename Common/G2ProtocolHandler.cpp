@@ -19,6 +19,7 @@
 
 #include <string>
 #include <cstring>
+#include <cassert>
 
 #include "G2ProtocolHandler.h"
 #include "Utils.h"

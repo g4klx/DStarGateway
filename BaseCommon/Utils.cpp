@@ -11,7 +11,8 @@
  *	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *	GNU General Public License for more details.
  */
- 
+
+#include <sys/time.h>
 #include <sys/types.h>
 #include <netdb.h>
 #include <cassert>
@@ -36,7 +37,7 @@ void CUtils::dump(const char* title, const bool* data, unsigned int length)
 	assert(title != NULL);
 	assert(data != NULL);
 
-	LogInfo("%s\n", title);
+	LogInfo("%s", title);
 
 	unsigned int offset = 0U;
 
@@ -70,7 +71,7 @@ void CUtils::dump(const char* title, const bool* data, unsigned int length)
 
 		output += "*'";
 
-		LogDebug("%04X:  %s\n", offset / 8U, output.c_str());
+		LogDebug("%04X:  %s", offset / 8U, output.c_str());
 
 		offset += 128U;
 	}
@@ -81,7 +82,7 @@ void CUtils::dumpRev(const char* title, const bool* data, unsigned int length)
 	assert(title != NULL);
 	assert(data != NULL);
 
-	LogInfo("%s\n", title);
+	LogInfo("%s", title);
 
 	unsigned int offset = 0U;
 
@@ -115,7 +116,7 @@ void CUtils::dumpRev(const char* title, const bool* data, unsigned int length)
 
 		output += "*";
 
-		LogDebug("%04X:  %s\n", offset / 8U, output.c_str());
+		LogDebug("%04X:  %s", offset / 8U, output.c_str());
 
 		offset += 128U;
 	}
@@ -126,7 +127,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 	assert(title != NULL);
 	assert(data != NULL);
 
-	LogDebug("%s\n", title);
+	LogDebug("%s", title);
 
 	unsigned int offset = 0U;
 
@@ -157,7 +158,7 @@ void CUtils::dump(const char* title, const unsigned char* data, unsigned int len
 
 		output += "*";
 
-		LogDebug("%04X:  %s\n", offset, output.c_str());
+		LogDebug("%04X:  %s", offset, output.c_str());
 
 		offset += 16U;
 
@@ -375,7 +376,7 @@ int CUtils::getAllIPV4Addresses(const char *name, unsigned short port, unsigned 
 		return 0;
 	} else {
 		std::string e(gai_strerror(r));
-		LogInfo("getaddrinfo: %s\n", e.c_str());
+		LogInfo("getaddrinfo: %s", e.c_str());
 		return 1;
 	}
 }
@@ -426,3 +427,25 @@ void CUtils::truncateFile(const std::string& fileName)
 	if(file.is_open())
 		file.close();
 }
+
+std::string CUtils::createTimestamp()
+{
+	char buffer[100U];
+
+#if defined(_WIN32) || defined(_WIN64)
+	SYSTEMTIME st;
+	::GetSystemTime(&st);
+
+	::sprintf(buffer, "%04u-%02u-%02u %02u:%02u:%02u.%03u", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, st.wMilliseconds);
+#else
+	struct timeval now;
+	::gettimeofday(&now, nullptr);
+
+	struct tm* tm = ::gmtime(&now.tv_sec);
+
+	::sprintf(buffer, "%04d-%02d-%02d %02d:%02d:%02d.%03lld", tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000LL);
+#endif
+
+	return buffer;
+}
+

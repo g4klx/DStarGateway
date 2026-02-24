@@ -23,6 +23,7 @@
 
 #include <cerrno>
 #include <cassert>
+#include <cstring>
 
 
 CTCPReaderWriterServer::CTCPReaderWriterServer(const std::string& address, unsigned int port) :
@@ -62,7 +63,7 @@ int CTCPReaderWriterServer::read(unsigned char* buffer, unsigned int length, uns
 	if (m_client != NULL) {
 		int ret = m_client->read(buffer, length, secs);
 		if (ret < 0) {
-			LogInfo("Lost TCP connection to port %u", m_port);
+			LogWarning("Lost TCP connection to port %u", m_port);
 
 			m_client->close();
 			delete m_client;
@@ -87,7 +88,7 @@ bool CTCPReaderWriterServer::write(const unsigned char* buffer, unsigned int len
 	if (m_client != NULL) {
 		bool ret = m_client->write(buffer, length);
 		if (!ret) {
-			LogInfo("Lost TCP connection to port %u", m_port);
+			LogError("Lost TCP connection to port %u", m_port);
 
 			m_client->close();
 			delete m_client;

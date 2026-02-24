@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2020,2022,2023,2025 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2020,2022,2023,2025,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
 
 #include "Log.h"
 #include "MQTTConnection.h"
+#include "Utils.h"
+
+#include <nlohmann/json.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
@@ -94,7 +97,7 @@ void Log(unsigned int level, const char* fmt, ...)
 		exit(1);
 }
 
-void WriteJSON(const std::string& topLevel, nlohmann::json& json)
+static void WriteJSON(const std::string& topLevel, nlohmann::json& json)
 {
 	if (m_mqtt != nullptr) {
 		nlohmann::json top;
@@ -103,5 +106,65 @@ void WriteJSON(const std::string& topLevel, nlohmann::json& json)
 
 		m_mqtt->publish("json", top.dump());
 	}
+}
+
+void writeJSONStatus(const std::string& status)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["message"]   = status;
+
+	WriteJSON("status", json);
+}
+
+void writeJSONLinking(const std::string& repeater, const std::string& reason, const std::string& protocol, const std::string& reflector)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["repeater"]  = repeater;
+	json["action"]    = "linking";
+	json["reason"]    = reason;
+	json["reflector"] = reflector;
+	json["protocol"]  = protocol;
+
+	WriteJSON("link", json);
+}
+
+void writeJSONUnlinked(const std::string& repeater, const std::string& reason)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["repeater"]  = repeater;
+	json["action"]    = "unlinked";
+	json["reason"]    = reason;
+
+	WriteJSON("link", json);
+}
+
+void writeJSONFailed(const std::string& repeater)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["repeater"]  = repeater;
+	json["action"]    = "failed";
+
+	WriteJSON("link", json);
+}
+
+void writeJSONRelinking(const std::string& repeater, const std::string& protocol, const std::string& reflector)
+{
+	nlohmann::json json;
+
+	json["timestamp"] = CUtils::createTimestamp();
+	json["repeater"]  = repeater;
+	json["action"]    = "relinking";
+	json["reflector"] = reflector;
+	json["protocol"]  = protocol;
+
+	WriteJSON("link", json);
 }
 

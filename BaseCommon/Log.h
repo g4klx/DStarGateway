@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2015,2016,2020,2022,2023 by Jonathan Naylor G4KLX
+ *   Copyright (C) 2015,2016,2020,2022,2023,2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -21,8 +21,6 @@
 
 #include <string>
 
-#include <nlohmann/json.hpp>
-
 #define	LogDebug(fmt, ...)	Log(1U, fmt, ##__VA_ARGS__)
 #define	LogMessage(fmt, ...)	Log(2U, fmt, ##__VA_ARGS__)
 #define	LogInfo(fmt, ...)	Log(3U, fmt, ##__VA_ARGS__)
@@ -35,6 +33,10 @@ extern void Log(unsigned int level, const char* fmt, ...);
 extern void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel);
 extern void LogFinalise();
 
-extern void WriteJSON(const std::string& topLevel, nlohmann::json& json);
+extern void writeJSONStatus(const std::string& status);
+extern void writeJSONLinking(const std::string& repeater, const std::string& reason, const std::string& protocol, const std::string& reflector);
+extern void writeJSONUnlinked(const std::string& reason, const std::string& repeater);
+extern void writeJSONFailed(const std::string& repeater);
+extern void writeJSONRelinking(const std::string& repeater, const std::string& protocol, const std::string& reflector);
 
 #endif

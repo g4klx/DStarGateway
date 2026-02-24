@@ -175,9 +175,14 @@ bool CDStarGatewayApp::init()
 
 void CDStarGatewayApp::run()
 {
+	writeJSONStatus("DStarGateway is starting");
+
 	m_thread->Run();
 	m_thread->Wait();
+
 	LogInfo("exiting\n");
+	writeJSONStatus("DStarGateway is stopping");
+
 	LogFinalise();
 }
 

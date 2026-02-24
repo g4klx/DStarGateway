@@ -306,7 +306,7 @@ private:
 	void sendHeard(const std::string& text = "");
 	void sendStats();
 
-	void linkInt(const std::string& callsign);
+	void linkInt(const std::string& reason, const std::string& callsign);
 
 	void suspendLinks();
 	bool restoreLinks();

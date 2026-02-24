@@ -187,7 +187,7 @@ m_heardTimer(1000U, 0U, 100U)		// 100ms
 	m_echo      = new CEchoUnit(this, callsign);
 	m_infoAudio = new CAudioUnit(this, callsign);
 	m_version   = new CVersionUnit(this, callsign);
-	m_aprsUnit = new CAPRSUnit(this);
+	m_aprsUnit  = new CAPRSUnit(this);
 
 
 	if (dratsEnabled) {
@@ -1282,6 +1282,7 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 			switch (protocol) {
 				case DP_DPLUS:
 					if (m_dplusEnabled) {
+						writeJSONLinking(m_rptCallsign, "user", "dplus", m_linkRepeater);
 						m_linkGateway = gateway;
 						unsigned int localPort = 0U;
 						addr.s_addr = ::inet_addr(address.c_str());
@@ -1299,6 +1300,7 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 
 				case DP_DCS:
 					if (m_dcsEnabled) {
+						writeJSONLinking(m_rptCallsign, "user", "dcs", m_linkRepeater);
 						m_linkGateway = gateway;
 						addr.s_addr = ::inet_addr(address.c_str());
 						CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, addr);
@@ -1314,6 +1316,7 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 					break;
 
 				case DP_LOOPBACK:
+					writeJSONLinking(m_rptCallsign, "user", "loopback", m_linkRepeater);
 					m_linkGateway = gateway;
 					addr.s_addr = ::inet_addr(address.c_str());
 					CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, addr);
@@ -1322,6 +1325,7 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 
 				default:
 					if (m_dextraEnabled) {
+						writeJSONLinking(m_rptCallsign, "user", "dextra", m_linkRepeater);
 						m_linkGateway = gateway;
 						unsigned int localPort = 0U;
 						addr.s_addr = ::inet_addr(address.c_str());
@@ -1374,6 +1378,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 		if (m_linkStatus != LS_NONE && (m_linkStartup.empty() || m_linkStartup == "        ")) {
 			// Unlink if linked to something
 			LogInfo("Reconnect timer has expired, unlinking %s from %s", m_rptCallsign.c_str(), m_linkRepeater.c_str());
+			writeJSONUnlinked("timer", m_rptCallsign);
 
 			CDExtraHandler::unlink(this);
 			CDPlusHandler::unlink(this);
@@ -1400,6 +1405,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 					switch (m_linkStatus) {
 						case LS_LINKING_DEXTRA:
 						case LS_LINKED_DEXTRA:
+							writeJSONRelinking(m_rptCallsign, "dextra", m_linkStartup);
 							m_linkRelink = true;
 							m_linkRepeater = m_linkStartup;
 							CDExtraHandler::unlink(this, m_linkRepeater);
@@ -1411,6 +1417,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 
 						case LS_LINKING_DCS:
 						case LS_LINKED_DCS:
+							writeJSONRelinking(m_rptCallsign, "dcs", m_linkStartup);
 							m_linkRelink = true;
 							m_linkRepeater = m_linkStartup;
 							CDCSHandler::unlink(this, m_linkRepeater);
@@ -1422,6 +1429,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 
 						case LS_LINKING_LOOPBACK:
 						case LS_LINKED_LOOPBACK:
+							writeJSONRelinking(m_rptCallsign, "loopback", m_linkStartup);
 							m_linkRelink = true;
 							m_linkRepeater = m_linkStartup;
 							CDCSHandler::unlink(this, m_linkRepeater);
@@ -1432,6 +1440,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 							break;
 
 						case LS_LINKING_DPLUS:
+							writeJSONRelinking(m_rptCallsign, "dplus", m_linkStartup);
 							m_linkRepeater = m_linkStartup;
 							CDPlusHandler::relink(this, m_linkRepeater);
 							writeLinkingTo(m_linkRepeater);
@@ -1439,6 +1448,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 							break;
 
 						case LS_LINKED_DPLUS:
+							writeJSONRelinking(m_rptCallsign, "dplus", m_linkStartup);
 							m_linkRepeater = m_linkStartup;
 							CDPlusHandler::relink(this, m_linkRepeater);
 							writeLinkedTo(m_linkRepeater);
@@ -1457,7 +1467,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 			CDPlusHandler::unlink(this);
 			CDCSHandler::unlink(this);
 
-			linkInt(m_linkStartup);
+			linkInt("timer", m_linkStartup);
 		}
 
 		setReconnectTimer(m_linkReconnect);
@@ -1637,12 +1647,14 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 	if (!isRecoverable && m_linkRelink) {
 		m_linkRelink = false;
 		LogInfo("Relinking %s from %s to %s", m_rptCallsign.c_str(), callsign.c_str(), m_linkRepeater.c_str());
-		linkInt(m_linkRepeater);
+		linkInt("", m_linkRepeater);
 		return false;
 	}
 
 	// Have we linked to something else in the meantime?
 	if (m_linkStatus == LS_NONE || m_linkRepeater != callsign) {
+		writeJSONFailed(m_rptCallsign);
+
 		switch (protocol) {
 			case DP_DCS:
 				LogInfo("DCS link to %s has failed", callsign.c_str());
@@ -1663,6 +1675,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 	if (!isRecoverable) {
 		if (protocol == DP_DEXTRA && callsign == m_linkRepeater) {
 			LogInfo("DExtra link to %s has failed", m_linkRepeater.c_str());
+			writeJSONFailed(m_rptCallsign);
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1671,6 +1684,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 
 		if (protocol == DP_DPLUS && callsign == m_linkRepeater) {
 			LogInfo("D-Plus link to %s has failed", m_linkRepeater.c_str());
+			writeJSONFailed(m_rptCallsign);
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1682,6 +1696,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 				LogInfo("DCS link to %s has failed", m_linkRepeater.c_str());
 			else
 				LogInfo("Loopback link to %s has failed", m_linkRepeater.c_str());
+			writeJSONFailed(m_rptCallsign);
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1695,6 +1710,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 		switch (m_linkStatus) {
 			case LS_LINKED_DEXTRA:
 				LogInfo("DExtra link to %s has failed, relinking", m_linkRepeater.c_str());
+				writeJSONRelinking(m_rptCallsign, "dextra", m_linkRepeater);
 				m_linkStatus = LS_LINKING_DEXTRA;
 				writeLinkingTo(m_linkRepeater);
 				triggerInfo();
@@ -1712,6 +1728,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 		switch (m_linkStatus) {
 			case LS_LINKED_DPLUS:
 				LogInfo("D-Plus link to %s has failed, relinking", m_linkRepeater.c_str());
+				writeJSONRelinking(m_rptCallsign, "dplus", m_linkRepeater);
 				m_linkStatus = LS_LINKING_DPLUS;
 				writeLinkingTo(m_linkRepeater);
 				triggerInfo();
@@ -1729,6 +1746,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 		switch (m_linkStatus) {
 			case LS_LINKED_DCS:
 				LogInfo("DCS link to %s has failed, relinking", m_linkRepeater.c_str());
+				writeJSONRelinking(m_rptCallsign, "dcs", m_linkRepeater);
 				m_linkStatus = LS_LINKING_DCS;
 				writeLinkingTo(m_linkRepeater);
 				triggerInfo();
@@ -1757,6 +1775,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 {
 	if (protocol == DP_DEXTRA && callsign == m_linkRepeater) {
 		LogInfo("DExtra link to %s was refused", m_linkRepeater.c_str());
+		writeJSONFailed(m_rptCallsign);
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1765,6 +1784,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 
 	if (protocol == DP_DPLUS && callsign == m_linkRepeater) {
 		LogInfo("D-Plus link to %s was refused", m_linkRepeater.c_str());
+		writeJSONFailed(m_rptCallsign);
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1776,6 +1796,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 			LogInfo("DCS link to %s was refused", m_linkRepeater.c_str());
 		else
 			LogInfo("Loopback link to %s was refused", m_linkRepeater.c_str());
+		writeJSONFailed(m_rptCallsign);
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1789,6 +1810,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	// CCS removal
 	if (m_linkStatus == LS_LINKING_CCS || m_linkStatus == LS_LINKED_CCS) {
 		LogInfo("Dropping CCS link to %s", m_linkRepeater.c_str());
+		writeJSONUnlinked("user", m_rptCallsign);
 
 		m_ccsHandler->stopLink();
 
@@ -1810,6 +1832,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	// Handle unlinking
 	if (m_linkStatus != LS_NONE && (reflector.empty() || reflector == "        ")) {
 		LogInfo("Unlinking %s from %s", m_rptCallsign.c_str(), m_linkRepeater.c_str());
+		writeJSONUnlinked("user", m_rptCallsign);
 
 		CDExtraHandler::unlink(this);
 		CDPlusHandler::unlink(this);
@@ -1836,6 +1859,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 			switch (m_linkStatus) {
 				case LS_LINKING_DEXTRA:
 				case LS_LINKED_DEXTRA:
+					writeJSONLinking(m_rptCallsign, "user", "dextra", reflector);
 					m_linkRelink = true;
 					m_linkRepeater = reflector;
 					CDExtraHandler::unlink(this, m_linkRepeater);
@@ -1847,6 +1871,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 
 				case LS_LINKING_DCS:
 				case LS_LINKED_DCS:
+					writeJSONLinking(m_rptCallsign, "user", "dcs", reflector);
 					m_linkRelink = true;
 					m_linkRepeater = reflector;
 					CDCSHandler::unlink(this, m_linkRepeater);
@@ -1858,6 +1883,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 
 				case LS_LINKING_LOOPBACK:
 				case LS_LINKED_LOOPBACK:
+					writeJSONLinking(m_rptCallsign, "user", "loopback", reflector);
 					m_linkRelink = true;
 					m_linkRepeater = reflector;
 					CDCSHandler::unlink(this, m_linkRepeater);
@@ -1868,6 +1894,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 					break;
 
 				case LS_LINKING_DPLUS:
+					writeJSONLinking(m_rptCallsign, "user", "dplus", reflector);
 					m_linkRepeater = reflector;
 					CDPlusHandler::relink(this, m_linkRepeater);
 					writeLinkingTo(m_linkRepeater);
@@ -1875,6 +1902,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 					break;
 
 				case LS_LINKED_DPLUS:
+					writeJSONLinking(m_rptCallsign, "user", "dplus", reflector);
 					m_linkRepeater = reflector;
 					CDPlusHandler::relink(this, m_linkRepeater);
 					writeLinkedTo(m_linkRepeater);
@@ -1893,7 +1921,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	CDPlusHandler::unlink(this);
 	CDCSHandler::unlink(this);
 
-	linkInt(reflector);
+	linkInt("user", reflector);
 }
 
 void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
@@ -1909,6 +1937,8 @@ void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
 		LogInfo("Cannot unlink %s because it is fixed", reflector.c_str());
 		return;
 	}
+
+	writeJSONUnlinked("user", m_rptCallsign);
 
 	switch (protocol) {
 		case PROTO_DPLUS:
@@ -2066,6 +2096,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 			return;
 
 		LogInfo("Unlink command issued via %s by %s", type.c_str(), user.c_str());
+		writeJSONUnlinked(type, m_rptCallsign);
 
 		CDExtraHandler::unlink(this);
 		CDPlusHandler::unlink(this);
@@ -2115,6 +2146,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 				switch (m_linkStatus) {
 					case LS_LINKING_DEXTRA:
 					case LS_LINKED_DEXTRA:
+						writeJSONLinking(m_rptCallsign, type, "dextra", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDExtraHandler::unlink(this, m_linkRepeater);
@@ -2126,6 +2158,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 
 					case LS_LINKING_DCS:
 					case LS_LINKED_DCS:
+						writeJSONLinking(m_rptCallsign, type, "dcs", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDCSHandler::unlink(this, m_linkRepeater);
@@ -2137,6 +2170,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 
 					case LS_LINKING_LOOPBACK:
 					case LS_LINKED_LOOPBACK:
+						writeJSONLinking(m_rptCallsign, type, "loopback", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDCSHandler::unlink(this, m_linkRepeater);
@@ -2147,6 +2181,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 						break;
 
 					case LS_LINKING_DPLUS:
+						writeJSONLinking(m_rptCallsign, type, "dplus", reflector);
 						m_linkRepeater = reflector;
 						CDPlusHandler::relink(this, m_linkRepeater);
 						writeLinkingTo(m_linkRepeater);
@@ -2154,6 +2189,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 						break;
 
 					case LS_LINKED_DPLUS:
+						writeJSONLinking(m_rptCallsign, type, "dplus", reflector);
 						m_linkRepeater = reflector;
 						CDPlusHandler::relink(this, m_linkRepeater);
 						writeLinkedTo(m_linkRepeater);
@@ -2172,11 +2208,11 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 		CDPlusHandler::unlink(this);
 		CDCSHandler::unlink(this);
 
-		linkInt(reflector);
+		linkInt(type, reflector);
 	}
 }
 
-void CRepeaterHandler::linkInt(const std::string& callsign)
+void CRepeaterHandler::linkInt(const std::string& reason, const std::string& callsign)
 {
 	// Find the repeater to link to
 	CRepeaterData* data = m_cache->findRepeater(callsign);
@@ -2196,6 +2232,7 @@ void CRepeaterHandler::linkInt(const std::string& callsign)
 		switch (data->getProtocol()) {
 			case DP_DPLUS:
 				if (m_dplusEnabled) {
+					writeJSONLinking(m_rptCallsign, reason, "dplus", m_linkRepeater);
 					unsigned int localPort = 0U;
 					m_linkStatus = LS_LINKING_DPLUS;
 					CDPlusHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
@@ -2213,6 +2250,7 @@ void CRepeaterHandler::linkInt(const std::string& callsign)
 
 			case DP_DCS:
 				if (m_dcsEnabled) {
+					writeJSONLinking(m_rptCallsign, reason, "dcs", m_linkRepeater);
 					m_linkStatus = LS_LINKING_DCS;
 					CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 					writeLinkingTo(m_linkRepeater);
@@ -2226,6 +2264,7 @@ void CRepeaterHandler::linkInt(const std::string& callsign)
 				break;
 
 			case DP_LOOPBACK:
+				writeJSONLinking(m_rptCallsign, reason, "loopback", m_linkRepeater);
 				m_linkStatus = LS_LINKING_LOOPBACK;
 				CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 				writeLinkingTo(m_linkRepeater);
@@ -2234,6 +2273,7 @@ void CRepeaterHandler::linkInt(const std::string& callsign)
 
 			default:
 				if (m_dextraEnabled) {
+					writeJSONLinking(m_rptCallsign, reason, "dextra", m_linkRepeater);
 					unsigned int localPort = 0U;
 					m_linkStatus = LS_LINKING_DEXTRA;
 					CDExtraHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
@@ -2374,6 +2414,7 @@ void CRepeaterHandler::startupInt()
 			switch (protocol) {
 				case DP_DPLUS:
 					if (m_dplusEnabled) {
+						writeJSONLinking(m_rptCallsign, "startup", "dplus", m_linkStartup);
 						unsigned int localPort = 0U;
 						m_linkStatus = LS_LINKING_DPLUS;
 						CDPlusHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
@@ -2391,6 +2432,7 @@ void CRepeaterHandler::startupInt()
 
 				case DP_DCS:
 					if (m_dcsEnabled) {
+						writeJSONLinking(m_rptCallsign, "startup", "dcs", m_linkStartup);
 						m_linkStatus = LS_LINKING_DCS;
 						CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 						writeLinkingTo(m_linkRepeater);
@@ -2404,6 +2446,7 @@ void CRepeaterHandler::startupInt()
 					break;
 
 				case DP_LOOPBACK:
+					writeJSONLinking(m_rptCallsign, "startup", "loopback", m_linkStartup);
 					m_linkStatus = LS_LINKING_LOOPBACK;
 					CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 					writeLinkingTo(m_linkRepeater);
@@ -2412,6 +2455,7 @@ void CRepeaterHandler::startupInt()
 
 				default:
 					if (m_dextraEnabled) {
+						writeJSONLinking(m_rptCallsign, "startup", "dextra", m_linkStartup);
 						unsigned int localPort = 0U;
 						m_linkStatus = LS_LINKING_DEXTRA;
 						CDExtraHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
@@ -2971,20 +3015,20 @@ bool CRepeaterHandler::restoreLinks()
 {
 	if (m_linkReconnect == RECONNECT_FIXED) {
 		if (!m_lastReflector.empty()) {
-			linkInt(m_linkStartup);
+			linkInt("timer", m_linkStartup);
 			m_lastReflector.clear();
 			return true;
 		}
 	} else if (m_linkReconnect == RECONNECT_NEVER) {
 		if (!m_lastReflector.empty()) {
-			linkInt(m_lastReflector);
+			linkInt("timer", m_lastReflector);
 			m_lastReflector.clear();
 			return true;
 		}
 	} else {
 		m_linkReconnectTimer.start();
 		if (!m_lastReflector.empty()) {
-			linkInt(m_lastReflector);
+			linkInt("timer", m_lastReflector);
 			m_lastReflector.clear();
 			return true;
 		}

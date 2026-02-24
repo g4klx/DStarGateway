@@ -276,25 +276,23 @@ bool CDStarGatewayConfig::loadRepeaters(const CConfig & cfg)
 bool CDStarGatewayConfig::loadIrcDDB(const CConfig & cfg)
 {
 	bool ret = true;
-	for(unsigned int i = 0; i < 4; i++) {
+	for(unsigned int i = 0U; i < 4U; i++) {
 		std::string section = CStringUtils::string_format("IRCDDB %u", i + 1U);
 		bool ircEnabled;
 
 		ret = cfg.getValue(section, "enabled", ircEnabled, false) && ret;
-		if(!ircEnabled)
+		if (!ircEnabled)
 			continue;
 		
-		TircDDB * ircddb = new TircDDB;
+		TircDDB* ircddb = new TircDDB;
 		ret = cfg.getValue(section, "hostname", ircddb->hostname, 0, 1024, "ircv4.openquad.net") && ret;
-		ret = cfg.getValue(section, "username", ircddb->username, 0, LONG_CALLSIGN_LENGTH - 1, m_gateway.callsign) && ret;
+		ret = cfg.getValue(section, "username", ircddb->username, 0, LONG_CALLSIGN_LENGTH - 1U, m_gateway.callsign) && ret;
 		ret = cfg.getValue(section, "password", ircddb->password, 0, 1024, "") && ret;
 
-		if(ret) {
+		if (ret)
 			m_ircDDB.push_back(ircddb);
-		}
-		else {
+		else
 			delete ircddb;
-		}
 	}
 
 	return ret;
@@ -367,7 +365,7 @@ bool CDStarGatewayConfig::loadAccessControl(const CConfig & cfg)
 
 bool CDStarGatewayConfig::loadDRats(const CConfig & cfg)
 {
-	bool ret = cfg.getValue("DRats", "enabled", m_drats.enabled, false);
+	bool ret = cfg.getValue("D-Rats", "enabled", m_drats.enabled, false);
 
 	return ret;
 }

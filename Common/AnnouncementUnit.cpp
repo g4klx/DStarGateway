@@ -42,7 +42,7 @@ m_id(0U)
 
 	m_name.resize(SHORT_CALLSIGN_LENGTH, ' ');
 
-	LogInfo("Connected '%s' to %s using file - %s\n", name.c_str(), callsign.c_str(), fileName.c_str());
+	LogInfo("Connected '%s' to %s using file - %s", name.c_str(), callsign.c_str(), fileName.c_str());
 }
 
 CAnnouncementUnit::~CAnnouncementUnit()
