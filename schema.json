@@ -1,0 +1,29 @@
+{
+	"$defs": {
+		"timestamp": {"type": "string"},
+		"reflector": {"type": "string"},
+		"callsign" : {"type": "string"},
+		"action": {"type": "string", "enum": ["linking", "unlinked", "failed", "relinking"]},
+		"protocol": {"type": "string", "enum": ["dcs", "dextra", "dplus", "ccs", "loopback"]},
+		"reason": {"type": "string", "enum": ["user", "timer", "remote", "startup"]}
+	},
+
+	"status": {
+		"type": "object",
+		"timestamp": {"$ref": "#/$defs/timestamp"},
+		"message": {"type": "string"},
+		"required": ["timestamp", "message"]
+	},
+	
+	"link": {
+		"type": "object",
+		"timestamp": {"$ref": "#/$defs/timestamp"},
+		"repeater": {"$ref": "#/$defs/callsign"},
+		"action": {"$ref": "#/$defs/action"},
+		"reason": {"$ref": "#/$defs/reason"},
+		"reflector": {"$ref": "#/defs/reflector"},
+		"protocol": {"$ref": "#/defs/protocol"},
+		"required": ["timestamp", "repeater", "action"]
+	}
+}
+
