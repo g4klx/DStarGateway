@@ -24,13 +24,13 @@
 #include "Defs.h"
 #include "Config.h"
 
-typedef struct {
+struct TDaemon {
 	bool daemon;
 	std::string pidFile;
 	std::string user;
-} TDaemon;
+};
 
-typedef struct {
+struct TGeneral {
 	GATEWAY_TYPE type;
 	std::string callsign;
 	std::string address;
@@ -44,9 +44,9 @@ typedef struct {
 	std::string description2;
 	std::string url; 
 	TEXT_LANG language;
-} TGateway;
+};
 
-typedef struct {
+struct TRepeater {
 	std::string band;
 	std::string callsign;
 	std::string reflector;
@@ -68,158 +68,158 @@ typedef struct {
 	unsigned char band1;
 	unsigned char band2;
 	unsigned char band3;
-} TRepeater;
+};
 
-typedef struct {
+struct TircDDB {
 	std::string hostname;
 	std::string username;
 	std::string password;
-	bool isQuadNet;
-} TircDDB;
+	bool        isQuadNet;
+};
 
-typedef struct {
+struct Tpaths {
 	std::string dataDir;
-} Tpaths;
+};
 
-typedef struct {
-	std::string downloadedHostFiles;
-	std::string customHostsFiles;
-	unsigned int downloadTimeout;
-} THostsFiles;
+struct THostsFiles {
+	std::string  hostFiles;
+	std::string  customHostsFiles;
+	unsigned int reloadTime;
+};
 
-typedef struct {
+struct TLog {
 	unsigned int displayLevel;
 	unsigned int mqttLevel;
-	bool logIRCDDBTraffic;
-} TLog;
+	bool         logIRCDDBTraffic;
+};
 
-typedef struct {
-	std::string address;
+struct TMQTT {
+	std::string  address;
 	unsigned int port;
 	unsigned int keepalive;
-	bool authenticate;
-	std::string username;
-	std::string password;
-	std::string name;
-} TMQTT;
+	bool         authenticate;
+	std::string  username;
+	std::string  password;
+	std::string  name;
+};
 
-typedef struct {
+struct TAPRS {
 	bool enabled;
 	POSITION_SOURCE m_positionSource;
-} TAPRS;
+};
 
-typedef struct {
-	bool enabled;
+struct TDextra {
+	bool         enabled;
 	unsigned int maxDongles;
-} TDextra;
+};
 
-typedef struct {
-	bool enabled;
-	std::string login;
+struct TDplus {
+	bool         enabled;
+	std::string  login;
 	unsigned int maxDongles;
-} TDplus;
+};
 
-typedef struct {
+struct TDCS {
 	bool enabled;
-} TDCS;
+};
 
-typedef struct {
+struct TDRats {
 	bool enabled;
-} TDRats;
+};
 
-typedef struct {
+struct TXLX {
 	bool enabled;
-} TXLX;
+};
 
-typedef struct {
-	bool enabled;
+struct TRemote {
+	bool         enabled;
 	unsigned int port;
-	std::string login;
-	std::string password;
-} TRemote;
+	std::string  login;
+	std::string  password;
+};
 
 #ifdef USE_GPSD
-typedef struct {
+struct TGPSD {
 	std::string m_address;
 	std::string m_port;
-} TGPSD;
+};
 #endif
 
-typedef struct {
+struct TAccessControl {
 	std::string whiteList;
 	std::string blackList;
 	std::string restrictList;
-} TAccessControl;
+};
 
 class CDStarGatewayConfig {
 public:
-	CDStarGatewayConfig(const std::string &pathname);
+	CDStarGatewayConfig(const std::string& pathname);
 	~CDStarGatewayConfig();
 
 	bool load();
-	void getGateway(TGateway & gateway) const;
-	void getIrcDDB(unsigned int ircddbIndex, TircDDB & ircddb) const;
+	void getGeneral(TGeneral& general) const;
+	void getIrcDDB(unsigned int ircddbIndex, TircDDB& ircddb) const;
 	unsigned int getIrcDDBCount() const;
-	void getRepeater(unsigned int repeaterIndex, TRepeater & repeater) const;
+	void getRepeater(unsigned int repeaterIndex, TRepeater& repeater) const;
 	unsigned int getRepeaterCount() const;
 	void getLog(TLog& log) const;
 	void getMQTT(TMQTT& mqtt) const;
 	void getPaths(Tpaths & paths) const;
-	void getHostsFiles(THostsFiles & hostsFiles) const;
-	void getAPRS(TAPRS & aprs) const;
-	void getDExtra(TDextra & dextra) const;
-	void getDPlus(TDplus & dplus) const;
-	void getDCS(TDCS & dcs) const;
-	void getRemote(TRemote & remote) const;
-	void getXLX(TXLX & xlx) const;
+	void getHostsFiles(THostsFiles& hostsFiles) const;
+	void getAPRS(TAPRS& aprs) const;
+	void getDExtra(TDextra& dextra) const;
+	void getDPlus(TDplus& dplus) const;
+	void getDCS(TDCS& dcs) const;
+	void getRemote(TRemote& remote) const;
+	void getXLX(TXLX& xlx) const;
 #ifdef USE_GPSD
-	void getGPSD(TGPSD & gpsd) const;
+	void getGPSD(TGPSD& gpsd) const;
 #endif
-	void getDaemon(TDaemon & gen) const;
-	void getAccessControl(TAccessControl & accessControl) const;
-	void getDRats(TDRats & drats) const;
+	void getDaemon(TDaemon& gen) const;
+	void getAccessControl(TAccessControl& accessControl) const;
+	void getDRats(TDRats& drats) const;
 
 private:
-	bool open(CConfig & cfg);
-	bool loadGateway(const CConfig & cfg);
-	bool loadIrcDDB(const CConfig & cfg);
-	bool loadRepeaters(const CConfig & cfg);
-	bool loadLog(const CConfig & cfg);
-	bool loadMQTT(const CConfig & cfg);
-	bool loadPaths(const CConfig & cfg);
-	bool loadHostsFiles(const CConfig & cfg);
-	bool loadAPRS(const CConfig & cfg);
-	bool loadDextra(const CConfig & cfg);
-	bool loadDPlus(const CConfig & cfg);
-	bool loadDCS(const CConfig & cfg);
-	bool loadRemote(const CConfig & cfg);
-	bool loadXLX(const CConfig & cfg);
+	bool open(CConfig& cfg);
+	bool loadGeneral(const CConfig& cfg);
+	bool loadIrcDDB(const CConfig& cfg);
+	bool loadRepeaters(const CConfig& cfg);
+	bool loadLog(const CConfig& cfg);
+	bool loadMQTT(const CConfig& cfg);
+	bool loadPaths(const CConfig& cfg);
+	bool loadHostsFiles(const CConfig& cfg);
+	bool loadAPRS(const CConfig& cfg);
+	bool loadDextra(const CConfig& cfg);
+	bool loadDPlus(const CConfig& cfg);
+	bool loadDCS(const CConfig& cfg);
+	bool loadRemote(const CConfig& cfg);
+	bool loadXLX(const CConfig& cfg);
 #ifdef USE_GPSD
-	bool loadGPSD(const CConfig & cfg);
+	bool loadGPSD(const CConfig& cfg);
 #endif
-	bool loadDaemon(const CConfig & cfg);
-	bool loadAccessControl(const CConfig & cfg);
-	bool loadDRats(const CConfig & cfg);
+	bool loadDaemon(const CConfig& cfg);
+	bool loadAccessControl(const CConfig& cfg);
+	bool loadDRats(const CConfig& cfg);
 
-	std::string m_fileName;
-	TGateway m_gateway;
-	Tpaths m_paths;
-	THostsFiles m_hostsFiles;
-	TAPRS m_aprs;
-	TDextra m_dextra;
-	TDplus m_dplus;
-	TDCS m_dcs;
-	TRemote m_remote;
-	TXLX m_xlx;
-	TLog m_log;
-	TMQTT m_mqtt;
+	std::string             m_fileName;
+	TGeneral                m_general;
+	Tpaths                  m_paths;
+	THostsFiles             m_hostsFiles;
+	TAPRS                   m_aprs;
+	TDextra                 m_dextra;
+	TDplus                  m_dplus;
+	TDCS                    m_dcs;
+	TRemote                 m_remote;
+	TXLX                    m_xlx;
+	TLog                    m_log;
+	TMQTT                   m_mqtt;
 #ifdef USE_GPSD
-	TGPSD m_gpsd;
+	TGPSD                   m_gpsd;
 #endif
-	TDaemon m_daemon;
-	TAccessControl m_accessControl;
-	TDRats m_drats;
+	TDaemon                 m_daemon;
+	TAccessControl          m_accessControl;
+	TDRats                  m_drats;
 
-	std::vector<TRepeater *> m_repeaters;
-	std::vector<TircDDB *> m_ircDDB;
+	std::vector<TRepeater*> m_repeaters;
+	std::vector<TircDDB*>   m_ircDDB;
 };

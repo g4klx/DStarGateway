@@ -35,9 +35,6 @@
     <ClInclude Include="HeaderData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HostFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SlowDataEncoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -62,9 +59,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HeaderData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HostFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SlowDataEncoder.cpp">

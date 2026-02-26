@@ -38,7 +38,6 @@
 #include "IRCDDBMultiClient.h"
 #include "IRCDDBClient.h"
 #include "Utils.h"
-#include "Version.h"
 #include "GitVersion.h"
 #include "RepeaterProtocolHandlerFactory.h"
 #include "MQTTConnection.h"
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
 
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
-		LogFatal("Invalid configuration, aborting");
+		fprintf(stderr, "Invalid configuration, aborting\n");
 		return false;
 	}
 
@@ -96,7 +95,7 @@ int main(int argc, char *argv[])
 	config->getDaemon(daemon);
 
 	if (daemon.daemon) {
-		LogInfo("Configured as a daemon, detaching ...");
+		printf("Configured as a daemon, detaching ...\n");
 		auto res = CDaemon::daemonise(daemon.pidFile, daemon.user);
 
 		switch (res)
@@ -200,11 +199,11 @@ bool CDStarGatewayApp::createThread()
 	m_thread = new CDStarGatewayThread(paths.dataDir, "");
 
 	// Setup the gateway
-	TGateway gatewayConfig;
-	m_config->getGateway(gatewayConfig);
-	m_thread->setGateway(gatewayConfig.type, gatewayConfig.callsign, gatewayConfig.address);
-	m_thread->setLanguage(gatewayConfig.language);
-	m_thread->setLocation(gatewayConfig.latitude, gatewayConfig.longitude);
+	TGeneral generalConfig;
+	m_config->getGeneral(generalConfig);
+	m_thread->setGateway(generalConfig.type, generalConfig.callsign, generalConfig.address);
+	m_thread->setLanguage(generalConfig.language);
+	m_thread->setLocation(generalConfig.latitude, generalConfig.longitude);
 
 #ifdef USE_GPSD
 	// Setup GPSD
@@ -218,7 +217,7 @@ bool CDStarGatewayApp::createThread()
 	CAPRSHandler * outgoingAprsWriter = nullptr;
 	CAPRSHandler * incomingAprsWriter = nullptr;
 	if (aprsConfig.enabled) {
-		CAPRSISHandlerThread* aprsisthread = new CAPRSISHandlerThread(gatewayConfig.callsign);
+		CAPRSISHandlerThread* aprsisthread = new CAPRSISHandlerThread(generalConfig.callsign);
 		outgoingAprsWriter = new CAPRSHandler((IAPRSHandlerBackend *)aprsisthread);
 
 		incomingAprsWriter = new CAPRSHandler((IAPRSHandlerBackend *)new CDummyAPRSHandlerBackend());
@@ -228,7 +227,7 @@ bool CDStarGatewayApp::createThread()
 			CAPRSIdFrameProvider * idFrameProvider = aprsConfig.m_positionSource == POSSRC_GPSD ? (CAPRSIdFrameProvider *)new CAPRSGPSDIdFrameProvider(gatewayConfig.callsign, gpsdConfig.m_address, gpsdConfig.m_port)
 																									: new CAPRSFixedIdFrameProvider(gatewayConfig.callsign);
 #else
-			CAPRSIdFrameProvider * idFrameProvider = new CAPRSFixedIdFrameProvider(gatewayConfig.callsign);
+			CAPRSIdFrameProvider * idFrameProvider = new CAPRSFixedIdFrameProvider(generalConfig.callsign);
 #endif
 			idFrameProvider->start();
 			outgoingAprsWriter->setIdFrameProvider(idFrameProvider);
@@ -280,7 +279,7 @@ bool CDStarGatewayApp::createThread()
 		LogDebug("Adding repeaters - CDStarGatewayApp::createThread - Rpt Idx %i - Thread ID %s", i, THREAD_ID_STR(std::this_thread::get_id()));
 		TRepeater rptrConfig;
 		m_config->getRepeater(i, rptrConfig);
-		auto  repeaterProtocolHandler = repeaterProtocolFactory.getRepeaterProtocolHandler(rptrConfig.hwType, gatewayConfig, rptrConfig.address, rptrConfig.port);
+		auto  repeaterProtocolHandler = repeaterProtocolFactory.getRepeaterProtocolHandler(rptrConfig.hwType, generalConfig, rptrConfig.address, rptrConfig.port);
 		if(repeaterProtocolHandler == nullptr)
 			continue;
 		atLeastOneRepeater = true;
@@ -333,7 +332,7 @@ bool CDStarGatewayApp::createThread()
 		TircDDB ircDDBConfig;
 		m_config->getIrcDDB(i, ircDDBConfig);
 		LogInfo("ircDDB Network %d set to %s user: %s, Quadnet %d", i + 1,ircDDBConfig.hostname.c_str(), ircDDBConfig.username.c_str(), ircDDBConfig.isQuadNet);
-		CIRCDDB * ircDDB = new CIRCDDBClient(ircDDBConfig.hostname, 9007U, ircDDBConfig.username, ircDDBConfig.password, ircddbVersionInfo, gatewayConfig.address, ircDDBConfig.isQuadNet);
+		CIRCDDB * ircDDB = new CIRCDDBClient(ircDDBConfig.hostname, 9007U, ircDDBConfig.username, ircDDBConfig.password, ircddbVersionInfo, generalConfig.address, ircDDBConfig.isQuadNet);
 		clients.push_back(ircDDB);
 	}
 	LogDebug("Added Ircddb - CDStarGatewayApp::createThread - Ircddb  Count %i - Thread ID %s", clients.size(), THREAD_ID_STR(std::this_thread::get_id()));
@@ -378,8 +377,8 @@ bool CDStarGatewayApp::createThread()
 	// Setup hostsfiles
 	THostsFiles hostsFilesConfig;
 	m_config->getHostsFiles(hostsFilesConfig);
-	CHostsFilesManager::setHostFilesDirectories(hostsFilesConfig.downloadedHostFiles, hostsFilesConfig.customHostsFiles);
-	CHostsFilesManager::setDownloadTimeout(3600 * hostsFilesConfig.downloadTimeout);
+	CHostsFilesManager::setHostFilesDirectories(hostsFilesConfig.hostFiles, hostsFilesConfig.customHostsFiles);
+	CHostsFilesManager::setReloadTime(3600 * hostsFilesConfig.reloadTime);
 	CHostsFilesManager::setDextra(dextraConfig.enabled);
 	CHostsFilesManager::setDCS(dcsConfig.enabled);
 	CHostsFilesManager::setDPlus(dplusConfig.enabled);

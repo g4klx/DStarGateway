@@ -143,7 +143,6 @@
     <ClInclude Include="DTMF.h" />
     <ClInclude Include="DVTOOLFileReader.h" />
     <ClInclude Include="HeaderData.h" />
-    <ClInclude Include="HostFile.h" />
     <ClInclude Include="SlowDataEncoder.h" />
   </ItemGroup>
   <ItemGroup>
@@ -154,7 +153,6 @@
     <ClCompile Include="DTMF.cpp" />
     <ClCompile Include="DVTOOLFileReader.cpp" />
     <ClCompile Include="HeaderData.cpp" />
-    <ClCompile Include="HostFile.cpp" />
     <ClCompile Include="SlowDataEncoder.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -29,19 +29,19 @@ m_icomCount(0U)
 
 }
 
-IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolHandler(HW_TYPE hwType, const TGateway & gatewayConfig, const std::string & repeaterAddress, unsigned int repeaterPort)
+IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolHandler(HW_TYPE hwType, const TGeneral& generalConfig, const std::string& repeaterAddress, unsigned int repeaterPort)
 {
     IRepeaterProtocolHandler * handler = NULL;
     switch (hwType)
     {
     case HW_ICOM:
         if(m_icomRepeaterHandler == NULL) {
-            CIcomRepeaterProtocolHandler * icomRepeaterHandler = new CIcomRepeaterProtocolHandler(gatewayConfig.icomAddress, gatewayConfig.icomPort, repeaterAddress, repeaterPort);
+            CIcomRepeaterProtocolHandler * icomRepeaterHandler = new CIcomRepeaterProtocolHandler(generalConfig.icomAddress, generalConfig.icomPort, repeaterAddress, repeaterPort);
 			bool res = icomRepeaterHandler->open();
             if (res) {
-                LogInfo("Icom repeater controller listening on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
+                LogInfo("Icom repeater controller listening on %s:%u", generalConfig.icomAddress.c_str(), generalConfig.icomPort);
             } else {
-				LogError("Cannot open the Icom repeater protocol handler on %s:%u", gatewayConfig.icomAddress.c_str(), gatewayConfig.icomPort);
+				LogError("Cannot open the Icom repeater protocol handler on %s:%u", generalConfig.icomAddress.c_str(), generalConfig.icomPort);
 				delete icomRepeaterHandler;
 				icomRepeaterHandler = NULL;
 			}
@@ -55,12 +55,12 @@ IRepeaterProtocolHandler * CRepeaterProtocolHandlerFactory::getRepeaterProtocolH
         break;
     case HW_HOMEBREW:
         if(m_hbRepeaterHandler == NULL) {
-    		CHBRepeaterProtocolHandler * hbRepeaterHandler = new CHBRepeaterProtocolHandler(gatewayConfig.hbAddress, gatewayConfig.hbPort);
+    		CHBRepeaterProtocolHandler * hbRepeaterHandler = new CHBRepeaterProtocolHandler(generalConfig.hbAddress, generalConfig.hbPort);
 			bool res = hbRepeaterHandler->open();
 			if (res) {
-                LogInfo("Home Brew repeater controller listening on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
+                LogInfo("Home Brew repeater controller listening on %s:%u", generalConfig.hbAddress.c_str(), generalConfig.hbPort);
             } else {
-				LogError("Cannot open the Homebrew repeater protocol handler on %s:%u", gatewayConfig.hbAddress.c_str(), gatewayConfig.hbPort);
+				LogError("Cannot open the Homebrew repeater protocol handler on %s:%u", generalConfig.hbAddress.c_str(), generalConfig.hbPort);
 				delete hbRepeaterHandler;
 				hbRepeaterHandler = NULL;
 			}

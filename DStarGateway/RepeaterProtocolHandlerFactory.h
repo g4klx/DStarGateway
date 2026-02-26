@@ -1,5 +1,6 @@
 /*
- *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA
+ *   Copyright (c) 2021 by Geoffrey Merck F4FXL / KC3FRA4
+ *   Copyright (C) 2026 by Jonathan Naylor G4KLX
  *
  *   This program is free software; you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -31,7 +32,7 @@ class CRepeaterProtocolHandlerFactory
 public:
     CRepeaterProtocolHandlerFactory();
 
-    IRepeaterProtocolHandler * getRepeaterProtocolHandler(HW_TYPE hwType, const TGateway & gatewyaConfig, const std::string & repeaterAddress, unsigned int repeaterPort);
+    IRepeaterProtocolHandler * getRepeaterProtocolHandler(HW_TYPE hwType, const TGeneral& generalConfig, const std::string& repeaterAddress, unsigned int repeaterPort);
 
 	CIcomRepeaterProtocolHandler * getIcomProtocolHandler();
 	CHBRepeaterProtocolHandler * getHBProtocolHandler();
