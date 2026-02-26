@@ -36,7 +36,7 @@ bool CHostsFilesManager::m_dplusEnabled = false;
 bool CHostsFilesManager::m_xlxEnabled = false;
 
 CCacheManager * CHostsFilesManager::m_cache = nullptr;
-CTimer CHostsFilesManager::m_downloadTimer(1000U, 60 * 60 * 24);
+CTimer CHostsFilesManager::m_reloadTimer(1000U, 60 * 60 * 24);
 
 void CHostsFilesManager::setHostFilesDirectories(const std::string & hostFilesDir, const std::string & customHostFilesDir)
 {
@@ -72,18 +72,18 @@ void CHostsFilesManager::setCache(CCacheManager * cache)
 
 void CHostsFilesManager::clock(unsigned int ms)
 {
-    m_downloadTimer.clock(ms);
+    m_reloadTimer.clock(ms);
 
-    if (m_downloadTimer.hasExpired()) {
-	LogInfo("Downloading hosts files after %u hours", m_downloadTimer.getTimeout() / 3600U);
+    if (m_reloadTimer.hasExpired()) {
+	LogInfo("Reloading hosts files after %u hours", m_reloadTimer.getTimeout() / 3600U);
         UpdateHostsAsync(); // call and forget
-	m_downloadTimer.start();
+	m_reloadTimer.start();
     }
 }
 
-void CHostsFilesManager::setDownloadTimeout(unsigned int seconds)
+void CHostsFilesManager::setReloadTime(unsigned int seconds)
 {
-    m_downloadTimer.start(seconds);
+    m_reloadTimer.start(seconds);
 }
 
 void CHostsFilesManager::UpdateHostsFromInternet()

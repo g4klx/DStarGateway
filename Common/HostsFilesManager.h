@@ -37,7 +37,7 @@ public:
     static void setXLX(bool enabled);
     static void setCache(CCacheManager* cache);
     static void clock(unsigned int ms);
-    static void setDownloadTimeout(unsigned int seconds);
+    static void setReloadTime(unsigned int seconds);
     static void UpdateHostsFromInternet();
     static void UpdateHostsFromLocal();
     static bool UpdateHosts();
@@ -53,7 +53,7 @@ private:
     static bool m_xlxEnabled;
 
     static CCacheManager* m_cache;
-    static CTimer m_downloadTimer;
+    static CTimer m_reloadTimer;
 
     static void loadReflectors(const std::string& directory);
 };
