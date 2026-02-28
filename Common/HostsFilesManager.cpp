@@ -148,26 +148,31 @@ void CHostsFilesManager::loadReflectors(const std::string& directory)
 
 			std::string ipv4 = it["ipv4"];
 
+			bool locked = false;
+			bool hasLocked = it.contains("locked");
+			if (hasLocked)
+				locked = it["locked"];
+
 			reflector.resize(LONG_CALLSIGN_LENGTH - 1U, ' ');
 			reflector += "G";
 
 			if (type == "REF") {
 				if (m_dplusEnabled) {
-					m_cache->updateGateway(reflector, ipv4, DP_DPLUS, false, true);
+					m_cache->updateGateway(reflector, ipv4, DP_DPLUS, locked, true);
 					dplusCount++;
 				}
 			} else if (type == "XRF") {
 				if (m_dextraEnabled) {
-					m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, false, true);
+					m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, locked, true);
 					dextraCount++;
 				}
 			} else if (type == "DCS") {
 				if (m_dcsEnabled) {
-					m_cache->updateGateway(reflector, ipv4, DP_DCS, false, true);
+					m_cache->updateGateway(reflector, ipv4, DP_DCS, locked, true);
 					dcsCount++;
 				}
 			} else {
-				LogWarning("Unknown type of \"%s\" found in %s", filename.c_str());
+				LogWarning("Unknown type of \"%s\" found in %s", type.c_str(), filename.c_str());
 			}
 		}
 	}
