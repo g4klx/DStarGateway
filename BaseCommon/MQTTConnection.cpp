@@ -52,9 +52,9 @@ CMQTTConnection::~CMQTTConnection()
 bool CMQTTConnection::open()
 {
 	char name[50U];
-	::sprintf(name, "NXDNGateway.%ld", ::time(nullptr));
+	::sprintf(name, "DStarGateway.%ld", ::time(nullptr));
 
-	::fprintf(stdout, "NXDNGateway (%s) connecting to MQTT as %s\n", m_name.c_str(), name);
+	::fprintf(stdout, "DStarGateway (%s) connecting to MQTT as %s\n", m_name.c_str(), name);
 
 	m_mosq = ::mosquitto_new(name, true, this);
 	if (m_mosq == nullptr){
