@@ -163,6 +163,11 @@ bool CDStarGatewayConfig::loadLog(const CConfig& cfg)
 
 	ret = cfg.getValue("Log", "LogIRCDDBTraffic", m_log.logIRCDDBTraffic, false) && ret;
 
+	// additional file logging
+	ret = cfg.getValue("Log", "FileLevel", m_log.fileLevel, 0, 6U, 2U) && ret;
+	ret = cfg.getValue("Log", "FilePath", m_log.filePath, 0, 1024, "/tmp") && ret;
+	ret = cfg.getValue("Log", "FileRoot", m_log.fileRoot, 0, 128, "DStarGateway") && ret;
+
 	return ret;
 }
 
@@ -203,7 +208,7 @@ bool CDStarGatewayConfig::loadHostsFiles(const CConfig& cfg)
 		m_hostsFiles.hostFiles.push_back('/');
 
 	if (ret && m_hostsFiles.customHostsFiles[m_hostsFiles.customHostsFiles.length() - 1] != '/')
-		m_hostsFiles.hostFiles.push_back('/');
+		m_hostsFiles.customHostsFiles.push_back('/');
 
 	//TODO 20211226 check if directory are accessible
 

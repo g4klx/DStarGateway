@@ -88,6 +88,9 @@ struct THostsFiles {
 };
 
 struct TLog {
+	unsigned int fileLevel;
+	std::string filePath;
+	std::string fileRoot;
 	unsigned int displayLevel;
 	unsigned int mqttLevel;
 	bool         logIRCDDBTraffic;

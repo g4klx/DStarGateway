@@ -85,6 +85,10 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
+#if DEBUG
+	LogInitialiseFile(false, "/tmp", "DStarGateway", 1, 1);
+#endif
+
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
 		fprintf(stderr, "Invalid configuration, aborting\n");
@@ -118,7 +122,11 @@ int main(int argc, char *argv[])
 	TLog logConf;
 	config->getLog(logConf);
 
+#if defined(USE_MQTT) && USE_MQTT == 1
 	LogInitialise(logConf.displayLevel, logConf.mqttLevel);
+#else
+	LogInitialiseFile(daemon.daemon, logConf.filePath.c_str(), logConf.fileRoot.c_str(), logConf.fileLevel, logConf.displayLevel);
+#endif
 
 	// Setup MQTT
 	TMQTT mqttConf;

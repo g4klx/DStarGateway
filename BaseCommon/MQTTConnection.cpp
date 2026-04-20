@@ -50,6 +50,11 @@ m_connected(false)
 
 #if ENABLE_MQTT
 	::mosquitto_lib_init();
+#else
+	(void)m_port;
+	(void)m_authEnabled;
+	(void)m_keepalive;
+	(void)m_qos;
 #endif
 }
 
@@ -146,6 +151,9 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 			return false;
 		}
 	}
+#else
+	(void)len;
+	(void)retain;
 #endif
 
 	return true;

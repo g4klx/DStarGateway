@@ -31,6 +31,7 @@
 extern void Log(unsigned int level, const char* fmt, ...);
 
 extern void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel);
+extern bool LogInitialiseFile(bool daemon, const std::string& filePath, const std::string& fileRoot, unsigned int fileLevel, unsigned int displayLevel, bool utc = false);
 extern void LogFinalise();
 
 extern void writeJSONStatus(const std::string& status);
