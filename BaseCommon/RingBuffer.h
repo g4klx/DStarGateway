@@ -45,7 +45,7 @@ public:
 
 	void addData(const T data)
 	{
-		std::lock_guard locker(m_mutex);
+		std::lock_guard<std::recursive_mutex> locker(m_mutex);;
 
 		m_buffer[m_iPtr++] = data;
 
@@ -55,7 +55,7 @@ public:
 
 	T getData()
 	{
-		std::lock_guard locker(m_mutex);
+		std::lock_guard<std::recursive_mutex> locker(m_mutex);;
 
 		if (m_iPtr == m_oPtr)
 			return NULL;
@@ -70,7 +70,7 @@ public:
 
 	void clear()
 	{
-		std::lock_guard locker(m_mutex);
+		std::lock_guard<std::recursive_mutex> locker(m_mutex);;
 
 		m_iPtr  = 0U;
 		m_oPtr  = 0U;
@@ -80,14 +80,14 @@ public:
 
 	bool empty()
 	{
-		std::lock_guard locker(m_mutex);
+		std::lock_guard<std::recursive_mutex> locker(m_mutex);;
 
 		return m_iPtr == m_oPtr;
 	}
 
 	T peek()
 	{
-		std::lock_guard locker(m_mutex);
+		std::lock_guard<std::recursive_mutex> locker(m_mutex);;
 
 		if (m_iPtr == m_oPtr)
 			return NULL;

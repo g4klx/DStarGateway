@@ -27,7 +27,7 @@ export CPPFLAGS=-g -rdynamic -DBOOST_STACKTRACE_USE_ADDR2LINE -DDEBUG_DSTARGW -n
 export LDFLAGS=-ldl -no-pie -fno-pie
 else
 # or, you can choose this for a much smaller executable without debugging help
-export CPPFLAGS=-W -Os -Wall -std=c++17 -Wno-psabi
+export CPPFLAGS=-W -Os -Wall -std=c++11 -Wno-psabi
 endif
 
 export CC=g++

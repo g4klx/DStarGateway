@@ -182,7 +182,7 @@ void IRCDDBApp::rptrQTH(const std::string& callsign, double latitude, double lon
 	CUtils::replaceChar(d2, ' ', '_');
 	CUtils::replaceChar(cs, ' ', '_');
 
-	std::lock_guard lochQTHURL(m_d->m_moduleQTHURLMutex);
+	std::lock_guard<std::mutex> lochQTHURL(m_d->m_moduleQTHURLMutex);
 
 	m_d->m_moduleQTH[cs] = cs + std::string(" ") + pos + std::string(" ") + d1 + std::string(" ") + d2;
 
@@ -212,7 +212,7 @@ void IRCDDBApp::rptrQRG(const std::string& callsign, double txFrequency, double 
 	std::string f(fstr);
 	CUtils::replaceChar(f, ',', '.');
 
-	std::lock_guard lockModuleQRG(m_d->m_moduleQRGMutex);
+	std::lock_guard<std::mutex> lockModuleQRG(m_d->m_moduleQRGMutex);
 	m_d->m_moduleQRG[cs] = cs + std::string(" ") + f;
 	LogInfo("QRG: %s\n", m_d->m_moduleQRG[cs].c_str());
 
@@ -232,7 +232,7 @@ void IRCDDBApp::kickWatchdog(const std::string& callsign, const std::string& s)
 		std::string cs = callsign;
 		CUtils::replaceChar(cs, ' ', '_');
 
-		std::lock_guard lockModuleWD(m_d->m_moduleWDMutex);
+		std::lock_guard<std::mutex> lockModuleWD(m_d->m_moduleWDMutex);
 		m_d->m_moduleWD[cs] = cs + std::string(" ") + text;
 		m_d->m_wdTimer = 60;
 	}
@@ -315,7 +315,7 @@ unsigned int IRCDDBApp::calculateUsn(const std::string& nick)
 
 void IRCDDBApp::userJoin(const std::string& nick, const std::string& name, const std::string& host)
 {
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 
 	std::string lnick = nick;
 	CUtils::toLower(lnick);
@@ -347,7 +347,7 @@ void IRCDDBApp::userLeave(const std::string& nick)
 	std::string lnick = nick;
 	CUtils::toLower(lnick);
 
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 	m_d->m_userMap.erase(lnick);
 
 	if (m_d->m_currentServer.size()) {
@@ -373,7 +373,7 @@ void IRCDDBApp::userLeave(const std::string& nick)
 
 void IRCDDBApp::userListReset()
 {
-  std::lock_guard lockUserMap(m_d->m_userMapMutex);
+  std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
   m_d->m_userMap.clear();
 }
 
@@ -397,7 +397,7 @@ void IRCDDBApp::setTopic(const std::string& topic)
 bool IRCDDBApp::findServerUser()
 {
 	bool found = false;
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 
 	std::map<std::string, IRCDDBAppUserObject>::iterator it;
 
@@ -444,7 +444,7 @@ bool IRCDDBApp::findServerUser()
 
 void IRCDDBApp::userChanOp(const std::string& nick, bool op)
 {
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 
 	std::string lnick = nick;
 	CUtils::toLower(lnick);
@@ -464,7 +464,7 @@ std::string IRCDDBApp::getIPAddressFromCall(std::string& zonerp_cs)
 	CUtils::toLower(gw);
 	CUtils::trim(gw);
 
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 	for (int j=1; j <= 4; j++) {
 		std::string ircUser = gw + std::string("-") + std::to_string(j);
 
@@ -548,7 +548,7 @@ bool IRCDDBApp::findRepeater(const std::string& rptrCall)
 
 	std::string s("NONE");
 	std::string zonerp_cs;
-	std::lock_guard lockRptrMap(m_d->m_rptrMapMutex);
+	std::lock_guard<std::mutex> lockRptrMap(m_d->m_rptrMapMutex);
 
 	if (1 == m_d->m_rptrMap.count(arearp_cs)) {
 		IRCDDBAppRptrObject o = m_d->m_rptrMap[arearp_cs];
@@ -706,7 +706,7 @@ bool IRCDDBApp::notifyRepeaterDPlusNatTraversal(const std::string& repeater, uns
 
 bool IRCDDBApp::getNickForRepeater(const std::string& repeater, std::string& nick) const
 {
-	std::lock_guard lockUserMap(m_d->m_userMapMutex);
+	std::lock_guard<std::mutex> lockUserMap(m_d->m_userMapMutex);
 
 	auto firstSpacePos = repeater.find_first_of(' ');
 	if(firstSpacePos == std::string::npos)
@@ -821,7 +821,7 @@ void IRCDDBApp::doUpdate(std::string& msg)
 				return; // no valid key
 
 			if (tableID == 1) {
-				std::lock_guard lockRptrMap(m_d->m_rptrMapMutex);
+				std::lock_guard<std::mutex> lockRptrMap(m_d->m_rptrMapMutex);
 				IRCDDBAppRptrObject newRptr(dt, key, value, m_maxTime);
 				m_d->m_rptrMap[key] = newRptr;
 
@@ -840,7 +840,7 @@ void IRCDDBApp::doUpdate(std::string& msg)
 					m_d->m_replyQ.putMessage(m2);
 				}
 			} else if (0==tableID && m_d->m_initReady) {
-				std::lock_guard lockRptrMap(m_d->m_rptrMapMutex);
+				std::lock_guard<std::mutex> lockRptrMap(m_d->m_rptrMapMutex);
 				std::string userCallsign(key);
 				std::string arearp_cs(value);
 				std::string zonerp_cs;
@@ -1098,7 +1098,7 @@ void IRCDDBApp::Entry()
 
 					if (0 == m_d->m_infoTimer) {
 						{	// Scope for mutext locking
-							std::lock_guard lochQTHURL(m_d->m_moduleQTHURLMutex);
+							std::lock_guard<std::mutex> lochQTHURL(m_d->m_moduleQTHURLMutex);
 							for (auto it = m_d->m_moduleQTH.begin(); it != m_d->m_moduleQTH.end(); ++it) {
 								std::string value = it->second;
 								IRCMessage *m = new IRCMessage(m_d->m_currentServer, std::string("IRCDDB RPTRQTH: ") + value);
@@ -1118,7 +1118,7 @@ void IRCDDBApp::Entry()
 							m_d->m_moduleURL.clear();
 						}
 
-						std::lock_guard lockModuleQRG(m_d->m_moduleQRGMutex);
+						std::lock_guard<std::mutex> lockModuleQRG(m_d->m_moduleQRGMutex);
 						for (auto it = m_d->m_moduleQRG.begin(); it != m_d->m_moduleQRG.end(); ++it) {
 							std::string value = it->second;
 							IRCMessage* m = new IRCMessage(m_d->m_currentServer, std::string("IRCDDB RPTRQRG: ") + value);
@@ -1134,7 +1134,7 @@ void IRCDDBApp::Entry()
 					m_d->m_wdTimer--;
 
 					if (0 == m_d->m_wdTimer) {
-						std::lock_guard lockModuleWD(m_d->m_moduleWDMutex);
+						std::lock_guard<std::mutex> lockModuleWD(m_d->m_moduleWDMutex);
 
 						for (auto it = m_d->m_moduleWD.begin(); it != m_d->m_moduleWD.end(); ++it) {
 							std::string value = it->second;
