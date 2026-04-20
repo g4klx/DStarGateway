@@ -38,7 +38,9 @@ m_password(password),
 m_subs(subs),
 m_keepalive(keepalive),
 m_qos(qos),
+#if ENABLE_MQTT
 m_mosq(nullptr),
+#endif
 m_connected(false)
 {
 	assert(!host.empty());
@@ -46,16 +48,21 @@ m_connected(false)
 	assert(!name.empty());
 	assert(keepalive >= 5U);
 
+#if ENABLE_MQTT
 	::mosquitto_lib_init();
+#endif
 }
 
 CMQTTConnection::~CMQTTConnection()
 {
+#if ENABLE_MQTT
 	::mosquitto_lib_cleanup();
+#endif
 }
 
 bool CMQTTConnection::open()
 {
+#if ENABLE_MQTT
 	char name[50U];
 #if defined(_WIN32) || defined(_WIN64)
 	::sprintf(name, "DStarGateway.%u", (unsigned)::_getpid());
@@ -95,7 +102,7 @@ bool CMQTTConnection::open()
 		::fprintf(stderr, "MQTT Error loop starting: %s\n", ::mosquitto_strerror(rc));
 		return false;
 	}
-
+#endif
 	return true;
 }
 
@@ -122,6 +129,7 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 	if (!m_connected)
 		return false;
 
+#if ENABLE_MQTT
 	if (::strchr(topic, '/') == nullptr) {
 		char topicEx[100U];
 		::sprintf(topicEx, "%s/%s", m_name.c_str(), topic);
@@ -138,20 +146,24 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 			return false;
 		}
 	}
+#endif
 
 	return true;
 }
 
 void CMQTTConnection::close()
 {
+#if ENABLE_MQTT
 	if (m_mosq != nullptr) {
 		::mosquitto_disconnect(m_mosq);
 		::mosquitto_loop_stop(m_mosq, true);
 		::mosquitto_destroy(m_mosq);
 		m_mosq = nullptr;
 	}
+#endif
 }
 
+#if ENABLE_MQTT
 void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 {
 	assert(mosq != nullptr);
@@ -229,4 +241,6 @@ void CMQTTConnection::onDisconnect(mosquitto* mosq, void* obj, int rc)
 	CMQTTConnection* p = static_cast<CMQTTConnection*>(obj);
 	p->m_connected = false;
 }
+
+#endif
 

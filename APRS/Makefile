@@ -2,6 +2,8 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
+CPPFLAGS+=-I../lib
+
 APRS.a: $(OBJS)
 	$(AR) rcs APRS.a $(OBJS)
 

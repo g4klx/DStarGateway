@@ -2,6 +2,8 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
+CPPFLAGS+=-I../lib
+
 dgwvoicetransmit: ../VersionInfo/GitVersion.h $(OBJS) ../DStarBase/DStarBase.a ../APRS/APRS.a ../BaseCommon/BaseCommon.a
 	$(CC) $(CPPFLAGS) -o dgwvoicetransmit $(OBJS) ../DStarBase/DStarBase.a ../APRS/APRS.a ../BaseCommon/BaseCommon.a $(LDFLAGS)
 

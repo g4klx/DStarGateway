@@ -2,6 +2,8 @@ SRCS = $(wildcard *.cpp)
 OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
+CPPFLAGS+=-I../lib
+
 Common.a: $(OBJS) ../APRS/APRS.a ../BaseCommon/BaseCommon.a ../DStarBase/DStarBase.a ../IRCDDB/IRCDDB.a ../VersionInfo/GitVersion.h
 	$(AR) rcs Common.a $(OBJS)
 

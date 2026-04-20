@@ -31,7 +31,8 @@ export CPPFLAGS=-W -O3 -Wall -std=c++17 -Wno-psabi
 endif
 
 export CC=g++
-export LDFLAGS+= -pthread -lmosquitto
+# export LDFLAGS+= -pthread -lmosquitto
+export LDFLAGS+= -pthread
 
 ifeq ($(USE_GPSD), 1)
 export CPPFLAGS+= -DUSE_GPSD

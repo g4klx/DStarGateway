@@ -18,13 +18,33 @@
 
 #pragma once
 
+#ifndef USE_BOOST_HASH
+#define USE_BOOST_HASH 0
+#endif
+
 #include <string>
 #include <vector>
 #include <sys/socket.h>
+#if USE_BOOST_HASH
 #include <boost/container_hash/hash.hpp>
+#endif
 
 #include "G2ProtocolHandler.h"
 #include "NetUtils.h"
+
+static void simple_hash_combine(std::size_t& seed, uint32_t value) {
+#if USE_BOOST_HASH
+    boost::hash_combine(seed, value);
+#else
+#if UINTPTR_MAX == 0xffffffffffffffffULL
+    static const std::size_t FNV_PRIME = 0x100000001b3ULL;
+#else
+    static const std::size_t FNV_PRIME = 0x01000193U;
+#endif
+    seed ^= (std::size_t)value;
+    seed *= FNV_PRIME;
+#endif
+}
 
 struct sockaddr_storage_map {
     struct compAddrAndPort {
@@ -39,19 +59,19 @@ struct sockaddr_storage_map {
 				case AF_INET: {
 					auto ptr4 = ((struct sockaddr_in *)&a);
 					size_t res = AF_INET;
-					boost::hash_combine(res, ptr4->sin_port);
-					boost::hash_combine(res, ptr4->sin_addr.s_addr);
+					simple_hash_combine(res, ptr4->sin_port);
+					simple_hash_combine(res, ptr4->sin_addr.s_addr);
 					return res;
 				}
 				case AF_INET6: {
 					auto ptr6 = ((struct sockaddr_in6 *)&a);
 					size_t res = AF_INET6;
-					boost::hash_combine(res, ptr6->sin6_port);
+					simple_hash_combine(res, ptr6->sin6_port);
                     auto in6Ptr = (unsigned int *)&(ptr6->sin6_addr);
-					boost::hash_combine(res, in6Ptr[0]);
-                    boost::hash_combine(res, in6Ptr[1]);
-                    boost::hash_combine(res, in6Ptr[2]);
-                    boost::hash_combine(res, in6Ptr[3]);
+					simple_hash_combine(res, in6Ptr[0]);
+                    simple_hash_combine(res, in6Ptr[1]);
+                    simple_hash_combine(res, in6Ptr[2]);
+                    simple_hash_combine(res, in6Ptr[3]);
 					return res;
 				}
 				default:

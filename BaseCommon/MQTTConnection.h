@@ -19,7 +19,13 @@
 #if !defined(MQTTPUBLISHER_H)
 #define	MQTTPUBLISHER_H
 
+#ifndef ENABLE_MQTT
+#define ENABLE_MQTT 0
+#endif
+
+#if ENABLE_MQTT
 #include <mosquitto.h>
+#endif
 
 #include <vector>
 #include <string>
@@ -53,13 +59,15 @@ private:
 	std::vector<std::pair<std::string, void (*)(const unsigned char*, unsigned int)>> m_subs;
 	unsigned int   m_keepalive;
 	MQTT_QOS       m_qos;
+#if ENABLE_MQTT
 	mosquitto*     m_mosq;
-	bool           m_connected;
-
 	static void onConnect(mosquitto* mosq, void* obj, int rc);
 	static void onSubscribe(mosquitto* mosq, void* obj, int mid, int qosCount, const int* grantedQOS);
 	static void onMessage(mosquitto* mosq, void* obj, const mosquitto_message* message);
 	static void onDisconnect(mosquitto* mosq, void* obj, int rc);
+#endif
+	bool           m_connected;
+
 };
 
 #endif
