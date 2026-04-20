@@ -413,6 +413,7 @@ void CDExtraHandler::link(IReflectorCallback* handler, const std::string& repeat
 
 	if (found) {
 		localPort = protoHandler->getPort();
+		LogDebug("Linking to gateway %s, addr: %s, localPort: %u", gateway.c_str(), inet_ntoa(address), localPort);
 		CConnectData reply(repeater, gateway, CT_LINK1, address, DEXTRA_PORT);
 		protoHandler->writeConnect(reply);
 	} else {

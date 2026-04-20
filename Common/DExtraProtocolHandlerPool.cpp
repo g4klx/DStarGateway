@@ -29,7 +29,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	LogInfo("DExtra UDP port base = %u\n", port);
+	LogInfo("DExtra UDP addr = %s, port base = %u\n", addr.c_str(), port);
 }
 
 CDExtraProtocolHandlerPool::~CDExtraProtocolHandlerPool()
@@ -64,14 +64,14 @@ CDExtraProtocolHandler* CDExtraProtocolHandlerPool::getHandler(unsigned int port
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			LogInfo("New CDExtraProtocolHandler now on UDP port %u.\n", port);
+			LogInfo("New CDExtraProtocolHandler now on UDP port %s:%u.\n", m_address.c_str(), port);
 		} else {
 			delete proto;
 			proto = NULL;
-			LogInfo("ERROR: Can't open new DExtra UDP port %u!\n", port);
+			LogInfo("ERROR: Can't open new DExtra UDP port %s:%u!\n", port);
 		}
 	} else
-		LogInfo("ERROR: Can't allocate new CDExtraProtocolHandler at port %u\n", port);
+		LogInfo("ERROR: Can't allocate new CDExtraProtocolHandler at port %s:%u\n", m_address.c_str(), port);
 	return proto;
 }
 
