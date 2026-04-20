@@ -29,6 +29,7 @@ m_port(port),
 m_addr(),
 m_fd(-1)
 {
+	LogDebug("Create UDPReaderWriter port %s:%u", address.c_str(), port);
 }
 
 CUDPReaderWriter::CUDPReaderWriter() :
@@ -71,6 +72,8 @@ bool CUDPReaderWriter::open()
 		LogError("Cannot create the UDP socket, err: %s", strerror(errno));
 		return false;
 	}
+
+	LogMessage("Open UDP socket %s:%u, fd:%d", m_address.c_str(), m_port, m_fd);
 
 	if (m_port > 0U) {
 		sockaddr_in addr;
@@ -156,11 +159,22 @@ bool CUDPReaderWriter::write(const unsigned char* buffer, unsigned int length, c
 	TOIPV4(addr)->sin_addr = address;
 	TOIPV4(addr)->sin_port = htons(port);
 
-	return write(buffer, length, addr);
+	// send to ipv4 version
+	ssize_t ret = ::sendto(m_fd, (char *)buffer, length, 0, (sockaddr *)&addr, sizeof(sockaddr));
+	if (ret < 0) {
+		LogError("Error returned from sendto (port: %u), err: %s", m_port, strerror(errno));
+		return false;
+	}
+
+	if (ret != ssize_t(length))
+		return false;
+
+	return true;
 }
 
 bool CUDPReaderWriter::write(const unsigned char* buffer, unsigned int length, const struct sockaddr_storage& addr)
 {
+	// send to ipv6 version
 	ssize_t ret = ::sendto(m_fd, (char *)buffer, length, 0, (sockaddr *)&addr, sizeof(addr));
 	if (ret < 0) {
 		LogError("Error returned from sendto (port: %u), err: %s", m_port, strerror(errno));
