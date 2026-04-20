@@ -22,6 +22,8 @@
 #include "Log.h"
 #include "G2ProtocolHandlerPool.h"
 
+#include <cstring>
+
 const unsigned int G2_BUFFER_LENGTH = 255U;
 
 CG2ProtocolHandlerPool::CG2ProtocolHandlerPool(unsigned short port, const std::string& address) :
