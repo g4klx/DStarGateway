@@ -23,11 +23,11 @@ export LOG_DIR=/var/log/dstargateway/
 
 ifeq ($(ENABLE_DEBUG), 1)
 # choose this if you want debugging help
-export CPPFLAGS=-g -rdynamic -DBOOST_STACKTRACE_USE_ADDR2LINE -DDEBUG_DSTARGW -no-pie -fno-pie -ggdb -W -Wall -std=c++17 -Wno-psabi
+export CPPFLAGS=-g -rdynamic -DBOOST_STACKTRACE_USE_ADDR2LINE -DDEBUG_DSTARGW -no-pie -fno-pie -ggdb -W -Wall -std=c++11 -Wno-psabi
 export LDFLAGS=-ldl -no-pie -fno-pie
 else
 # or, you can choose this for a much smaller executable without debugging help
-export CPPFLAGS=-W -Os -Wall -std=c++11 -Wno-psabi
+export CPPFLAGS=-W -Os -Wall -std=c++11 -Wno-psabi -fno-rtti -DNDEBUG
 endif
 
 export CC=g++
