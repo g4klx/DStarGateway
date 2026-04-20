@@ -38,13 +38,13 @@
 
 CMQTTConnection* m_mqtt = nullptr;
 
+#if USE_MQTT
+
 static unsigned int m_mqttLevel = 2U;
 
 static unsigned int m_displayLevel = 2U;
 
 static char LEVELS[] = " DMIWEF";
-
-#if USE_MQTT
 
 void LogInitialise(unsigned int displayLevel, unsigned int mqttLevel)
 {
