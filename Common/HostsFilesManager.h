@@ -56,6 +56,8 @@ private:
     static CTimer m_reloadTimer;
 
     static void loadReflectors(const std::string& directory);
+    static void loadLocalReflectors(const std::string& directory);
+    static void loadReflectorsInt(const std::string& directory, const std::string& hostfileName);
 };
 
 #endif

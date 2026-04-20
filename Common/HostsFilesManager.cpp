@@ -93,7 +93,7 @@ void CHostsFilesManager::UpdateHostsFromInternet()
 
 void CHostsFilesManager::UpdateHostsFromLocal()
 {
-    CHostsFilesManager::loadReflectors(m_customFilesDirectory);
+    CHostsFilesManager::loadLocalReflectors(m_customFilesDirectory);
 }
 
 bool CHostsFilesManager::UpdateHosts()
@@ -114,6 +114,16 @@ std::future<bool> CHostsFilesManager::UpdateHostsAsync()
 
 void CHostsFilesManager::loadReflectors(const std::string& directory)
 {
+	loadReflectorsInt(directory, JSON_HOSTS_FILE_NAME);
+}
+
+void CHostsFilesManager::loadLocalReflectors(const std::string& directory)
+{
+	loadReflectorsInt(directory, JSON_LOCALHOSTS_FILE_NAME);
+}
+
+void CHostsFilesManager::loadReflectorsInt(const std::string& directory, const std::string& hostfileName)
+{
 	if (m_cache == nullptr) {
 		LogWarning("HostsFilesManager cache not initilized");
 		return;
@@ -123,7 +133,7 @@ void CHostsFilesManager::loadReflectors(const std::string& directory)
 	unsigned int dextraCount = 0U;
 	unsigned int dcsCount = 0U;
 
-	std::string filename = directory + "/" + JSON_HOSTS_FILE_NAME;
+	std::string filename = directory + "/" + hostfileName;
 
 	try {
 		std::fstream file(filename);
@@ -163,6 +173,7 @@ void CHostsFilesManager::loadReflectors(const std::string& directory)
 				}
 			} else if (type == "XRF") {
 				if (m_dextraEnabled) {
+					LogDebug("Add gateway %s, %s", reflector.c_str(), ipv4.c_str());
 					m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, locked, true);
 					dextraCount++;
 				}

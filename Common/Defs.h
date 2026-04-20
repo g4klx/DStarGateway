@@ -23,6 +23,7 @@
 #include <string>
 
 const std::string JSON_HOSTS_FILE_NAME("DStar_Hosts.json");
+const std::string JSON_LOCALHOSTS_FILE_NAME("DStar_LocalHosts.json");
 const std::string GATEWAY_HOSTS_FILE_NAME("Gateway_Hosts.txt");
 
 const std::string STARNET_BASE_NAME("STARnet");
