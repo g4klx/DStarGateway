@@ -8,7 +8,7 @@ BaseCommon.a: $(OBJS)
 	$(AR) rcs BaseCommon.a $(OBJS)
 
 %.o : %.cpp
-	$(CC) $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 clean:

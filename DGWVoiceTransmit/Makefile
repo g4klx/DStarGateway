@@ -5,10 +5,10 @@ DEPS = $(SRCS:.cpp=.d)
 CPPFLAGS+=-I../lib
 
 dgwvoicetransmit: ../VersionInfo/GitVersion.h $(OBJS) ../DStarBase/DStarBase.a ../APRS/APRS.a ../BaseCommon/BaseCommon.a
-	$(CC) $(CPPFLAGS) -o dgwvoicetransmit $(OBJS) ../DStarBase/DStarBase.a ../APRS/APRS.a ../BaseCommon/BaseCommon.a $(LDFLAGS)
+	$(CXX) $(CPPFLAGS) -o dgwvoicetransmit $(OBJS) ../DStarBase/DStarBase.a ../APRS/APRS.a ../BaseCommon/BaseCommon.a $(LDFLAGS)
 
 %.o : %.cpp
-	$(CC) -I../BaseCommon -I../APRS -I../DStarBase -I../VersionInfo -DCFG_DIR='"$(CFG_DIR)"' $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) -I../BaseCommon -I../APRS -I../DStarBase -I../VersionInfo -DCFG_DIR='"$(CFG_DIR)"' $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 .PHONY clean:

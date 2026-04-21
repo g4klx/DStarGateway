@@ -8,7 +8,7 @@ Common.a: $(OBJS) ../APRS/APRS.a ../BaseCommon/BaseCommon.a ../DStarBase/DStarBa
 	$(AR) rcs Common.a $(OBJS)
 
 %.o : %.cpp
-	$(CC) -I../APRS -I../BaseCommon -I../DStarBase -I../IRCDDB -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) -I../APRS -I../BaseCommon -I../DStarBase -I../IRCDDB -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 .PHONY clean:

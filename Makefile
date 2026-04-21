@@ -30,7 +30,9 @@ else
 export CPPFLAGS=-W -Os -Wall -std=c++11 -Wno-psabi -fno-rtti -DNDEBUG
 endif
 
-export CC=g++
+export CC=gcc
+export CXX=g++
+
 export LDFLAGS+= -pthread
 
 ifeq ($(USE_MQTT), 1)

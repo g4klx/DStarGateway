@@ -8,7 +8,7 @@ DStarBase.a: $(OBJS)
 	$(AR) rcs DStarBase.a $(OBJS)
 
 %.o : %.cpp
-	$(CC) -I../BaseCommon $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) -I../BaseCommon $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 clean:

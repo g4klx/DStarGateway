@@ -8,7 +8,7 @@ IRCDDB.a: $(OBJS) ../VersionInfo/GitVersion.h ../BaseCommon/BaseCommon.a
 	$(AR) rcs IRCDDB.a $(OBJS)
 
 %.o : %.cpp
-	$(CC) -I../BaseCommon -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) -I../BaseCommon -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 .PHONY clean:
