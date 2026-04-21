@@ -87,17 +87,18 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-#if 1
+	// The config code depends logging, initialize it in debug mode first
+#if DEBUG
 	LogInitialiseFile(false, "/tmp", "DStarGateway", 1, 1);
+#else
+	LogInitialiseFile(false, "/tmp", "DStarGateway", 2, 2);
 #endif
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
 		fprintf(stderr, "Invalid configuration, aborting\n");
 		return 1;
 	}
-#if 1
 	LogFinalise();
-#endif
 
 	TDaemon daemon;
 	config->getDaemon(daemon);
