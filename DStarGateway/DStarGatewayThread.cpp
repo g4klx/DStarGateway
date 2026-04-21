@@ -185,7 +185,7 @@ void* CDStarGatewayThread::Entry()
 
 	m_stopped = false;
 
-	LogInfo("Starting the ircDDB Gateway thread");
+	LogInfo("Starting the DStarGateway thread");
 
 	CG2Handler::setG2ProtocolHandlerPool(m_g2HandlerPool);
 
