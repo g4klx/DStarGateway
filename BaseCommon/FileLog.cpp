@@ -120,8 +120,10 @@ bool LogInitialiseFile(bool daemon, const std::string& filePath, const std::stri
 
 void LogFinalise()
 {
-	if (m_fpLog != NULL)
+	if (m_fpLog != NULL) {
 		::fclose(m_fpLog);
+		m_fpLog = NULL;
+	}
 }
 
 void Log(unsigned int level, const char* fmt, ...)
