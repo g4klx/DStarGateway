@@ -152,6 +152,8 @@ bool CMQTTConnection::publish(const char* topic, const unsigned char* data, unsi
 		}
 	}
 #else
+	(void)topic;
+	(void)data;
 	(void)len;
 	(void)retain;
 #endif
