@@ -173,7 +173,6 @@ void CHostsFilesManager::loadReflectorsInt(const std::string& directory, const s
 				}
 			} else if (type == "XRF") {
 				if (m_dextraEnabled) {
-					LogDebug("Add gateway %s, %s", reflector.c_str(), ipv4.c_str());
 					m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, locked, true);
 					dextraCount++;
 				}
