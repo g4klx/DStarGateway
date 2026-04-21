@@ -38,7 +38,7 @@
 #include <cassert>
 #include <cstring>
 
-static unsigned int m_fileLevel = 2U;
+static unsigned int m_fileLevel = 0U;	// by default set file log disabled until it's initialized.
 static std::string m_filePath;
 static std::string m_fileRoot;
 
@@ -153,13 +153,13 @@ void Log(unsigned int level, const char* fmt, ...)
 		tm = ::localtime(&now.tv_sec);
 	}
 
-	len = ::snprintf(buffer, 512, "%c: %04d-%02d-%02d %02d:%02d:%02d.%03ld ", LEVELS[level], tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000L);
+	len = ::snprintf(buffer, sizeof(buffer), "%c: %04d-%02d-%02d %02d:%02d:%02d.%03ld ", LEVELS[level], tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec / 1000L);
 #endif
 
 	va_list vl;
 	va_start(vl, fmt);
 
-	::vsnprintf(buffer + len, 512 - len, fmt, vl);
+	::vsnprintf(buffer + len, sizeof(buffer) - len, fmt, vl);
 
 	va_end(vl);
 
