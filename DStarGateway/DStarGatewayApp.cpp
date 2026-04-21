@@ -51,6 +51,8 @@
 // In Log.cpp
 extern CMQTTConnection* m_mqtt;
 
+static bool daemonize();
+
 CDStarGatewayApp * CDStarGatewayApp::g_app = nullptr;
 const char* BANNER_1 = " Copyright (C) ";
 const char* BANNER_2 = "DStarGateway comes with ABSOLUTELY NO WARRANTY; see the LICENSE for details.";
@@ -62,7 +64,7 @@ int fakemain(int argc, char *argv[])
 int main(int argc, char *argv[])
 #endif
 {
-	std::set_terminate(CDStarGatewayApp::terminateHandler);
+	// std::set_terminate(CDStarGatewayApp::terminateHandler);
 
 	signal(SIGSEGV, CDStarGatewayApp::sigHandlerFatal);
 	signal(SIGILL, CDStarGatewayApp::sigHandlerFatal);
@@ -85,19 +87,28 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-#if DEBUG
+#if 1
 	LogInitialiseFile(false, "/tmp", "DStarGateway", 1, 1);
 #endif
-
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
 		fprintf(stderr, "Invalid configuration, aborting\n");
 		return 1;
 	}
+#if 1
+	LogFinalise();
+#endif
 
 	TDaemon daemon;
 	config->getDaemon(daemon);
 
+	if (daemon.daemon) {
+		bool ret = daemonize();
+		if (!ret)
+			return -1;
+	}
+
+#if 0
 	if (daemon.daemon) {
 		printf("Configured as a daemon, detaching ...\n");
 		auto res = CDaemon::daemonise(daemon.pidFile, daemon.user);
@@ -117,6 +128,7 @@ int main(int argc, char *argv[])
 				return 1;
 		}
 	}
+#endif
 
 	// Setup Log
 	TLog logConf;
@@ -195,6 +207,81 @@ void CDStarGatewayApp::run()
 	writeJSONStatus("DStarGateway is stopping");
 
 	LogFinalise();
+}
+
+#ifndef DROP_ROOT
+#define DROP_ROOT 1
+#endif
+#if !defined(_WIN32) && !defined(_WIN64)
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+static bool daemonize()
+{
+#if !defined(_WIN32) && !defined(_WIN64)
+	// Create new process
+	pid_t pid = ::fork();
+	if (pid == -1) {
+		::fprintf(stderr, "Couldn't fork() , exiting\n");
+		return false;
+	} else if (pid != 0) {
+		exit(EXIT_SUCCESS);
+	}
+
+	// Create new session and process group
+	if (::setsid() == -1){
+		::fprintf(stderr, "Couldn't setsid(), exiting\n");
+		return false;
+	}
+
+	// Set the working directory to the root directory
+	if (::chdir("/") == -1){
+		::fprintf(stderr, "Couldn't cd /, exiting\n");
+		return false;
+	}
+
+#if defined(DROP_ROOT) && DROP_ROOT == 1
+	// If we are currently root...
+	if (getuid() == 0) {
+		#if defined(HAMBOX) && HAMBOX == 1
+		struct passwd* user = ::getpwnam("hambox");
+		#else
+		struct passwd* user = ::getpwnam("mmdvm");
+		#endif
+		if (user == NULL) {
+			::fprintf(stderr, "Could not get the mmdvm user, exiting\n");
+			return false;
+		}
+
+		uid_t mmdvm_uid = user->pw_uid;
+		gid_t mmdvm_gid = user->pw_gid;
+
+		// Set user and group ID's to mmdvm:mmdvm
+		if (::setgid(mmdvm_gid) != 0) {
+			::fprintf(stderr, "Could not set mmdvm GID, exiting\n");
+			return false;
+		}
+
+		if (::setuid(mmdvm_uid) != 0) {
+			::fprintf(stderr, "Could not set mmdvm UID, exiting\n");
+			return false;
+		}
+
+		// Double check it worked (AKA Paranoia)
+		if (::setuid(0) != -1){
+			::fprintf(stderr, "It's possible to regain root - something is wrong!, exiting\n");
+			return false;
+		}
+	}
+#else
+	::fprintf(stderr, "Dropping root permissions in daemon mode is disabled.\n");
+#endif
+
+	::close(STDIN_FILENO);
+	::close(STDOUT_FILENO);
+	::close(STDERR_FILENO);	// we'll redirect the stderr out to log file here
+#endif
+	return true;
 }
 
 bool CDStarGatewayApp::createThread()
