@@ -66,10 +66,10 @@ int main(int argc, char *argv[])
 {
 	// std::set_terminate(CDStarGatewayApp::terminateHandler);
 
-	signal(SIGSEGV, CDStarGatewayApp::sigHandlerFatal);
-	signal(SIGILL, CDStarGatewayApp::sigHandlerFatal);
-	signal(SIGFPE, CDStarGatewayApp::sigHandlerFatal);
-	signal(SIGABRT, CDStarGatewayApp::sigHandlerFatal);
+	// signal(SIGSEGV, CDStarGatewayApp::sigHandlerFatal);
+	// signal(SIGILL, CDStarGatewayApp::sigHandlerFatal);
+	// signal(SIGFPE, CDStarGatewayApp::sigHandlerFatal);
+	// signal(SIGABRT, CDStarGatewayApp::sigHandlerFatal);
 	signal(SIGTERM, CDStarGatewayApp::sigHandlerExit);
 	signal(SIGINT, CDStarGatewayApp::sigHandlerExit);
 	signal(SIGUSR1, CDStarGatewayApp::sigHandlerUSR);
