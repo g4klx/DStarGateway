@@ -22,8 +22,6 @@
 #include "Log.h"
 #include "Utils.h"
 
-#include <nlohmann/json.hpp>
-
 #if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
 #else
@@ -183,91 +181,28 @@ void Log(unsigned int level, const char* fmt, ...)
 	}
 }
 
-#if 0
-static void WriteJSON(const std::string& topLevel, nlohmann::json& json, bool retain)
-{
-	if (m_mqtt != nullptr) {
-		nlohmann::json top;
-
-		top[topLevel] = json;
-
-		m_mqtt->publish("json", top.dump(), retain);
-	}
-}
-#endif
-
 void writeJSONStatus(const std::string& status)
 {
-#if 0
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["message"]   = status;
-
-	WriteJSON("status", json, false);
-#endif
 	LogMessage("status: %s", status.c_str());
 }
 
 void writeJSONLinking(const std::string& repeater, const std::string& reason, const std::string& protocol, const std::string& reflector)
 {
-#if 0
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["repeater"]  = repeater;
-	json["action"]    = "linking";
-	json["reason"]    = reason;
-	json["reflector"] = reflector;
-	json["protocol"]  = protocol;
-
-	WriteJSON("link", json, true);
-#endif
 	LogMessage("linking: rpt:%s, reason:%s, ref:%s, prot:%s", repeater.c_str(), reason.c_str(), reflector.c_str(), protocol.c_str());
 }
 
 void writeJSONUnlinked(const std::string& repeater, const std::string& reason)
 {
-#if 0
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["repeater"]  = repeater;
-	json["action"]    = "unlinked";
-	json["reason"]    = reason;
-
-	WriteJSON("link", json, true);
-#endif
 	LogMessage("unlinking: rpt:%s, reason:%s", repeater.c_str(), reason.c_str());
 }
 
 void writeJSONFailed(const std::string& repeater)
 {
-#if 0
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["repeater"]  = repeater;
-	json["action"]    = "failed";
-
-	WriteJSON("link", json, true);
-#endif
 	LogMessage("failed: rpt:%s", repeater.c_str());
 }
 
 void writeJSONRelinking(const std::string& repeater, const std::string& protocol, const std::string& reflector)
 {
-#if 0
-	nlohmann::json json;
-
-	json["timestamp"] = CUtils::createTimestamp();
-	json["repeater"]  = repeater;
-	json["action"]    = "relinking";
-	json["reflector"] = reflector;
-	json["protocol"]  = protocol;
-
-	WriteJSON("link", json, true);
-#endif
 	LogMessage("relinking: rpt:%s, ref:%s, prot:%s", repeater.c_str(), reflector.c_str(), protocol.c_str());
 }
 
