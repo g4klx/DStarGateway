@@ -30,7 +30,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	LogInfo("DExtra UDP port base = %u\n", port);
+	LogInfo("DExtra UDP port base = %u", port);
 }
 
 CDPlusProtocolHandlerPool::~CDPlusProtocolHandlerPool()
@@ -65,14 +65,14 @@ CDPlusProtocolHandler* CDPlusProtocolHandlerPool::getHandler(unsigned int port)
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			LogInfo("New D Plus Protocol Handler now on UDP port %u.\n", port);
+			LogInfo("New D Plus Protocol Handler now on UDP port %u.", port);
 		} else {
 			delete proto;
 			proto = NULL;
-			LogError("Can't open new DPlus UDP port %u!\n", port);
+			LogError("Can't open new DPlus UDP port %u!", port);
 		}
 	} else
-		LogError("Can't allocate new DPlus ProtocolHandler at port %u\n", port);
+		LogError("Can't allocate new DPlus ProtocolHandler at port %u", port);
 	return proto;
 }
 
@@ -86,12 +86,12 @@ void CDPlusProtocolHandlerPool::release(CDPlusProtocolHandler *handler)
 			handler->close();
 			delete handler;
 			m_index = m_pool.end(); // m_index might be ut of order so reset it
-			LogInfo("Releasing DPlus ProtocolHandler on port %u.\n", port);
+			LogInfo("Releasing DPlus ProtocolHandler on port %u.", port);
 			return;
 		}
 	}
 	// we should never get here!
-	LogInfo("ERROR: could not find  DPlus ProtocolHander (port=%u) to release!\n", handler->getPort());
+	LogInfo("ERROR: could not find  DPlus ProtocolHander (port=%u) to release!", handler->getPort());
 }
 
 DPLUS_TYPE CDPlusProtocolHandlerPool::read()

@@ -30,7 +30,7 @@ m_address(addr)
 {
 	assert(port > 0U);
 	m_index = m_pool.end();
-	LogInfo("DCS UDP port base = %u\n", port);
+	LogInfo("DCS UDP port base = %u", port);
 }
 
 CDCSProtocolHandlerPool::~CDCSProtocolHandlerPool()
@@ -64,14 +64,14 @@ CDCSProtocolHandler *CDCSProtocolHandlerPool::getHandler(unsigned int port)
 	if (proto) {
 		if (proto->open()) {
 			m_pool[port] = proto;
-			LogInfo("New DCS Protocol Handler now on port %u.\n", port);
+			LogInfo("New DCS Protocol Handler now on port %u.", port);
 		} else {
 			delete proto;
 			proto = NULL;
-			LogError("Can't open new DCS UDP port %u!\n", port);
+			LogError("Can't open new DCS UDP port %u!", port);
 		}
 	} else
-		LogError("Can't allocate new CDCSProtocolHandler at port %u\n", port);
+		LogError("Can't allocate new CDCSProtocolHandler at port %u", port);
 	return proto;
 }
 
@@ -85,13 +85,13 @@ void CDCSProtocolHandlerPool::release(CDCSProtocolHandler *handler)
 			handler->close();
 			delete handler ;
 			m_index = m_pool.end(); // since we removed an element, m_index is out of order, just move it back to the end
-			LogInfo("Released DCS ProtocolHandler on port %u.\n", port);
+			LogInfo("Released DCS ProtocolHandler on port %u.", port);
 
 			return;
 		}
 	}
 	// we should never get here!
-	LogInfo("ERROR: could not find DCS ProtocolHander (port=%u) to release!\n", handler->getPort());
+	LogInfo("ERROR: could not find DCS ProtocolHander (port=%u) to release!", handler->getPort());
 }
 
 DCS_TYPE CDCSProtocolHandlerPool::read()
