@@ -68,7 +68,7 @@ CDExtraProtocolHandler* CDExtraProtocolHandlerPool::getHandler(unsigned int port
 		} else {
 			delete proto;
 			proto = NULL;
-			LogInfo("ERROR: Can't open new DExtra UDP port %s:%u!", port);
+			LogInfo("ERROR: Can't open new DExtra UDP port %s:%u!", m_address.c_str(), port);
 		}
 	} else
 		LogInfo("ERROR: Can't allocate new CDExtraProtocolHandler at port %s:%u", m_address.c_str(), port);
