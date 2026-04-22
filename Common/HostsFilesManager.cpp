@@ -114,19 +114,19 @@ std::future<bool> CHostsFilesManager::UpdateHostsAsync()
 
 void CHostsFilesManager::loadReflectors(const std::string& directory)
 {
-	loadReflectorsInt(directory, JSON_HOSTS_FILE_NAME);
+	loadReflectorsJSONInt(directory, JSON_HOSTS_FILE_NAME) || loadReflectorsCSVInt(directory, CSV_HOSTS_FILE_NAME);
 }
 
 void CHostsFilesManager::loadLocalReflectors(const std::string& directory)
 {
-	loadReflectorsInt(directory, JSON_LOCALHOSTS_FILE_NAME);
+	loadReflectorsJSONInt(directory, JSON_LOCALHOSTS_FILE_NAME) || loadReflectorsCSVInt(directory, CSV_LOCALHOSTS_FILE_NAME);
 }
 
-void CHostsFilesManager::loadReflectorsInt(const std::string& directory, const std::string& hostfileName)
+bool CHostsFilesManager::loadReflectorsJSONInt(const std::string& directory, const std::string& hostfileName)
 {
 	if (m_cache == nullptr) {
 		LogWarning("HostsFilesManager cache not initilized");
-		return;
+		return false;
 	}
 
 	unsigned int dplusCount = 0U;
@@ -187,8 +187,8 @@ void CHostsFilesManager::loadReflectorsInt(const std::string& directory, const s
 		}
 	}
 	catch (...) {
-		LogError("Unable to load/parse JSON file %s", filename.c_str());
-		return;
+		LogWarning("HostsFilesManager Unable to load/parse JSON file %s", filename.c_str());
+		return false;
 	}
 
 	if (m_dplusEnabled)
@@ -197,5 +197,120 @@ void CHostsFilesManager::loadReflectorsInt(const std::string& directory, const s
 		LogInfo("Loaded %u Dextra hosts from %s", dextraCount, filename.c_str());
 	if (m_dcsEnabled)
 		LogInfo("Loaded %u DCS hosts from %s", dcsCount, filename.c_str());
+
+	return true;
+}
+
+enum{
+	CSV_FIELD_NAME = 0,
+	CSV_FIELD_TYPE,
+	CSV_FIELD_IPV4,
+	CSV_FIELD_PORT,
+	CSV_FIELD_LOCK,
+	CSV_FIELD_MAX
+};
+
+bool CHostsFilesManager::loadReflectorsCSVInt(const std::string& directory, const std::string& hostfileName)
+{
+	if (m_cache == nullptr) {
+		LogWarning("HostsFilesManager cache not initilized");
+		return false;
+	}
+
+	unsigned int dplusCount = 0U;
+	unsigned int dextraCount = 0U;
+	unsigned int dcsCount = 0U;
+
+	std::string filename = directory + "/" + hostfileName;	// DStarHost.txt
+
+	FILE* fp = ::fopen(filename.c_str(), "rt");
+	if (fp == NULL) {
+		LogWarning("HostsFilesManager Unable to open CSV file - %s", filename.c_str());
+		return false;
+	}
+
+	LogDebug("HostsFilesManager loading - %s",filename.c_str());
+
+	char line[1024], buf[1024];
+	unsigned int lineNo = 0;
+	long lineStart = 0;
+	char* tokens[5];	// name/type/ipv4/port
+
+	while (::fgets(line, sizeof(line), fp) != NULL) {
+		lineNo++;
+
+		if (line[0U] == '#' || line[0U] == ';') {
+			lineStart = ::ftell(fp);
+			continue;
+		}
+
+		::strncpy(buf, line, sizeof(buf) - 1);	// need to keep the original line for debug purpose
+		buf[sizeof(buf) - 1] = 0;
+
+		char *stringp = buf;
+
+		// split the line with ',' and trim each fields.
+		tokens[0] = CStringUtils::trimString(::strsep(&stringp, ","));
+		tokens[1] = CStringUtils::trimString(::strsep(&stringp, ","));
+		tokens[2] = CStringUtils::trimString(::strsep(&stringp, ","));
+		tokens[3] = CStringUtils::trimString(::strsep(&stringp, ","));
+
+		char* p1 = tokens[CSV_FIELD_NAME];
+		char* p2 = tokens[CSV_FIELD_TYPE];
+		char* p3 = tokens[CSV_FIELD_IPV4];
+		char* p4 = tokens[CSV_FIELD_PORT];
+		char* p5 = tokens[CSV_FIELD_LOCK];
+
+		if(p1 == NULL ||  p2 == NULL || p3 == NULL \
+			|| strlen(p1) == 0 || strlen(p2) == 0 || strlen(p3) == 0) {
+			LogDebug("  >Invalied Line[%u]: %s",lineNo, line);
+			lineStart = ::ftell(fp);
+			continue;
+		}
+
+		std::string reflector = p1;
+		std::string type = p2;
+		std::string ipv4 = p3;
+		uint16_t port = p4 ? (uint16_t)::atoi(p4) : 0;
+		uint8_t locked = p5 ? (uint8_t)::atoi(p5) : 0;
+
+		reflector.resize(7, ' ');
+		reflector += "G";
+		(void)port;
+
+		if (type == "REF") {
+			if (m_dplusEnabled) {
+				m_cache->updateGateway(reflector, ipv4, DP_DPLUS, locked, true);
+				dplusCount++;
+			}
+		} else if (type == "XRF") {
+			if (m_dextraEnabled) {
+				m_cache->updateGateway(reflector, ipv4, DP_DEXTRA, locked, true);
+				dextraCount++;
+			}
+		} else if (type == "DCS") {
+			if (m_dcsEnabled) {
+				m_cache->updateGateway(reflector, ipv4, DP_DCS, locked, true);
+				dcsCount++;
+			}
+		} else {
+			LogWarning("Unknown type of \"%s\" found in %s", type.c_str(), filename.c_str());
+		}
+	}
+
+	::fclose(fp);
+
+	(void)lineStart;
+	(void)lineNo;
+	LogDebug("read %u lines of hosts entries", lineNo);
+
+	if (m_dplusEnabled)
+		LogInfo("Loaded %u D-Plus hosts from %s", dplusCount, filename.c_str());
+	if (m_dextraEnabled)
+		LogInfo("Loaded %u Dextra hosts from %s", dextraCount, filename.c_str());
+	if (m_dcsEnabled)
+		LogInfo("Loaded %u DCS hosts from %s", dcsCount, filename.c_str());
+
+	return true;
 }
 

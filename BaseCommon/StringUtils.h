@@ -61,4 +61,13 @@ public:
     static size_t find_nth(const std::string& haystack, char needle, size_t nth);
 
     static unsigned int stringToPort(const std::string& s);
+
+    //
+    // String utils
+    //
+    static char* toUpper(char* s);
+
+	static std::string& toUpper(std::string& str);
+
+    static char* trimString(char *str);
 };

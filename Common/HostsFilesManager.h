@@ -57,7 +57,8 @@ private:
 
     static void loadReflectors(const std::string& directory);
     static void loadLocalReflectors(const std::string& directory);
-    static void loadReflectorsInt(const std::string& directory, const std::string& hostfileName);
+    static bool loadReflectorsJSONInt(const std::string& directory, const std::string& hostfileName);
+    static bool loadReflectorsCSVInt(const std::string& directory, const std::string& hostfileName);
 };
 
 #endif

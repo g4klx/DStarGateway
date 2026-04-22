@@ -49,3 +49,79 @@ unsigned int CStringUtils::stringToPort(const std::string& s)
 
     return port;
 }
+
+//
+// String utils
+//
+std::string& CStringUtils::toUpper(std::string& s)
+{
+	if(s.size() == 0) return s;
+	for(unsigned int i = 0; i<s.size(); i++){
+		s[i] = ::toupper(s[i]);
+	}
+	return s;
+}
+
+char* CStringUtils::toUpper(char* s)
+{
+	if(s == NULL)
+		return s;
+
+	unsigned int len;
+	len = ::strlen(s);
+	if(len == 0)
+		return s;
+
+	for(unsigned int i = 0; i<len; i++){
+		s[i] = ::toupper(s[i]);
+	}
+
+	return s;
+}
+
+static char* str_ltrim(char* str){
+    if (str == NULL)
+        return NULL;
+
+    // count leading space
+    int i = 0;
+    while((str[i] == ' ' || str[i] == '\t' || str[i] == '\r' || str[i] == '\n')) {
+        i++;
+    }
+
+    if (i > 0) {
+        size_t len = strlen(str);
+        if (i == len)
+            str[0] = 0;
+        else
+            memmove(str, str + i, len - i + 1); // move with the trailing '\0'
+    }
+
+    return str;
+}
+
+static char* str_rtrim(char* str) {
+    if (str == NULL)
+        return NULL;
+
+    int len = strlen(str);
+    int i;
+    for(i = len - 1; i>=0; i--){
+        if (str[i] == ' ' || str[i] == '\t' || str[i] == '\r' || str[i] == '\n'){
+            str[i] = 0;
+            continue;
+        }
+        if (str[i] != 0)
+            break;
+    }
+    return str;
+}
+
+static inline char* str_trim(char* str) {
+    return str_ltrim(str_rtrim(str));
+}
+
+char* CStringUtils::trimString(char *str)
+{
+	return str_trim(str);
+}
