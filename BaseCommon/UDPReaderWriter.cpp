@@ -150,8 +150,15 @@ int CUDPReaderWriter::read(unsigned char* buffer, unsigned int length, in_addr& 
 	return res;
 }
 
+#include <cassert>
 bool CUDPReaderWriter::write(const unsigned char* buffer, unsigned int length, const in_addr& address, unsigned int port)
 {
+	assert(address.s_addr != INADDR_NONE);
+	if (address.s_addr == INADDR_NONE) {
+		LogDebug("UDP sendto aborted due to invalid address %s", inet_ntoa(address));
+		return false;
+	}
+
 	struct sockaddr_storage addr;
 	::memset(&addr, 0, sizeof(sockaddr_storage));
 
@@ -162,7 +169,7 @@ bool CUDPReaderWriter::write(const unsigned char* buffer, unsigned int length, c
 	// send to ipv4 version
 	ssize_t ret = ::sendto(m_fd, (char *)buffer, length, 0, (sockaddr *)&addr, sizeof(sockaddr));
 	if (ret < 0) {
-		LogError("Error returned from sendto (port: %u), err: %s", m_port, strerror(errno));
+		LogError("Error returned from sendto %s:%u, (port: %u), err: %s", inet_ntoa(address), port,  m_port, strerror(errno));
 		return false;
 	}
 
