@@ -33,6 +33,11 @@ endif
 export CC=g++
 export LDFLAGS+= -pthread -lmosquitto
 
+ifeq ($(shell uname -s),Darwin)
+	export CPPFLAGS+= -I/opt/homebrew/include
+	export LDFLAGS+= -L/opt/homebrew/lib
+endif
+
 ifeq ($(USE_GPSD), 1)
 export CPPFLAGS+= -DUSE_GPSD
 export LDFLAGS+= -lgps
