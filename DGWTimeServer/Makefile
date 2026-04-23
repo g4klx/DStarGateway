@@ -3,10 +3,10 @@ OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
 dgwtimeserver: ../VersionInfo/GitVersion.h $(OBJS) ../DStarBase/DStarBase.a ../BaseCommon/BaseCommon.a
-	$(CC) $(CPPFLAGS) -o dgwtimeserver $(OBJS) ../DStarBase/DStarBase.a ../BaseCommon/BaseCommon.a $(LDFLAGS)
+	$(CXX) $(CPPFLAGS) -o dgwtimeserver $(OBJS) ../DStarBase/DStarBase.a ../BaseCommon/BaseCommon.a $(LDFLAGS)
 
 %.o : %.cpp
-	$(CC) -I../BaseCommon -I../DStarBase -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
+	$(CXX) -I../BaseCommon -I../DStarBase -I../VersionInfo $(CPPFLAGS) -MMD -MD -c $< -o $@
 -include $(DEPS)
 
 .PHONY clean:
