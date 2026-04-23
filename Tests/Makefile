@@ -3,10 +3,10 @@ OBJS = $(SRCS:.cpp=.o)
 DEPS = $(SRCS:.cpp=.d)
 
 dstargateway_tests: ../VersionInfo/GitVersion.h $(OBJS) ../APRS/APRS.a ../IRCDDB/IRCDDB.a ../DStarBase/DStarBase.a ../BaseCommon/BaseCommon.a  ../Common/Common.a
-	$(CC) $(CPPFLAGS) -o dstargateway_tests $(OBJS) ../Common/Common.a ../APRS/APRS.a ../DStarBase/DStarBase.a ../IRCDDB/IRCDDB.a ../BaseCommon/BaseCommon.a $(LDFLAGS) -lgtest -lgtest_main -lgmock
+	$(CXX) $(CPPFLAGS) -o dstargateway_tests $(OBJS) ../Common/Common.a ../APRS/APRS.a ../DStarBase/DStarBase.a ../IRCDDB/IRCDDB.a ../BaseCommon/BaseCommon.a $(LDFLAGS) -lgtest -lgtest_main -lgmock
 
 %.o : %.cpp
-	$(CC) $(CPPFLAGS) -DUNIT_TESTS -I../APRS -I../Common -I../BaseCommon -I../DStarBase -I../IRCDDB -I../VersionInfo -MMD -MD -c $< -o $@
+	$(CXX) $(CPPFLAGS) -DUNIT_TESTS -I../APRS -I../Common -I../BaseCommon -I../DStarBase -I../IRCDDB -I../VersionInfo -MMD -MD -c $< -o $@
 
 -include $(DEPS)
 

@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 	CDStarGatewayConfig * config = new CDStarGatewayConfig(std::string((argv[1])));
 	if(!config->load()) {
 		fprintf(stderr, "Invalid configuration, aborting\n");
-		return false;
+		return 1;
 	}
 
 	TDaemon daemon;
