@@ -1378,7 +1378,7 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 		if (m_linkStatus != LS_NONE && (m_linkStartup.empty() || m_linkStartup == "        ")) {
 			// Unlink if linked to something
 			LogInfo("Reconnect timer has expired, unlinking %s from %s", m_rptCallsign.c_str(), m_linkRepeater.c_str());
-			writeJSONUnlinked("timer", m_rptCallsign);
+			writeJSONUnlinked(m_rptCallsign, "timer");
 
 			CDExtraHandler::unlink(this);
 			CDPlusHandler::unlink(this);
@@ -1653,7 +1653,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 
 	// Have we linked to something else in the meantime?
 	if (m_linkStatus == LS_NONE || m_linkRepeater != callsign) {
-		writeJSONFailed(m_rptCallsign);
+		writeJSONFailed(m_rptCallsign, "timer");
 
 		switch (protocol) {
 			case DP_DCS:
@@ -1675,7 +1675,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 	if (!isRecoverable) {
 		if (protocol == DP_DEXTRA && callsign == m_linkRepeater) {
 			LogInfo("DExtra link to %s has failed", m_linkRepeater.c_str());
-			writeJSONFailed(m_rptCallsign);
+			writeJSONFailed(m_rptCallsign, "timer");
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1684,7 +1684,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 
 		if (protocol == DP_DPLUS && callsign == m_linkRepeater) {
 			LogInfo("D-Plus link to %s has failed", m_linkRepeater.c_str());
-			writeJSONFailed(m_rptCallsign);
+			writeJSONFailed(m_rptCallsign, "timer");
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1696,7 +1696,7 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 				LogInfo("DCS link to %s has failed", m_linkRepeater.c_str());
 			else
 				LogInfo("Loopback link to %s has failed", m_linkRepeater.c_str());
-			writeJSONFailed(m_rptCallsign);
+			writeJSONFailed(m_rptCallsign, "timer");
 			m_linkRepeater.clear();
 			m_linkStatus = LS_NONE;
 			writeNotLinked();
@@ -1775,7 +1775,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 {
 	if (protocol == DP_DEXTRA && callsign == m_linkRepeater) {
 		LogInfo("DExtra link to %s was refused", m_linkRepeater.c_str());
-		writeJSONFailed(m_rptCallsign);
+		writeJSONFailed(m_rptCallsign, "refused");
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1784,7 +1784,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 
 	if (protocol == DP_DPLUS && callsign == m_linkRepeater) {
 		LogInfo("D-Plus link to %s was refused", m_linkRepeater.c_str());
-		writeJSONFailed(m_rptCallsign);
+		writeJSONFailed(m_rptCallsign, "refused");
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1796,7 +1796,7 @@ void CRepeaterHandler::linkRefused(DSTAR_PROTOCOL protocol, const std::string& c
 			LogInfo("DCS link to %s was refused", m_linkRepeater.c_str());
 		else
 			LogInfo("Loopback link to %s was refused", m_linkRepeater.c_str());
-		writeJSONFailed(m_rptCallsign);
+		writeJSONFailed(m_rptCallsign, "refused");
 		m_linkRepeater.clear();
 		m_linkStatus = LS_NONE;
 		writeIsBusy(callsign);
@@ -1810,7 +1810,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	// CCS removal
 	if (m_linkStatus == LS_LINKING_CCS || m_linkStatus == LS_LINKED_CCS) {
 		LogInfo("Dropping CCS link to %s", m_linkRepeater.c_str());
-		writeJSONUnlinked("user", m_rptCallsign);
+		writeJSONUnlinked(m_rptCallsign, "user");
 
 		m_ccsHandler->stopLink();
 
@@ -1832,7 +1832,7 @@ void CRepeaterHandler::link(RECONNECT reconnect, const std::string& reflector)
 	// Handle unlinking
 	if (m_linkStatus != LS_NONE && (reflector.empty() || reflector == "        ")) {
 		LogInfo("Unlinking %s from %s", m_rptCallsign.c_str(), m_linkRepeater.c_str());
-		writeJSONUnlinked("user", m_rptCallsign);
+		writeJSONUnlinked(m_rptCallsign, "user");
 
 		CDExtraHandler::unlink(this);
 		CDPlusHandler::unlink(this);
@@ -1938,7 +1938,7 @@ void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
 		return;
 	}
 
-	writeJSONUnlinked("user", m_rptCallsign);
+	writeJSONUnlinked(m_rptCallsign, "user");
 
 	switch (protocol) {
 		case PROTO_DPLUS:
@@ -2096,7 +2096,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 			return;
 
 		LogInfo("Unlink command issued via %s by %s", type.c_str(), user.c_str());
-		writeJSONUnlinked(type, m_rptCallsign);
+		writeJSONUnlinked(m_rptCallsign, type);
 
 		CDExtraHandler::unlink(this);
 		CDPlusHandler::unlink(this);

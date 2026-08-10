@@ -35,8 +35,8 @@ extern void LogFinalise();
 
 extern void writeJSONStatus(const std::string& status);
 extern void writeJSONLinking(const std::string& repeater, const std::string& reason, const std::string& protocol, const std::string& reflector);
-extern void writeJSONUnlinked(const std::string& reason, const std::string& repeater);
-extern void writeJSONFailed(const std::string& repeater);
+extern void writeJSONUnlinked(const std::string& repeater, const std::string& reason);
+extern void writeJSONFailed(const std::string& repeater, const std::string& reason);
 extern void writeJSONRelinking(const std::string& repeater, const std::string& protocol, const std::string& reflector);
 
 #endif
