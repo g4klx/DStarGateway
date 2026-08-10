@@ -144,13 +144,14 @@ void writeJSONUnlinked(const std::string& repeater, const std::string& reason)
 	WriteJSON("link", json, true);
 }
 
-void writeJSONFailed(const std::string& repeater)
+void writeJSONFailed(const std::string& repeater, const std::string& reason)
 {
 	nlohmann::json json;
 
 	json["timestamp"] = CUtils::createTimestamp();
 	json["repeater"]  = repeater;
 	json["action"]    = "failed";
+	json["reason"]    = reason;
 
 	WriteJSON("link", json, true);
 }
