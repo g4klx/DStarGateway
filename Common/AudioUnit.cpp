@@ -290,7 +290,9 @@ void CAudioUnit::sendStatus(LINK_STATUS status, const std::string& reflector, co
 		case LS_LINKED_DPLUS:
 		case LS_LINKED_DEXTRA:
 		case LS_LINKED_LOOPBACK:
-			found = m_ambeFilereader->lookup("linkedto", m_data);
+			// Not every language has a single "linkedto" prompt; check first,
+			// so the fallback ("linked" "2") is used without logging an error.
+			found = m_ambeFilereader->has("linkedto") && m_ambeFilereader->lookup("linkedto", m_data);
 			if (!found) {
 				m_ambeFilereader->lookup("linked", m_data);
 				m_ambeFilereader->lookup("2", m_data);

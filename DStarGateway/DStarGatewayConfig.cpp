@@ -326,6 +326,9 @@ bool CDStarGatewayConfig::loadGeneral(const CConfig& cfg)
 	if (type == "Repeater")		m_general.type = GT_REPEATER;
 	else if(type == "Hotspot")	m_general.type = GT_HOTSPOT;
 
+	// Voice=0 turns the spoken announcements off (default on).
+	ret = cfg.getValue("General", "Voice", m_general.voice, true) && ret;
+
 	std::string lang;
 	ret = cfg.getValue("General", "Language", lang, "English_UK",
 						{"English_UK", "Deutsch", "Dansk", "Francais", "Francais_2", "Italiano", "Polski",

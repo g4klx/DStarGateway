@@ -155,6 +155,11 @@ bool CAMBEFileReader::readIndex()
 	return true;
 }
 
+bool CAMBEFileReader::has(const std::string &id) const
+{
+	return m_index.count(id) != 0U;
+}
+
 bool CAMBEFileReader::lookup(const std::string &id, std::vector<CAMBEData *>& data)
 {
 	if(m_index.count(id) == 0U) {

@@ -207,6 +207,7 @@ bool CDStarGatewayApp::createThread()
 	m_config->getGeneral(generalConfig);
 	m_thread->setGateway(generalConfig.type, generalConfig.callsign, generalConfig.address);
 	m_thread->setLanguage(generalConfig.language);
+	m_thread->setVoice(generalConfig.voice);
 	m_thread->setLocation(generalConfig.latitude, generalConfig.longitude);
 
 #ifdef USE_GPSD

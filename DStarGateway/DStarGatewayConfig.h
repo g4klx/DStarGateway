@@ -44,6 +44,7 @@ struct TGeneral {
 	std::string description2;
 	std::string url; 
 	TEXT_LANG language;
+	bool voice; // spoken announcements on (Voice=1, the default)
 };
 
 struct TRepeater {

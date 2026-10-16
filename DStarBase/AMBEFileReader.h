@@ -61,6 +61,7 @@ public:
     ~CAMBEFileReader();
     bool read();
     bool lookup(const std::string &id, std::vector<CAMBEData *>& data);
+    bool has(const std::string &id) const; // the prompt is in the index (no error logged if not)
 
 private:
     bool readAmbe();

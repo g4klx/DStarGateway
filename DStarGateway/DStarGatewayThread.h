@@ -58,6 +58,7 @@ public:
 	virtual void setDummyRepeaterHandler(CDummyRepeaterProtocolHandler* handler);
 	virtual void setIRC(CIRCDDB* irc);
 	virtual void setLanguage(TEXT_LANG language);
+	virtual void setVoice(bool voice);
 	virtual void setDExtra(bool enabled, unsigned int maxDongles);
 	virtual void setDPlus(bool enabled, unsigned int maxDongles, const std::string& login);
 	virtual void setDCS(bool enabled);
@@ -106,6 +107,7 @@ private:
 	CIRCDDB*                  m_irc;
 	CCacheManager             m_cache;
 	TEXT_LANG                 m_language;
+	bool                      m_voice;
 	bool                      m_dextraEnabled;
 	unsigned int              m_dextraMaxDongles;
 	bool                      m_dplusEnabled;

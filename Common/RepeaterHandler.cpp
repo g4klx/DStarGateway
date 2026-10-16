@@ -1653,7 +1653,8 @@ bool CRepeaterHandler::linkFailed(DSTAR_PROTOCOL protocol, const std::string& ca
 
 	// Have we linked to something else in the meantime?
 	if (m_linkStatus == LS_NONE || m_linkRepeater != callsign) {
-		writeJSONFailed(m_rptCallsign, "timer");
+		// Not the current link (unlinked, or replaced by another one since),
+		// so its end is not a failure of the repeater's link: log it only.
 
 		switch (protocol) {
 			case DP_DCS:
@@ -1939,6 +1940,16 @@ void CRepeaterHandler::unlink(PROTOCOL protocol, const std::string& reflector)
 	}
 
 	writeJSONUnlinked(m_rptCallsign, "user");
+
+	// The link is gone from now on, as with an unlink from the radio
+	// (link() with no reflector), so the protocol handler's teardown isn't
+	// reported as the current link failing.
+	if (m_linkRepeater == reflector) {
+		m_linkStatus = LS_NONE;
+		m_linkRepeater.clear();
+		writeNotLinked();
+		triggerInfo();
+	}
 
 	switch (protocol) {
 		case PROTO_DPLUS:

@@ -80,6 +80,7 @@ m_incomingAprsHandler(nullptr),
 m_irc(nullptr),
 m_cache(),
 m_language(TL_ENGLISH_UK),
+m_voice(true),
 m_dextraEnabled(true),
 m_dextraMaxDongles(0U),
 m_dplusEnabled(false),
@@ -229,7 +230,12 @@ void* CDStarGatewayThread::Entry()
 	if (m_restrictList != NULL)
 		CRepeaterHandler::setRestrictList(m_restrictList);
 
-	CAudioUnit::setLanguage(m_dataDir, m_language);
+	// With Voice=0 the voice files are not loaded, so the audio unit sends
+	// no announcements (sendStatus returns without a file reader).
+	if (m_voice)
+		CAudioUnit::setLanguage(m_dataDir, m_language);
+	else
+		LogInfo("Voice announcements are off");
 
 #ifdef USE_STARNET
 	CStarNetHandler::setCache(&m_cache);
@@ -491,6 +497,11 @@ void CDStarGatewayThread::setIRC(CIRCDDB* irc)
 void CDStarGatewayThread::setLanguage(TEXT_LANG language)
 {
 	m_language = language;
+}
+
+void CDStarGatewayThread::setVoice(bool voice)
+{
+	m_voice = voice;
 }
 
 void CDStarGatewayThread::setDExtra(bool enabled, unsigned int maxDongles)
