@@ -136,8 +136,8 @@ bool CCCSData::setCCSData(const unsigned char *data, unsigned int length, const 
 
 unsigned int CCCSData::getCCSData(unsigned char* data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 133U);
+	if (length < 133U)
+		return 0U;
 
 	if (m_type == CT_TERMINATE) {
 		memset(data, ' ', 38U);

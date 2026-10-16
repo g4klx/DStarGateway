@@ -82,12 +82,12 @@ CPollData::~CPollData()
 
 bool CPollData::setDExtraData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 9U);
-	assert(yourPort > 0U);
+	// Drop a short datagram: the flag byte is at offset 8
+	if (length < 9U)
+		return false;
 
-	m_data1   = std::string((const char*)data);
-	m_data1.resize(LONG_CALLSIGN_LENGTH, ' ');
+	// Bounded copy: never strlen() over the reused receive buffer
+	m_data1   = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
 	m_dongle  = data[LONG_CALLSIGN_LENGTH] != 0x00;
 
 	m_length      = length;
@@ -100,45 +100,41 @@ bool CPollData::setDExtraData(const unsigned char* data, unsigned int length, co
 
 bool CPollData::setDCSData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(yourPort > 0U);
-
-	std::string sdata((const char *)data);
-
+	// Read fixed fields by offset, never strlen()/substr() over the buffer:
+	// a short poll used to throw std::out_of_range and abort the gateway.
 	switch (length) {
 		case 17U:
-			m_data1       = sdata.substr(0, LONG_CALLSIGN_LENGTH);
-			m_data2       = sdata.substr(9, LONG_CALLSIGN_LENGTH);
-			m_length      = length;
+			m_data1       = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
+			m_data2       = std::string((const char*)(data + 9U), LONG_CALLSIGN_LENGTH);
 			m_direction   = DIR_INCOMING;
-			m_yourAddress = yourAddress;
-			m_yourPort    = yourPort;
-			m_myPort      = myPort;
 			break;
 
 		case 22U:
-			m_data1       = sdata.substr(0, LONG_CALLSIGN_LENGTH);
-			m_data2       = sdata.substr(9, LONG_CALLSIGN_LENGTH - 1U);
-			m_data2.push_back(sdata[17]);
-			m_length      = length;
+			m_data1       = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
+			m_data2       = std::string((const char*)(data + 9U), LONG_CALLSIGN_LENGTH - 1U);
+			m_data2.push_back((char)data[17U]);
 			m_direction   = DIR_OUTGOING;
-			m_yourAddress = yourAddress;
-			m_yourPort    = yourPort;
-			m_myPort      = myPort;
 			break;
+
+		default:
+			return false;
 	}
+
+	m_length      = length;
+	m_yourAddress = yourAddress;
+	m_yourPort    = yourPort;
+	m_myPort      = myPort;
 
 	return true;
 }
 
 bool CPollData::setCCSData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 25U);
-	assert(yourPort > 0U);
+	if (length < 25U)
+		return false;
 
-	m_data1       = std::string((const char*)data);
-	m_data1.resize(25);
+	// Bounded copy: never strlen() over the reused receive buffer
+	m_data1       = std::string((const char*)data, 25U);
 	m_length      = length;
 	m_yourAddress = yourAddress;
 	m_yourPort    = yourPort;
@@ -149,8 +145,6 @@ bool CPollData::setCCSData(const unsigned char* data, unsigned int length, const
 
 bool CPollData::setDPlusData(const unsigned char* /*data*/, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(yourPort > 0U);
-
 	m_length      = length;
 	m_yourAddress = yourAddress;
 	m_yourPort    = yourPort;
@@ -161,8 +155,8 @@ bool CPollData::setDPlusData(const unsigned char* /*data*/, unsigned int length,
 
 unsigned int CPollData::getDExtraData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 9U);
+	if (length < 9U)
+		return 0U;
 
 	::memset(data, ' ', LONG_CALLSIGN_LENGTH);
 
@@ -176,8 +170,8 @@ unsigned int CPollData::getDExtraData(unsigned char *data, unsigned int length) 
 
 unsigned int CPollData::getDCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 22U);
+	if (length < 22U)
+		return 0U;
 
 	if (m_direction == DIR_OUTGOING) {
 		::memset(data, ' ', 17U);
@@ -212,8 +206,8 @@ unsigned int CPollData::getDCSData(unsigned char *data, unsigned int length) con
 
 unsigned int CPollData::getCCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 25U);
+	if (length < 25U)
+		return 0U;
 
 	::memset(data, ' ', 25U);
 
@@ -230,8 +224,8 @@ unsigned int CPollData::getCCSData(unsigned char *data, unsigned int length) con
 
 unsigned int CPollData::getDPlusData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 3U);
+	if (length < 3U)
+		return 0U;
 
 	data[0U] = 0x03;
 	data[1U] = 0x60;

@@ -97,20 +97,31 @@ public:
 	}
 
 	/*
-		Updates the entry, but only if the timestamp is newer. 
+		Merge a client reply into this query. An answer with an address is
+		"positive"; one without is "negative" (not found). A negative reply must
+		never overwrite a positive one, and between two positives the newer
+		timestamp wins. Repeater/gateway replies carry no timestamp, so there the
+		later positive wins.
 	*/
 	void Update(const std::string& user, const std::string& repeater, const std::string& gateway, const std::string& address, const std::string& timestamp, const std::string& remotePort)
 	{
-		//wxLogMessage("Before : %s"), toString());
-		if (timestamp.empty() || timestamp.compare(m_timestamp) >= 0) {
-			m_user = user;
-			m_repeater = repeater;
-			m_gateway = gateway;
-			m_timestamp = timestamp;
-			m_remotePort = remotePort;
-			m_address = address;
-		}
-		//wxLogMessage("After : %s"), toString());
+		bool incomingPositive = !address.empty();
+		bool storedPositive   = !m_address.empty();
+
+		// Don't let a not-found clobber a good answer
+		if (storedPositive && !incomingPositive)
+			return;
+
+		// Between two good answers, keep the newer timestamp
+		if (storedPositive && incomingPositive && !timestamp.empty() && timestamp.compare(m_timestamp) < 0)
+			return;
+
+		m_user       = user;
+		m_repeater   = repeater;
+		m_gateway    = gateway;
+		m_timestamp  = timestamp;
+		m_remotePort = remotePort;
+		m_address    = address;
 	}
 
 	IRCDDB_RESPONSE_TYPE getType()

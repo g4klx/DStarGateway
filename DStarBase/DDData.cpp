@@ -27,7 +27,7 @@
 
 unsigned int ETHERNET_ADDRESS_LENGTH = 6U;
 
-unsigned int BUFFER_LENGTH = 2500U;
+static const unsigned int BUFFER_LENGTH = 2500U;
 
 CDDData::CDDData() :
 m_header(),
@@ -53,14 +53,20 @@ CDDData::~CDDData()
 
 bool CDDData::setIcomRepeaterData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 29U);
+	// The DD payload starts at offset 60
+	if (length < 60U)
+		return false;
 
 	bool ret = m_header.setIcomRepeaterData(data, length, true, yourAddress, yourPort);
 	if (!ret)
 		return false;
 
 	m_length = data[59] * 256U + data[58];
+
+	// Never read past the datagram or the frame buffer
+	unsigned int avail = length - 60U;
+	if (m_length > avail)
+		m_length = avail;
 
 	if (m_length > BUFFER_LENGTH)
 		m_length = BUFFER_LENGTH;
@@ -72,8 +78,9 @@ bool CDDData::setIcomRepeaterData(const unsigned char *data, unsigned int length
 
 bool CDDData::setHBRepeaterData(const unsigned char *data, unsigned int length, const in_addr& /*yourAddress*/, unsigned int /*yourPort*/)
 {
-	assert(data != NULL);
-	assert(length >= 60U);
+	// The DD payload starts at offset 44; guard the length - 44 below
+	if (length < 60U)
+		return false;
 
 	m_header.setData(data, length, false);
 
@@ -89,8 +96,8 @@ bool CDDData::setHBRepeaterData(const unsigned char *data, unsigned int length, 
 
 unsigned int CDDData::getIcomRepeaterData(unsigned char *data, unsigned int length)
 {
-	assert(data != NULL);
-	assert(length >= 32U);
+	if (length < 60U + m_length)
+		return 0U;
 
 	// This section is used when it's normal data (i.e. not an ack) for an Icom controller
 	data[0] = 'D';
@@ -134,8 +141,8 @@ unsigned int CDDData::getIcomRepeaterData(unsigned char *data, unsigned int leng
 
 unsigned int CDDData::getHBRepeaterData(unsigned char *data, unsigned int length)
 {
-	assert(data != NULL);
-	assert(length >= 1600U);
+	if (length < 44U + m_length)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';

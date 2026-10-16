@@ -78,8 +78,8 @@ CTextData::~CTextData()
 
 unsigned int CTextData::getHBRepeaterData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 34U);
+	if (length < 34U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';

@@ -168,8 +168,8 @@ CHeaderData::~CHeaderData()
 
 bool CHeaderData::setIcomRepeaterData(const unsigned char *data, unsigned int length, bool check, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 58U);
+	if (length < 58U)
+		return false;
 
 	m_rptSeq = data[4]  * 256U + data[5];
 	m_band1  = data[11];
@@ -206,8 +206,8 @@ bool CHeaderData::setIcomRepeaterData(const unsigned char *data, unsigned int le
 
 bool CHeaderData::setHBRepeaterData(const unsigned char *data, unsigned int length, bool check, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 49U);
+	if (length < 49U)
+		return false;
 
 	m_id     = data[5U] * 256U + data[6U];
 	m_errors = data[7U];
@@ -241,8 +241,8 @@ bool CHeaderData::setHBRepeaterData(const unsigned char *data, unsigned int leng
 
 void CHeaderData::setDCSData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return;
 
 	m_id = data[44U] * 256U + data[43U];
 
@@ -263,8 +263,8 @@ void CHeaderData::setDCSData(const unsigned char *data, unsigned int length, con
 
 void CHeaderData::setCCSData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return;
 
 	m_id = data[44U] * 256U + data[43U];
 
@@ -281,8 +281,8 @@ void CHeaderData::setCCSData(const unsigned char *data, unsigned int length, con
 
 bool CHeaderData::setG2Data(const unsigned char *data, unsigned int length, bool check, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 56U);
+	if (length < 56U)
+		return false;
 
 	m_band1 = data[9];
 	m_band2 = data[10];
@@ -318,8 +318,8 @@ bool CHeaderData::setG2Data(const unsigned char *data, unsigned int length, bool
 
 bool CHeaderData::setDExtraData(const unsigned char *data, unsigned int length, bool check, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 56U);
+	if (length < 56U)
+		return false;
 
 	m_band1  = data[9];
 	m_band2  = data[10];
@@ -356,8 +356,8 @@ bool CHeaderData::setDExtraData(const unsigned char *data, unsigned int length, 
 
 bool CHeaderData::setDPlusData(const unsigned char *data, unsigned int length, bool check, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 58U);
+	if (length < 58U)
+		return false;
 
 	if (data[0] != 0x3A || data[1] != 0x80) {
 		CUtils::dump("Invalid header length from D-Plus", data, length);
@@ -399,8 +399,8 @@ bool CHeaderData::setDPlusData(const unsigned char *data, unsigned int length, b
 
 bool CHeaderData::setDVTOOLData(const unsigned char* data, unsigned int length, bool check)
 {
-	assert(data != NULL);
-	assert(length >= RADIO_HEADER_LENGTH_BYTES);
+	if (length < RADIO_HEADER_LENGTH_BYTES)
+		return false;
 
 	m_flag1 = data[0U];
 	m_flag2 = data[1U];
@@ -428,8 +428,8 @@ bool CHeaderData::setDVTOOLData(const unsigned char* data, unsigned int length, 
 
 unsigned int CHeaderData::getIcomRepeaterData(unsigned char *data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= 58U);
+	if (length < 58U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -480,8 +480,8 @@ unsigned int CHeaderData::getIcomRepeaterData(unsigned char *data, unsigned int 
 
 unsigned int CHeaderData::getHBRepeaterData(unsigned char *data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= 49U);
+	if (length < 49U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -519,8 +519,8 @@ unsigned int CHeaderData::getHBRepeaterData(unsigned char *data, unsigned int le
 
 void CHeaderData::getDCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 43U)
+		return;
 
 	data[4] = m_flag1;				// Flags 1, 2, and 3
 	data[5] = m_flag2;
@@ -535,8 +535,8 @@ void CHeaderData::getDCSData(unsigned char *data, unsigned int length) const
 
 void CHeaderData::getCCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 43U)
+		return;
 
 	::memcpy(data + 7U,  m_rptCall2, LONG_CALLSIGN_LENGTH);
 	::memcpy(data + 15U, m_rptCall1, LONG_CALLSIGN_LENGTH);
@@ -547,8 +547,8 @@ void CHeaderData::getCCSData(unsigned char *data, unsigned int length) const
 
 unsigned int CHeaderData::getG2Data(unsigned char *data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= 56U);
+	if (length < 56U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -594,8 +594,8 @@ unsigned int CHeaderData::getG2Data(unsigned char *data, unsigned int length, bo
 
 unsigned int CHeaderData::getDExtraData(unsigned char* data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= 56U);
+	if (length < 56U)
+		return 0U;
 
 	data[0]  = 'D';
 	data[1]  = 'S';
@@ -641,8 +641,8 @@ unsigned int CHeaderData::getDExtraData(unsigned char* data, unsigned int length
 
 unsigned int CHeaderData::getDPlusData(unsigned char* data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= 58U);
+	if (length < 58U)
+		return 0U;
 
 	data[0]  = 0x3A;
 	data[1]  = 0x80;
@@ -860,8 +860,8 @@ void CHeaderData::setCQCQCQ()
 
 bool CHeaderData::setData(const unsigned char *data, unsigned int length, bool check)
 {
-	assert(data != NULL);
-	assert(length >= RADIO_HEADER_LENGTH_BYTES);
+	if (length < RADIO_HEADER_LENGTH_BYTES)
+		return false;
 
 	m_flag1 = data[0U];
 	m_flag2 = data[1U];
@@ -884,8 +884,8 @@ bool CHeaderData::setData(const unsigned char *data, unsigned int length, bool c
 
 unsigned int CHeaderData::getData(unsigned char *data, unsigned int length, bool check) const
 {
-	assert(data != NULL);
-	assert(length >= RADIO_HEADER_LENGTH_BYTES);
+	if (length < RADIO_HEADER_LENGTH_BYTES)
+		return 0U;
 
 	data[0] = m_flag1;				// Flags 1, 2, and 3
 	data[1] = m_flag2;
