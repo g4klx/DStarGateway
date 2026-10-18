@@ -18,6 +18,7 @@
  */
 
 #include <cstring>
+#include <arpa/inet.h>
 #include <boost/algorithm/string.hpp>
 
 #include "RepeaterHandler.h"
@@ -1222,6 +1223,8 @@ void CRepeaterHandler::resolveUserInt(const std::string& user, const std::string
 			m_g2Repeater = repeater;
 			m_g2Gateway  = gateway;
 
+			LogInfo("ircDDB resolved %s to %s via %s (%s)", user.c_str(), repeater.c_str(), gateway.c_str(), address.c_str());
+
 			m_g2Header->setDestination(m_g2Address, G2_DV_PORT);
 			m_g2Header->setRepeaters(m_g2Gateway, m_g2Repeater);
 			m_g2HandlerPool->writeHeader(*m_g2Header);
@@ -1231,6 +1234,7 @@ void CRepeaterHandler::resolveUserInt(const std::string& user, const std::string
 			m_g2Header = NULL;
 		} else {
 			// User not found, remove G2 settings
+			LogInfo("%s not found by ircDDB, ignoring", user.c_str());
 			m_g2Status = G2_LOCAL;
 			m_g2User.clear();
 			m_g2Repeater.clear();
@@ -1254,6 +1258,8 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 			m_g2Repeater = repeater;
 			m_g2Gateway  = gateway;
 
+			LogInfo("ircDDB resolved %s via gateway %s (%s)", repeater.c_str(), gateway.c_str(), address.c_str());
+
 			m_g2Header->setDestination(m_g2Address, G2_DV_PORT);
 			m_g2Header->setRepeaters(m_g2Gateway, m_g2Repeater);
 			m_g2HandlerPool->writeHeader(*m_g2Header);
@@ -1263,6 +1269,7 @@ void CRepeaterHandler::resolveRepeaterInt(const std::string& repeater, const std
 			m_g2Header = NULL;
 		} else {
 			// Repeater not found, remove G2 settings
+			LogInfo("%s not found by ircDDB, ignoring", repeater.c_str());
 			m_g2Status = G2_LOCAL;
 			m_g2User.clear();
 			m_g2Repeater.clear();
@@ -1479,7 +1486,8 @@ void CRepeaterHandler::clockInt(unsigned int ms)
 
 		if (m_g2Status == G2_USER || m_g2Status == G2_REPEATER) {
 			// User or repeater not found in time, remove G2 settings
-			LogInfo("ircDDB did not reply within five seconds");
+			std::string target = (m_g2Status == G2_USER) ? m_g2User : m_g2Repeater;
+			LogInfo("ircDDB did not reply within five seconds for %s", target.c_str());
 
 			m_g2Status = G2_LOCAL;
 			m_g2User.clear();
@@ -2019,6 +2027,7 @@ void CRepeaterHandler::g2CommandHandler(const std::string& callsign, const std::
 			m_g2Status = G2_OK;
 			m_g2Address = data->getAddress();
 			m_g2Gateway = data->getGateway();
+			LogInfo("Local cache resolved %s via gateway %s (%s)", m_g2Repeater.c_str(), m_g2Gateway.c_str(), inet_ntoa(m_g2Address));
 			header.setDestination(m_g2Address, G2_DV_PORT);
 			header.setRepeaters(m_g2Gateway, m_g2Repeater);
 			m_g2HandlerPool->writeHeader(header);
@@ -2062,6 +2071,7 @@ void CRepeaterHandler::g2CommandHandler(const std::string& callsign, const std::
 			m_g2Repeater = data->getRepeater();
 			m_irc->notifyRepeaterG2NatTraversal(m_g2Repeater);
 			m_g2Gateway  = data->getGateway();
+			LogInfo("Local cache resolved %s to %s via %s (%s)", callsign.c_str(), m_g2Repeater.c_str(), m_g2Gateway.c_str(), inet_ntoa(m_g2Address));
 			header.setDestination(m_g2Address, G2_DV_PORT);
 			header.setRepeaters(m_g2Gateway, m_g2Repeater);
 			m_g2HandlerPool->writeHeader(header);

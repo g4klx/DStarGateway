@@ -70,8 +70,8 @@ CAMBEData::~CAMBEData()
 
 bool CAMBEData::setIcomRepeaterData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 29U);
+	if (length < 29U)
+		return false;
 
 	m_rptSeq = data[4] * 256U + data[5];
 	m_band1  = data[11];
@@ -96,8 +96,8 @@ bool CAMBEData::setIcomRepeaterData(const unsigned char *data, unsigned int leng
 
 bool CAMBEData::setHBRepeaterData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 21U);
+	if (length < 21U)
+		return false;
 
 	m_id     = data[5U] * 256U + data[6U];
 	m_outSeq = data[7U];
@@ -119,8 +119,8 @@ bool CAMBEData::setHBRepeaterData(const unsigned char *data, unsigned int length
 
 bool CAMBEData::setG2Data(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort)
 {
-	assert(data != NULL);
-	assert(length >= 27U);
+	if (length < 27U)
+		return false;
 
 	m_band1  = data[9];
 	m_band2  = data[10];
@@ -138,8 +138,8 @@ bool CAMBEData::setG2Data(const unsigned char *data, unsigned int length, const 
 
 bool CAMBEData::setDExtraData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 27U);
+	if (length < 27U)
+		return false;
 
 	m_band1  = data[9];
 	m_band2  = data[10];
@@ -158,8 +158,8 @@ bool CAMBEData::setDExtraData(const unsigned char *data, unsigned int length, co
 
 bool CAMBEData::setDPlusData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 29U);
+	if (length < 29U)
+		return false;
 
 	if ((data[0] != 0x1D && data[0] != 0x20) || data[1] != 0x80) {
 		CUtils::dump("Invalid AMBE length from D-Plus", data, length);
@@ -188,8 +188,8 @@ bool CAMBEData::setDPlusData(const unsigned char *data, unsigned int length, con
 
 bool CAMBEData::setDCSData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return false;
 
 	m_header.setDCSData(data, length, yourAddress, yourPort, myPort);
 
@@ -210,8 +210,8 @@ bool CAMBEData::setDCSData(const unsigned char *data, unsigned int length, const
 
 bool CAMBEData::setCCSData(const unsigned char *data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return false;
 
 	m_header.setCCSData(data, length, yourAddress, yourPort, myPort);
 
@@ -232,8 +232,8 @@ bool CAMBEData::setCCSData(const unsigned char *data, unsigned int length, const
 
 unsigned int CAMBEData::getIcomRepeaterData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 32U);
+	if (length < 29U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -267,8 +267,8 @@ unsigned int CAMBEData::getIcomRepeaterData(unsigned char *data, unsigned int le
 
 unsigned int CAMBEData::getHBRepeaterData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 21U);
+	if (length < 21U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -291,8 +291,8 @@ unsigned int CAMBEData::getHBRepeaterData(unsigned char *data, unsigned int leng
 
 unsigned int CAMBEData::getG2Data(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 30U);
+	if (length < 27U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';
@@ -321,8 +321,8 @@ unsigned int CAMBEData::getG2Data(unsigned char *data, unsigned int length) cons
 
 unsigned int CAMBEData::getDExtraData(unsigned char* data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 30U);
+	if (length < 27U)
+		return 0U;
 
 	data[0]  = 'D';
 	data[1]  = 'S';
@@ -351,8 +351,8 @@ unsigned int CAMBEData::getDExtraData(unsigned char* data, unsigned int length) 
 
 unsigned int CAMBEData::getDPlusData(unsigned char* data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 32U);
+	if (length < 32U)
+		return 0U;
 
 	if (isEnd()) {
 		data[0]  = 0x20;
@@ -395,8 +395,8 @@ unsigned int CAMBEData::getDPlusData(unsigned char* data, unsigned int length) c
 
 unsigned int CAMBEData::getDCSData(unsigned char* data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return 0U;
 
 	::memset(data, 0x00U, 100U);
 
@@ -437,8 +437,8 @@ unsigned int CAMBEData::getDCSData(unsigned char* data, unsigned int length) con
 
 unsigned int CAMBEData::getCCSData(unsigned char* data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return 0U;
 
 	::memset(data, 0x00U, 100U);
 
@@ -606,16 +606,16 @@ unsigned int CAMBEData::getErrors() const
 
 void CAMBEData::setData(const unsigned char *data, unsigned int length)
 {
-	assert(data != NULL);
-	assert(length >= DV_FRAME_LENGTH_BYTES);
+	if (length < DV_FRAME_LENGTH_BYTES)
+		return;
 
 	::memcpy(m_data, data, DV_FRAME_LENGTH_BYTES);
 }
 
 unsigned int CAMBEData::getData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= DV_FRAME_LENGTH_BYTES);
+	if (length < DV_FRAME_LENGTH_BYTES)
+		return 0U;
 
 	::memcpy(data, m_data, DV_FRAME_LENGTH_BYTES);
 

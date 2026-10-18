@@ -61,14 +61,13 @@ CHeardData::~CHeardData()
 
 bool CHeardData::setIcomRepeaterData(const unsigned char *data, unsigned int length, const in_addr& address, unsigned int port)
 {
-	assert(data != NULL);
-	assert(length >= 26U);
+	// Two 8-byte callsigns at offsets 10 and 18
+	if (length < 26U)
+		return false;
 
-	std::string suser((const char *)data + 10U);
-	std::string srptr((const char *)data + 18U);
-
-	m_user     = suser.substr(0, LONG_CALLSIGN_LENGTH);
-	m_repeater = srptr.substr(0, LONG_CALLSIGN_LENGTH);
+	// Bounded copies: never strlen() over the reused receive buffer
+	m_user     = std::string((const char *)(data + 10U), LONG_CALLSIGN_LENGTH);
+	m_repeater = std::string((const char *)(data + 18U), LONG_CALLSIGN_LENGTH);
 
 	m_address = address;
 	m_port    = port;
@@ -78,8 +77,8 @@ bool CHeardData::setIcomRepeaterData(const unsigned char *data, unsigned int len
 
 unsigned int CHeardData::getCCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 100U);
+	if (length < 100U)
+		return 0U;
 
 	::memset(data, 0x00U, 100U);
 

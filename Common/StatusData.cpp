@@ -45,8 +45,8 @@ CStatusData::~CStatusData()
 
 unsigned int CStatusData::getHBRepeaterData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 26U);
+	if (length < 26U)
+		return 0U;
 
 	data[0] = 'D';
 	data[1] = 'S';

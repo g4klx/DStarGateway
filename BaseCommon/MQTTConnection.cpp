@@ -188,19 +188,16 @@ void CMQTTConnection::onConnect(mosquitto* mosq, void* obj, int rc)
 	}
 }
 
-void CMQTTConnection::onSubscribe(mosquitto* mosq, void* obj, int /* mid */, int qosCount, const int* grantedQOS)
+void CMQTTConnection::onSubscribe(mosquitto* /* mosq */, void* /* obj */, int /* mid */, int qosCount, const int* grantedQOS)
 {
-	assert(mosq != nullptr);
-	assert(obj != nullptr);
 	assert(grantedQOS != nullptr);
 
 	for (int i = 0; i < qosCount; i++)
 		::fprintf(stdout, "MQTT: on_subscribe: %d:%d\n", i, grantedQOS[i]);
 }
 
-void CMQTTConnection::onMessage(mosquitto* mosq, void* obj, const mosquitto_message* message)
+void CMQTTConnection::onMessage(mosquitto* /* mosq */, void* obj, const mosquitto_message* message)
 {
-	assert(mosq != nullptr);
 	assert(obj != nullptr);
 	assert(message != nullptr);
 
@@ -219,9 +216,8 @@ void CMQTTConnection::onMessage(mosquitto* mosq, void* obj, const mosquitto_mess
 	}
 }
 
-void CMQTTConnection::onDisconnect(mosquitto* mosq, void* obj, int rc)
+void CMQTTConnection::onDisconnect(mosquitto* /* mosq */, void* obj, int rc)
 {
-	assert(mosq != nullptr);
 	assert(obj != nullptr);
 
 	::fprintf(stdout, "MQTT: on_disconnect: %s\n", ::mosquitto_reason_string(rc));

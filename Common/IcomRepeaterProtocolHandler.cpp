@@ -374,6 +374,14 @@ void CIcomRepeaterProtocolHandler::sendGwyPackets()
 
 		if (m_tries > 0U && (m_tries % 100U) == 0U)
 			LogInfo("No reply from the RP2C after %u retries", m_tries);
+	} else {
+		// Serialiser refused (bad length) or unknown type: drop the head item
+		// rather than spin on it forever. seqNo is not advanced - the RP2C never saw it.
+		LogError("Dropping un-serialisable packet from the gateway queue");
+		free(m_ackQueue);
+		m_ackQueue = NULL;
+		m_retryTimer.stop();
+		m_tries = 0U;
 	}
 }
 

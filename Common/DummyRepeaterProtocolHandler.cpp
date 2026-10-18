@@ -62,8 +62,9 @@ bool CDummyRepeaterProtocolHandler::writeAMBE(CAMBEData& data)
 
 bool CDummyRepeaterProtocolHandler::writeDD(CDDData& data)
 {
-	unsigned char buffer[2000U];
-	unsigned int length = data.getHBRepeaterData(buffer, 2000U);
+	// 44-byte header + up to a 2500-byte DD frame; must not be smaller or getHBRepeaterData overruns it
+	unsigned char buffer[2560U];
+	unsigned int length = data.getHBRepeaterData(buffer, 2560U);
 
 	CUtils::dump("DD Data", buffer, length);
 

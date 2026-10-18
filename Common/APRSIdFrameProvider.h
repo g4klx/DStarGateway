@@ -31,8 +31,8 @@ public:
     virtual ~CAPRSIdFrameProvider();
 
     bool buildAPRSFrames(const CAPRSEntry * aprsEntry, std::vector<CAPRSFrame *>& frames);
-    void clock(unsigned int ms) { m_timer.clock(ms); }
-    bool wantsToSend();
+    virtual void clock(unsigned int ms) { m_timer.clock(ms); }
+    virtual bool wantsToSend();
     virtual void start() { };
     virtual void close() { };
 

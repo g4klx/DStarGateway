@@ -120,9 +120,8 @@ CConnectData::~CConnectData()
 
 bool CConnectData::setDExtraData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 11U);
-	assert(yourPort > 0U);
+	if (length < 11U)
+		return false;
 
 	m_repeater = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
 	m_repeater[LONG_CALLSIGN_LENGTH - 1] = data[LONG_CALLSIGN_LENGTH];
@@ -165,9 +164,8 @@ bool CConnectData::setDExtraData(const unsigned char* data, unsigned int length,
 
 bool CConnectData::setDCSData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 11U);
-	assert(yourPort > 0U);
+	if (length < 11U)
+		return false;
 
 	m_repeater = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
 	m_repeater[LONG_CALLSIGN_LENGTH - 1] = data[LONG_CALLSIGN_LENGTH];
@@ -212,9 +210,8 @@ bool CConnectData::setDCSData(const unsigned char* data, unsigned int length, co
 
 bool CConnectData::setCCSData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 14U);
-	assert(yourPort > 0U);
+	if (length < 14U)
+		return false;
 
 	m_repeater = std::string((const char*)data, LONG_CALLSIGN_LENGTH);
 	m_repeater[LONG_CALLSIGN_LENGTH - 1] = data[LONG_CALLSIGN_LENGTH];
@@ -239,9 +236,8 @@ bool CConnectData::setCCSData(const unsigned char* data, unsigned int length, co
 
 bool CConnectData::setDPlusData(const unsigned char* data, unsigned int length, const in_addr& yourAddress, unsigned int yourPort, unsigned int myPort)
 {
-	assert(data != NULL);
-	assert(length >= 5U);
-	assert(yourPort > 0U);
+	if (length < 5U)
+		return false;
 
 	switch (length) {
 		case 5U:
@@ -284,8 +280,8 @@ bool CConnectData::setDPlusData(const unsigned char* data, unsigned int length, 
 
 unsigned int CConnectData::getDExtraData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 11U);
+	if (length < 14U)
+		return 0U;
 
 	::memset(data, ' ', LONG_CALLSIGN_LENGTH);
 
@@ -329,8 +325,8 @@ unsigned int CConnectData::getDExtraData(unsigned char *data, unsigned int lengt
 
 unsigned int CConnectData::getDCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 519U);
+	if (length < 519U)
+		return 0U;
 
 	::memset(data, ' ', LONG_CALLSIGN_LENGTH);
 
@@ -402,8 +398,8 @@ unsigned int CConnectData::getDCSData(unsigned char *data, unsigned int length) 
 
 unsigned int CConnectData::getCCSData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 39U);
+	if (length < 39U)
+		return 0U;
 
 	::memset(data, ' ', 39U);
 
@@ -442,8 +438,8 @@ unsigned int CConnectData::getCCSData(unsigned char *data, unsigned int length) 
 
 unsigned int CConnectData::getDPlusData(unsigned char *data, unsigned int length) const
 {
-	assert(data != NULL);
-	assert(length >= 28U);
+	if (length < 28U)
+		return 0U;
 
 	switch (m_type) {
 		case CT_LINK1:

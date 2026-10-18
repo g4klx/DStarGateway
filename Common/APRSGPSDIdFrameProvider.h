@@ -16,6 +16,7 @@
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+
 #pragma once
 
 #include "Defs.h"
@@ -25,22 +26,45 @@
 #include <string>
 
 #include "APRSIdFrameProvider.h"
+#include "Timer.h"
 
 class CAPRSGPSDIdFrameProvider : public CAPRSIdFrameProvider
 {
 public:
     CAPRSGPSDIdFrameProvider(const std::string& gateway, const std::string& address, const std::string& port);
 
-    virtual void start();
-    virtual void close();
+    void start() override;
+    void close() override;
+    void clock(unsigned int ms) override;
+    bool wantsToSend() override;
 
 protected:
-    virtual bool buildAPRSFramesInt(const CAPRSEntry * aprsEntry, std::vector<CAPRSFrame *>& frames);
+    bool buildAPRSFramesInt(const CAPRSEntry * aprsEntry, std::vector<CAPRSFrame *>& frames) override;
 
 private:
 	std::string			m_gpsdAddress;
 	std::string			m_gpsdPort;
 	struct gps_data_t	m_gpsdData;
     bool                m_hasConnection;
+    bool                m_warned;
+    CTimer              m_retryTimer;
+    CTimer              m_fixTimer;
+    CTimer              m_moveTimer;
+    CTimer              m_refreshTimer;
+    bool                m_fixValid;
+    double              m_latitude;
+    double              m_longitude;
+    bool                m_altitudeValid;
+    double              m_altitude;
+    bool                m_motionValid;
+    double              m_speed;
+    double              m_track;
+    bool                m_sent;
+    double              m_sentLatitude;
+    double              m_sentLongitude;
+
+    bool connect();
+    void disconnect();
+    void read();
 };
 #endif

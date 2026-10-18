@@ -43,6 +43,7 @@
 #include "MQTTConnection.h"
 #include "Log.h"
 #include "APRSFixedIdFrameProvider.h"
+#include "APRSGPSDIdFrameProvider.h"
 #include "Daemon.h"
 #include "APRSISHandlerThread.h"
 #include "DummyAPRSHandlerThread.h"
@@ -229,8 +230,8 @@ bool CDStarGatewayApp::createThread()
 
 		if(outgoingAprsWriter->open()) {
 #ifdef USE_GPSD
-			CAPRSIdFrameProvider * idFrameProvider = aprsConfig.m_positionSource == POSSRC_GPSD ? (CAPRSIdFrameProvider *)new CAPRSGPSDIdFrameProvider(gatewayConfig.callsign, gpsdConfig.m_address, gpsdConfig.m_port)
-																									: new CAPRSFixedIdFrameProvider(gatewayConfig.callsign);
+			CAPRSIdFrameProvider * idFrameProvider = aprsConfig.m_positionSource == POSSRC_GPSD ? (CAPRSIdFrameProvider *)new CAPRSGPSDIdFrameProvider(generalConfig.callsign, gpsdConfig.m_address, gpsdConfig.m_port)
+																									: new CAPRSFixedIdFrameProvider(generalConfig.callsign);
 #else
 			CAPRSIdFrameProvider * idFrameProvider = new CAPRSFixedIdFrameProvider(generalConfig.callsign);
 #endif
