@@ -1624,6 +1624,7 @@ void CRepeaterHandler::linkUp(DSTAR_PROTOCOL protocol, const std::string& callsi
 		LogInfo("DExtra link to %s established", callsign.c_str());
 		m_linkStatus = LS_LINKED_DEXTRA;
 		writeLinkedTo(callsign);
+		writeJSONLinking(m_rptCallsign, "established", "dextra", m_linkRepeater);
 		triggerInfo();
 	}
 
@@ -1631,6 +1632,7 @@ void CRepeaterHandler::linkUp(DSTAR_PROTOCOL protocol, const std::string& callsi
 		LogInfo("D-Plus link to %s established", callsign.c_str());
 		m_linkStatus = LS_LINKED_DPLUS;
 		writeLinkedTo(callsign);
+		writeJSONLinking(m_rptCallsign, "established", "dplus", m_linkRepeater);
 		triggerInfo();
 	}
 
@@ -1638,6 +1640,7 @@ void CRepeaterHandler::linkUp(DSTAR_PROTOCOL protocol, const std::string& callsi
 		LogInfo("DCS link to %s established", callsign.c_str());
 		m_linkStatus = LS_LINKED_DCS;
 		writeLinkedTo(callsign);
+		writeJSONLinking(m_rptCallsign, "established", "dcs", m_linkRepeater);
 		triggerInfo();
 	}
 
@@ -1645,6 +1648,7 @@ void CRepeaterHandler::linkUp(DSTAR_PROTOCOL protocol, const std::string& callsi
 		LogInfo("Loopback link to %s established", callsign.c_str());
 		m_linkStatus = LS_LINKED_LOOPBACK;
 		writeLinkedTo(callsign);
+		writeJSONLinking(m_rptCallsign, "established", "loopback", m_linkRepeater);
 		triggerInfo();
 	}
 }
