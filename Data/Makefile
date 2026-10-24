@@ -1,7 +1,7 @@
 .PHONY: install
 install:
 	@install -d -g bin -o dstar -m 0775 $(DATA_DIR)
-	@install -g bin -o dstar -m 0664 DStar_Hosts.json  $(DATA_DIR)
+	@if [ ! -f $(DATA_DIR)/DStar_Hosts.json ]; then install -g bin -o dstar -m 0664 DStar_Hosts.json $(DATA_DIR); else echo "DStar_Hosts.json preserved"; fi
 	@install -g bin -o dstar -m 0664 TIME_de_DE.ambe  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_de_DE.indx  $(DATA_DIR)
 	@install -g bin -o dstar -m 0664 TIME_en_GB.ambe  $(DATA_DIR)
