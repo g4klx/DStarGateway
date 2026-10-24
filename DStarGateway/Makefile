@@ -24,7 +24,7 @@ install: dstargateway
 	systemctl enable dstargateway.service
 	@systemctl daemon-reload
 	@echo "\n"
-	@echo "DStarGateway Install complete, edit $(CFG_DIR)dstargateway.cfg and start the daemon with 'systemctl start dstargateway.service'"
+	@echo "DStarGateway Install complete, edit $(CFG_DIR)DStarGateway.ini and start the daemon with 'systemctl start dstargateway.service'"
 	@echo "\n"
 
 ../APRS/APRS.a:
