@@ -300,7 +300,7 @@ void CAudioUnit::sendStatus(LINK_STATUS status, const std::string& reflector, co
 			spellReflector(reflector);
 			break;
 		default:
-			found = m_ambeFilereader->lookup("linkingto", m_data);
+			found = m_ambeFilereader->has("linkingto") && m_ambeFilereader->lookup("linkingto", m_data);
 			if (!found) {
 				m_ambeFilereader->lookup("linking", m_data);
 				m_ambeFilereader->lookup("2", m_data);
