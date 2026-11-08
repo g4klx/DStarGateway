@@ -103,13 +103,8 @@ void CG2Handler::process(CHeaderData& header)
 	for (unsigned int i = 0U; i < m_maxRoutes; i++) {
 		if (m_routes[i] != NULL) {
 			if (m_routes[i]->m_id == id) {
-				// This should never happen, but if it does, delete the old route and replace it with the new one
-				LogInfo("Duplicate G2 route received, replacing existing route");
-
-				delete m_routes[i];
-				m_routes[i] = route;
-
-				repeater->process(header, DIR_INCOMING, AS_G2);
+				// Duplicate G2 route received from the burst, ignore it silently.
+				delete route;
 				return;
 			}
 		} else {
@@ -197,5 +192,3 @@ bool CG2Handler::clockInt(unsigned int ms)
 
 	return false;
 }
-
-
