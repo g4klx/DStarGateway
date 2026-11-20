@@ -2121,7 +2121,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 			return;
 
 		LogInfo("Unlink command issued via %s by %s", type.c_str(), user.c_str());
-		writeJSONUnlinked(m_rptCallsign, type);
+		writeJSONUnlinked(m_rptCallsign, "user");
 
 		CDExtraHandler::unlink(this);
 		CDPlusHandler::unlink(this);
@@ -2171,7 +2171,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 				switch (m_linkStatus) {
 					case LS_LINKING_DEXTRA:
 					case LS_LINKED_DEXTRA:
-						writeJSONLinking(m_rptCallsign, type, "dextra", reflector);
+						writeJSONLinking(m_rptCallsign, "user", "dextra", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDExtraHandler::unlink(this, m_linkRepeater);
@@ -2183,7 +2183,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 
 					case LS_LINKING_DCS:
 					case LS_LINKED_DCS:
-						writeJSONLinking(m_rptCallsign, type, "dcs", reflector);
+						writeJSONLinking(m_rptCallsign, "user", "dcs", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDCSHandler::unlink(this, m_linkRepeater);
@@ -2195,7 +2195,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 
 					case LS_LINKING_LOOPBACK:
 					case LS_LINKED_LOOPBACK:
-						writeJSONLinking(m_rptCallsign, type, "loopback", reflector);
+						writeJSONLinking(m_rptCallsign, "user", "loopback", reflector);
 						m_linkRelink = true;
 						m_linkRepeater = reflector;
 						CDCSHandler::unlink(this, m_linkRepeater);
@@ -2206,7 +2206,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 						break;
 
 					case LS_LINKING_DPLUS:
-						writeJSONLinking(m_rptCallsign, type, "dplus", reflector);
+						writeJSONLinking(m_rptCallsign, "user", "dplus", reflector);
 						m_linkRepeater = reflector;
 						CDPlusHandler::relink(this, m_linkRepeater);
 						writeLinkingTo(m_linkRepeater);
@@ -2214,7 +2214,7 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 						break;
 
 					case LS_LINKED_DPLUS:
-						writeJSONLinking(m_rptCallsign, type, "dplus", reflector);
+						writeJSONLinking(m_rptCallsign, "user", "dplus", reflector);
 						m_linkRepeater = reflector;
 						CDPlusHandler::relink(this, m_linkRepeater);
 						writeLinkedTo(m_linkRepeater);
@@ -2233,8 +2233,18 @@ void CRepeaterHandler::reflectorCommandHandler(const std::string& callsign, cons
 		CDPlusHandler::unlink(this);
 		CDCSHandler::unlink(this);
 
-		linkInt(type, reflector);
+		linkInt("user", reflector);
 	}
+}
+
+// The link made once the old one is torn down (m_linkRelink) was already
+// reported, with its reason, when it was asked for: it is a relink.
+static void writeJSONLink(const std::string& repeater, const std::string& reason, const std::string& protocol, const std::string& reflector)
+{
+	if (reason.empty())
+		writeJSONRelinking(repeater, protocol, reflector);
+	else
+		writeJSONLinking(repeater, reason, protocol, reflector);
 }
 
 void CRepeaterHandler::linkInt(const std::string& reason, const std::string& callsign)
@@ -2257,7 +2267,7 @@ void CRepeaterHandler::linkInt(const std::string& reason, const std::string& cal
 		switch (data->getProtocol()) {
 			case DP_DPLUS:
 				if (m_dplusEnabled) {
-					writeJSONLinking(m_rptCallsign, reason, "dplus", m_linkRepeater);
+					writeJSONLink(m_rptCallsign, reason, "dplus", m_linkRepeater);
 					unsigned int localPort = 0U;
 					m_linkStatus = LS_LINKING_DPLUS;
 					CDPlusHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
@@ -2275,7 +2285,7 @@ void CRepeaterHandler::linkInt(const std::string& reason, const std::string& cal
 
 			case DP_DCS:
 				if (m_dcsEnabled) {
-					writeJSONLinking(m_rptCallsign, reason, "dcs", m_linkRepeater);
+					writeJSONLink(m_rptCallsign, reason, "dcs", m_linkRepeater);
 					m_linkStatus = LS_LINKING_DCS;
 					CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 					writeLinkingTo(m_linkRepeater);
@@ -2289,7 +2299,7 @@ void CRepeaterHandler::linkInt(const std::string& reason, const std::string& cal
 				break;
 
 			case DP_LOOPBACK:
-				writeJSONLinking(m_rptCallsign, reason, "loopback", m_linkRepeater);
+				writeJSONLink(m_rptCallsign, reason, "loopback", m_linkRepeater);
 				m_linkStatus = LS_LINKING_LOOPBACK;
 				CDCSHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress());
 				writeLinkingTo(m_linkRepeater);
@@ -2298,7 +2308,7 @@ void CRepeaterHandler::linkInt(const std::string& reason, const std::string& cal
 
 			default:
 				if (m_dextraEnabled) {
-					writeJSONLinking(m_rptCallsign, reason, "dextra", m_linkRepeater);
+					writeJSONLink(m_rptCallsign, reason, "dextra", m_linkRepeater);
 					unsigned int localPort = 0U;
 					m_linkStatus = LS_LINKING_DEXTRA;
 					CDExtraHandler::link(this, m_rptCallsign, m_linkRepeater, data->getAddress(), localPort);
