@@ -21,8 +21,8 @@
 		"repeater": {"$ref": "#/$defs/callsign"},
 		"action": {"$ref": "#/$defs/action"},
 		"reason": {"$ref": "#/$defs/reason"},
-		"reflector": {"$ref": "#/defs/reflector"},
-		"protocol": {"$ref": "#/defs/protocol"},
+		"reflector": {"$ref": "#/$defs/reflector"},
+		"protocol": {"$ref": "#/$defs/protocol"},
 		"required": ["timestamp", "repeater", "action"]
 	}
 }
